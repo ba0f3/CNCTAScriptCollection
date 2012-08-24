@@ -1,0 +1,44 @@
+{
+   "content_scripts": [ {
+      "js": [ "140988.user.js", "135955.user.js", "136299.user.js", "137978.user.js", "138212.user.js", "138436.user.js", "140991.user.js", "131289.user.js" ],
+      "matches": [ 
+         "https://prodgame01.alliances.commandandconquer.com/*", 
+         "https://prodgame02.alliances.commandandconquer.com/*", 
+         "https://prodgame03.alliances.commandandconquer.com/*", 
+         "https://prodgame04.alliances.commandandconquer.com/*", 
+         "https://prodgame05.alliances.commandandconquer.com/*", 
+         "https://prodgame06.alliances.commandandconquer.com/*", 
+         "https://prodgame07.alliances.commandandconquer.com/*", 
+         "https://prodgame08.alliances.commandandconquer.com/*", 
+         "https://prodgame09.alliances.commandandconquer.com/*",
+         "https://prodgame10.alliances.commandandconquer.com/*", 
+         "https://prodgame11.alliances.commandandconquer.com/*", 
+         "https://prodgame12.alliances.commandandconquer.com/*", 
+         "https://prodgame13.alliances.commandandconquer.com/*", 
+         "https://prodgame14.alliances.commandandconquer.com/*", 
+         "https://prodgame15.alliances.commandandconquer.com/*", 
+         "https://prodgame16.alliances.commandandconquer.com/*", 
+         "https://prodgame17.alliances.commandandconquer.com/*", 
+         "https://prodgame18.alliances.commandandconquer.com/*", 
+         "https://prodgame19.alliances.commandandconquer.com/*",
+         "https://prodgame20.alliances.commandandconquer.com/*", 
+         "https://prodgame21.alliances.commandandconquer.com/*", 
+         "https://prodgame22.alliances.commandandconquer.com/*", 
+         "https://prodgame23.alliances.commandandconquer.com/*", 
+         "https://prodgame24.alliances.commandandconquer.com/*", 
+         "https://prodgame25.alliances.commandandconquer.com/*", 
+         "https://prodgame26.alliances.commandandconquer.com/*", 
+         "https://prodgame27.alliances.commandandconquer.com/*", 
+         "https://prodgame28.alliances.commandandconquer.com/*", 
+         "https://prodgame29.alliances.commandandconquer.com/*"
+      ]
+   } ],
+   "description": "This extention contains some CnC TA scripts writen by many authors. I take no credit on any script in this extension!",
+   "icons": {
+      "48": "icon.png"
+   },
+   "manifest_version": 2,
+   "name": "CnC TA Script Collection",
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "1.2.2"
+}

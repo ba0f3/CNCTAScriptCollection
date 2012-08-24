@@ -1,0 +1,44 @@
+{
+  "name": "CnC TA Script Collection",
+  "version": "1.2",
+  "manifest_version": 2,
+  "description": "This extention contains some CnC TA scripts writen by many authors. I take no credit on any script in this extension!",
+  "icons": {
+    "48": "icon.png"
+  },
+  "permissions": [
+    "https://prodgame01.alliances.commandandconquer.com/",
+    "https://prodgame02.alliances.commandandconquer.com/",
+    "https://prodgame03.alliances.commandandconquer.com/",
+    "https://prodgame04.alliances.commandandconquer.com/",
+    "https://prodgame05.alliances.commandandconquer.com/",
+    "https://prodgame06.alliances.commandandconquer.com/",
+    "https://prodgame07.alliances.commandandconquer.com/",
+    "https://prodgame08.alliances.commandandconquer.com/",
+    "https://prodgame09.alliances.commandandconquer.com/"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://prodgame01.alliances.commandandconquer.com/*",
+        "https://prodgame02.alliances.commandandconquer.com/*",
+        "https://prodgame03.alliances.commandandconquer.com/*",
+        "https://prodgame04.alliances.commandandconquer.com/*",
+        "https://prodgame05.alliances.commandandconquer.com/*",
+        "https://prodgame06.alliances.commandandconquer.com/*",
+        "https://prodgame07.alliances.commandandconquer.com/*",
+        "https://prodgame08.alliances.commandandconquer.com/*",
+        "https://prodgame09.alliances.commandandconquer.com/*"
+      ],
+      "js": [
+        "140988.user.js",
+        "135955.user.js",
+        "136299.user.js",
+        "137978.user.js",
+        "138212.user.js",
+        "138436.user.js",
+        "140991.user.js"
+      ]
+    }
+  ]
+}
