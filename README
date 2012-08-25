@@ -2,6 +2,7 @@ This extention contains some CnC TA scripts writen by many authors. I take no cr
 
 CHANGELOGS:
 1.2.3:
+  - Fixed permission, allow extension to run on all servers
   - Add Options page, allow user to chooice which scripts to use.
   - Add CnC:Tiberium Alliances Shortcut 1.7.2 (disabled by default)
   - Disable C&C:TA CNCOpt Link Button cuz it is not working w/ recent updates
