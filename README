@@ -1,6 +1,9 @@
 This extention contains some CnC TA scripts writen by many authors. I take no credit on any script in this extension!
 
 CHANGELOGS:
+1.2.4.1:
+  - Minor bug fixes
+  - Added Google Analytics for usage analyzing (Enabled by default, could be disabled in Options page)
 1.2.4:
   - Add Icon to address bar for quickly jump to Options page
 1.2.3:

@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.4";
+var CURRENT_VERSION = "1.2.4.1";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -60,12 +60,24 @@ if(localStorage.getItem('CNCTA_VERSION') != CURRENT_VERSION) {
 	localStorage.setItem('CNCTA_VERSION', CURRENT_VERSION);
 	localStorage.setItem('CNCTA_SCRIPTS', JSON.stringify(DEFAULT_SCRIPTS));
 
+
 	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED')) || [];
+
+    if(enabled instanceof Array) { //migrate from 1.2.4
+        var tmp = {}
+        for(var i in enabled) {
+            var id = enabled[i];
+            tmp[id] = true;
+        }
+        enabled = tmp;
+    }
+
 	for(var i in DEFAULT_SCRIPTS) {
 		var script = DEFAULT_SCRIPTS[i];
-    	if(script.enabled && !in_array(script.id, enabled)) {
-    		enabled[enabled.length] = script.id;
-    	}
+
+        if(typeof enabled[script.id] == 'undefined') {
+            enabled[script.id] = script.enabled;
+        }
     }
     localStorage.setItem('CNCTA_ENABLED', JSON.stringify(enabled));
 }
@@ -94,29 +106,6 @@ chrome.extension.onMessage.addListener(
     }
 );
 
-
-function in_array (needle, haystack, argStrict) {
-    var key = '',
-        strict = !! argStrict;
- 
-    if (strict) {
-        for (key in haystack) {
-            if (haystack[key] === needle) {
-                return true;
-            }
-        }
-    } else {
-        for (key in haystack) {
-            if (haystack[key] == needle) {
-                return true;
-            }
-        }
-    }
- 
-    return false;
-}
-
-
 /*------------------------------------------------*/
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
     chrome.pageAction.show(sender.tab.id);
@@ -126,3 +115,18 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 chrome.pageAction.onClicked.addListener(function(){
     window.open(chrome.extension.getURL('options.html'));
 })
+/*------------------------------------------------*/
+var CNCTA_GA = localStorage.getItem('CNCTA_GA');
+if(CNCTA_GA == null) {
+    localStorage.setItem('CNCTA_GA', true);
+}
+if(CNCTA_GA)  {
+     var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15252221-7']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = 'https://ssl.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+}
