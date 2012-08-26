@@ -1,0 +1,15 @@
+CHANGELOGS:
+1.2.4.1:
+  - Minor bug fixes
+  - Added Google Analytics for usage analyzing (Enabled by default, could be disabled in Options page)
+1.2.4:
+  - Add Icon to address bar for quickly jump to Options page
+1.2.3:
+  - Fixed permission, allow extension to run on all servers
+  - Add Options page, allow user to chooice which scripts to use.
+  - Add CnC:Tiberium Alliances Shortcut 1.7.2 (disabled by default)
+  - Disable C&C:TA CNCOpt Link Button cuz it is not working w/ recent updates
+  
+1.2.2:
+  - Allow more servers: prodgame10-29
+  - Add CNCOpt Link Button 1.6
