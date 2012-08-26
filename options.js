@@ -1,7 +1,6 @@
 var CNCTA_SCRIPTS = JSON.parse(localStorage.getItem('CNCTA_SCRIPTS'));
 var CNCTA_ENABLED = JSON.parse(localStorage.getItem('CNCTA_ENABLED'));
 var CNCTA_GA = localStorage.getItem('CNCTA_GA');
-console.log('CNCTA_GA', CNCTA_GA);
 $(document).ready(function(){
 	for(var i in CNCTA_SCRIPTS) {
 		var script = CNCTA_SCRIPTS[i];

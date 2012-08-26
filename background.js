@@ -119,6 +119,7 @@ chrome.pageAction.onClicked.addListener(function(){
 var CNCTA_GA = localStorage.getItem('CNCTA_GA');
 if(CNCTA_GA == null) {
     localStorage.setItem('CNCTA_GA', true);
+    CNCTA_GA = true;
 }
 if(CNCTA_GA)  {
      var _gaq = _gaq || [];

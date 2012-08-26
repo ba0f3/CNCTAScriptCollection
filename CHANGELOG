@@ -1,4 +1,6 @@
 CHANGELOGS:
+1.2.4.2:
+  - Minor bug fixes
 1.2.4.1:
   - Minor bug fixes
   - Added Google Analytics for usage analyzing (Enabled by default, could be disabled in Options page)
