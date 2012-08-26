@@ -1,4 +1,7 @@
 CHANGELOGS:
+1.2.4.3:
+  - Fixed `save` method using new data type
+  - Minor bug fixes
 1.2.4.2:
   - Minor bug fixes
 1.2.4.1:

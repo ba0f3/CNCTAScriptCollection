@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.4.2";
+var CURRENT_VERSION = "1.2.4.3";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
