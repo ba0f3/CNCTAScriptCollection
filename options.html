@@ -3,29 +3,61 @@
 <style>
 body {
 	font: normal 80.5% "Trebuchet MS", Verdana, Helvetica, Arial,sans-serif !important;
+
 }
 #title {
 	font-size: 2em;
 	font-weight: bold;
+	margin: auto;
+	height: 48px;
+	line-height: 48px;
+	background: url(icon.png) left no-repeat;
+	padding-left: 50px;
+	width: 325px;
 }
-.description {
-	color: #ccc;
+#content {
+	color: white;
+	width: 400px;
+	margin: auto;
+	margin-top: 30px;
+	-webkit-border-radius: 5px;
+	padding: 15px;
+	border: 1px solid #333;
+	overflow: hidden;
+	background-image: -webkit-linear-gradient(bottom, rgb(12,76,87) 53%, rgb(2,66,82) 69%);
+}
+#description {
+	color: #666;
+	font-size: 11px;
 }
 span.version {
 	color: #ccc;
 }
+#save {
+	float: right;
+	background-image: -webkit-linear-gradient(bottom, rgb(5,34,41) 35%, rgb(12,76,87) 100%);
+	border: 1px solid #333;
+	-webkit-border-radius: 5px;
+	padding: 5px;
+	
+	color:white;
+}
 #message {
 	color: red;
 	opacity: 0;
+	text-align: center;
 }
 </style>
 <script src="libs/jquery-1.8.0.min.js"></script>
 <script src="options.js"></script>
 <body>
+
 <div id="title">C&amp;C TA: Script Collection</div>
-<div id="description">(Select which scripts you want to enable)</div>
+<div id="content">
 <div id="scripts"></div>
+<div id="description">Select what you you want to enable</div>
 <button id="save">Save</button>
+</div>
 <div id="message">Options saved... please reload the game to continue!</dv>
 </body>
 </html>

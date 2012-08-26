@@ -1,7 +1,7 @@
 {
    "content_scripts": [ {
       "js": [ "content.js" ],
-      "matches": [ 
+      "matches": [
         "https://*.alliances.commandandconquer.com/*"
       ]
    } ],
