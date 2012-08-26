@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.3";
+var CURRENT_VERSION = "1.2.4";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -115,3 +115,14 @@ function in_array (needle, haystack, argStrict) {
  
     return false;
 }
+
+
+/*------------------------------------------------*/
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
+    chrome.pageAction.show(sender.tab.id);
+    sendResponse({});
+});
+
+chrome.pageAction.onClicked.addListener(function(){
+    window.open(chrome.extension.getURL('options.html'));
+})

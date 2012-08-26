@@ -71,3 +71,6 @@ function in_array (needle, haystack, argStrict) {
  
     return false;
 }
+
+/*------------------------------------------------*/
+chrome.extension.sendRequest({}, function(response) {});

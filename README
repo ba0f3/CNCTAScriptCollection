@@ -1,6 +1,8 @@
 This extention contains some CnC TA scripts writen by many authors. I take no credit on any script in this extension!
 
 CHANGELOGS:
+1.2.4:
+  - Add Icon to address bar for quickly jump to Options page
 1.2.3:
   - Fixed permission, allow extension to run on all servers
   - Add Options page, allow user to chooice which scripts to use.
