@@ -13,9 +13,9 @@
 var scity = null;
 var tcity = null;
 var tbase = null;
+var __cncopt_version = "1.6.1";
 
 try {
-unsafeWindow.__cncopt_version = 1.6;
 (function (){
 var cncopt_main = function() {
 
@@ -202,7 +202,7 @@ var cncopt_main = function() {
 
 
     function cncopt_create() {
-        console.log("CNCOpt Link Button v" + window.__cncopt_version + " loaded");
+        console.log("CNCOpt Link Button v" + __cncopt_version + " loaded");
         var cncopt = {
             selected_base: null,
 

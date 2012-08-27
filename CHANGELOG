@@ -1,4 +1,7 @@
 CHANGELOGS:
+1.2.4.4:  
+  - Minor fix to make the extension works on Chromium & Chrome old than v20
+  - Minor fix to make CNCOpt works (re-enable by default)
 1.2.4.3:
   - Fixed `save` method using new data type
   - Minor bug fixes

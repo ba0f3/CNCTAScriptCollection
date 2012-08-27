@@ -19,7 +19,6 @@ $(document).ready(function(){
 	}
 
 	$("#save").click(function() {
-		console.log(this);
 		var enabled = [];
 		for(var i in CNCTA_SCRIPTS) {
 			enabled[CNCTA_SCRIPTS[i].id] = $('input[name="cb-' + CNCTA_SCRIPTS[i].id + '"]').is(':checked');

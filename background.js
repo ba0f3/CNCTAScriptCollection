@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.4.3";
+var CURRENT_VERSION = "1.2.4.4";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -79,39 +79,49 @@ if(localStorage.getItem('CNCTA_VERSION') != CURRENT_VERSION) {
             enabled[script.id] = script.enabled;
         }
     }
+    if(CURRENT_VERSION == "1.2.4.4") {
+         // force CnCOpt enabled again
+        enabled[131289] = true;
+    }
+    
+
     localStorage.setItem('CNCTA_ENABLED', JSON.stringify(enabled));
 }
 
-chrome.extension.onMessage.addListener(
-    function(request, sender, sendResponse) {
-	switch (request.type) {
-	case "get":
-	    var data = {};
-	    if (request.name.constructor == Array) {
-			for (var i = 0; i < request.name.length; i++) {
-			    data[request.name[i]] = localStorage[request.name[i]];
-			}
-			sendResponse(data);
-	    } else {
-			sendResponse(localStorage[request.name]);
-	    }
-	    break;
-	case "set":
-	    localStorage[request.name] = request.value
-	    break;
-	default:
-	    console.log("invalid request " + request);
-	    break;
-	}
+function  processRequest(request, sender, sendResponse) {
+    switch (request.type) {
+    case "get":
+        var data = {};
+        if (request.name.constructor == Array) {
+            for (var i = 0; i < request.name.length; i++) {
+                data[request.name[i]] = localStorage[request.name[i]];
+            }
+            sendResponse(data);
+        } else {
+            sendResponse(localStorage[request.name]);
+        }
+        break;
+    case "set":
+        localStorage[request.name] = request.value
+        break;
+    case "pageAction":
+        chrome.pageAction.show(sender.tab.id);
+        sendResponse({});
+        break;
+
+    default:
+        console.log("invalid request " + request);
+        break;
     }
-);
+}
+
+if(typeof chrome.extension.sendMessage == 'undefined') {
+    chrome.extension.onRequest.addListener(processRequest);    
+} else {
+    chrome.extension.onMessage.addListener(processRequest);
+}
 
 /*------------------------------------------------*/
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
-    chrome.pageAction.show(sender.tab.id);
-    sendResponse({});
-});
-
 chrome.pageAction.onClicked.addListener(function(){
     window.open(chrome.extension.getURL('options.html'));
 })

@@ -17,15 +17,8 @@ function createRemoteScriptElement(url) {
     document.getElementsByTagName('head')[0].appendChild(script);
 }
 
-/*------------------------------------------------*/
-var CNCTA_SCRIPTS = null;
-var CNCTA_REMOTE = null;
-var CNCTA_GA = true;
-request = {
-  type: "get",  
-  name: ["CNCTA_SCRIPTS", "CNCTA_ENABLED", "CNCTA_REMOTE", "CNCTA_GA"]
-}  
-chrome.extension.sendMessage(request, function(settings){
+
+function processResponse(settings){
     CNCTA_SCRIPTS = JSON.parse(settings['CNCTA_SCRIPTS']);
     CNCTA_REMOTE = settings['CNCTA_REMOTE'];
     CNCTA_ENABLED = JSON.parse(settings['CNCTA_ENABLED']);
@@ -48,8 +41,20 @@ chrome.extension.sendMessage(request, function(settings){
             createRemoteScriptElement(url);        
         }    
     }
-});
+}
+
+function sendMessage(request, callback) {
+    if(typeof chrome.extension.sendMessage == 'undefined') {
+        chrome.extension.sendRequest(request, callback);
+    } else {
+        chrome.extension.sendMessage(request, callback);
+    }
+}
 
 /*------------------------------------------------*/
-chrome.extension.sendRequest({}, function(response) {});
-/*------------------------------------------------*/
+var CNCTA_SCRIPTS = null;
+var CNCTA_REMOTE = null;
+var CNCTA_GA = true;
+
+sendMessage({type: "get", name: ["CNCTA_SCRIPTS", "CNCTA_ENABLED", "CNCTA_REMOTE", "CNCTA_GA"]}, processResponse);
+sendMessage({type: "pageAction"}  , function(response) {});
