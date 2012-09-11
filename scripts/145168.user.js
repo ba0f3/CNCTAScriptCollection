@@ -6,11 +6,11 @@
 // @version     0.1
 // @author      BlinDManX
 // ==/UserScript==
-unsafeWindow.__msbs_version = 0.1;
+var __msbs_version = 0.1;
 (function () {
 	var MaelstromTools_Basescanner = function () {
 		try {
-			console.log("Maelstrom_Basescanner " + window.__msbs_version + " loaded");
+			console.log("Maelstrom_Basescanner " + __msbs_version + " loaded");
 			var MT_Lang = null;
 			var MT_Cache = null;
 			var MT_Base = null;
