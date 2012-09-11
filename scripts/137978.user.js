@@ -1,25 +1,30 @@
 // ==UserScript==
-// @version       1.6.4
+// @version       1.7.0
 // @name          CnC: MH Tiberium Alliances Available Loot Summary
-// @namespace     mhloot
+// @namespace     MHLoot
 // @description   CROSS SERVERS Loot & troops info.
 // @author        MrHIDEn based on Yaeger & Panavia code. Totaly recoded.
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @require       http://sizzlemctwizzle.com/updater.php?id=137978
 // ==/UserScript==
-console.log("MHLoot Loading...");
 (function () {
   var MHLootMain = function () {
+    var showLoot = true;                // shows Loot resources info
     var showTroops = false;             // shows overall Hitpoints for Troops
     var showTroopsExtra = false;        // shows Troops Hitpoints for Vehicles/Aircrafts/Infantry
     var showInfo = true;                // shows HP/HC/DF/CY info
     var showColumnCondition = false;    // shows your progress against DF/CY
     var showRepairTime = true;          // shows Repair Times info for Enemy Base/Camp/Outpost
-    var showAllyRepairTimeInfo = true; // shows Ally/Your Repair Times info
-    var showLevels = true;             // shows Levels of Base/Defence/Offence info
-    var showColumnLetter = false;       // shows columns letters for DF/CY pozition Ex A-1 or E-4. If 'false' shows only 1 or 4.
+    var showAllyRepairTimeInfo = true;  // shows Ally/Your Repair Times info
+    var showLevels = true;              // shows Levels of Base/Defence/Offence info
+    var showColumnLetter = false;       // shows columns letters for DF/CY position Ex A-1 or E-4. If 'false' shows only 1 or 4.
     
     function MHLootCreate() {
+    
+      if(typeof(window.MHTools)=='undefined') window.MHTools = {$n:'MHTools'};
+      if(typeof(window.MHTools.Loot)=='undefined') window.MHTools.Loot = {$n:'Loot'};
+      var stats = document.createElement('img');
+      stats.src = 'http://goo.gl/0Fiza';//1.7.0
       
       var resPaths = [
         "webfrontend/ui/common/icn_res_research_mission.png",
@@ -28,8 +33,10 @@ console.log("MHLoot Loading...");
         "webfrontend/ui/common/icn_res_dollar.png"
       ];
       var resImages = [];
-      for(var k in resPaths) {
-        resImages.push(new qx.ui.basic.Image(resPaths[k]).set({Scale:true,Width:16,Height:16}));
+      if (showLoot) {
+        for(var k in resPaths) {
+          resImages.push(new qx.ui.basic.Image(resPaths[k]).set({Scale:true,Width:16,Height:16}));
+        }
       }
       
       var troopPaths = [
@@ -44,14 +51,104 @@ console.log("MHLoot Loading...");
           troopImages.push(new qx.ui.basic.Image(troopPaths[k]).set({Scale:true,Width:16,Height:16}));
         }
       }
+
+      // BASES
+      var list = [];
+      function reload() {
+        var S = ClientLib.Base.LocalStorage;
+        var l;
+        if (S.get_IsSupported()) l = S.GetItem('MHLootList');
+        if(l!==null) list = l;
+        list.max = 50;
+        list.idx = 0;
+        for(var i=0;i<list.max;i++) {
+          list.idx = i;
+          if(typeof(list[i])=='undefined') break;
+        }
+        console.log('MHLootList reloaded/created');
+      }
+      reload();
+      function getIndex() {
+        var l = list;
+        var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+        //console.log('getIndex id=',id);
+        for(i=0;i<list.max;i++) {
+          if(typeof(l[i])=='undefined') continue;
+          if(l[i]===null) continue;
+          if(l[i].id == id) return i;
+        }
+        return -1;
+      }
+      function save(d) {
+        try {
+          var l = list;
+          var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+          var c = {id:id, Data:d};
+          var S = ClientLib.Base.LocalStorage;
+          for(var i=0;i<l.max;i++) {
+            if(typeof(l[i])=='undefined') continue;
+            if(l[i]===null) continue;
+            if(l[i].id == id) 
+            {
+              // found
+              l[i] = c;
+              // JSON
+              if (S.get_IsSupported()) S.SetItem('MHLootList', l);
+              // done
+              return;
+            }
+          }
+          // new
+          l[l.idx] = c;
+          if(++l.idx >= l.max) l.idx = 0;
+          // JSON
+          if (S.get_IsSupported()) S.SetItem('MHLootList', l);   
+        } catch (e) {
+          console.warn("save: ", e);
+        }
+      }
+      function load() {
+        try {
+          var l = list;
+          var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+          for(var i=0;i<l.max;i++) {
+            if(typeof(l[i])=='undefined') continue;
+            if(l[i]===null) continue;
+            if(l[i].id == id) return l[i];
+          }
+          return {id:id,Data:{}};     
+        } catch (e) {
+          console.warn("load: ", e);
+        }
+      }
+      function store(k, d) {
+        try {
+          var mem = load().Data;
+          mem[k] = d;
+          save(mem);        
+        } catch (e) {
+          console.warn("store: ", e);
+        }
+      }
+      function restore(k) {
+        try {
+          var mem = load().Data;
+          if(typeof(mem[k])=='undefined') return 'undefined';
+          return mem[k];    
+        } catch (e) {
+          console.warn("restore: ", e);
+        }
+      }
       
-      var mhloot = {
+      var MHLoot = {
         selectedType: -1,
         selectedBaseId: null,
         lastSelectedBaseId: null,
+        flagBaseLoaded: false,
         
         selectedOwnBaseId: null,
         lastSelectedOwnBaseId: null,
+        Data: null,
 
         // the widgets for the different screens
         lootWindowPlayer: null,
@@ -60,14 +157,21 @@ console.log("MHLoot Loading...");
         lootWindowOwn: null,
         lootWindowAlly: null,
 
-        lootable: [0, 0, 0, 0, 0, 0, 0, 0],
-        troops: [0, 0, 0, 0, 0],
+        //lootable: [0, 0, 0, 0, 0, 0, 0, 0],
+        //troops: [0, 0, 0, 0, 0],
         waiting: [1,'','.','..','...'],
         
-        iconArrays: [],
-        infoArrays: [],
-        twoLineInfoArrays: [],
+        Display: {
+          //loots: [0, 0, 0, 0, 0, 0, 0, 0],
+          //troops: [0, 0, 0, 0, 0],
+          troopsArray: [],
+          lootArray: [],
+          iconArrays: [],
+          infoArrays: [],
+          twoLineInfoArrays: []        
+        },
         
+        // HELPERS
         kMG: function(v) {
           var t = [ '', 'k', 'M', 'G', 'T', 'P' ];
           var i = 0;
@@ -105,11 +209,11 @@ console.log("MHLoot Loading...");
             if (o === null) continue;
             if (o[find] === undefined) continue;
             if (find != 'l') {
-              //console.info('mhloot.getKey',k); 
+              //console.info('MHLoot.getKey',k); 
               return k; 
             }
             if (o.l.length === 0) continue;
-            //console.info('mhloot.getKey',k);
+            //console.info('MHLoot.getKey',k);
             return k;
           }
           return undefined;
@@ -133,25 +237,26 @@ console.log("MHLoot Loading...");
           var a = s.indexOf(sa) + sa.length;
           var b = s.indexOf(sb);
           var k = s.substr(a, b - a);
-          //console.info('mhloot.getKey',k);
+          //console.info('MHLoot.getKey',k);
           return k;
         },         
         getKeys: function(list, b) {
           for (var k in list) {
             var o = list[k];
             if (o === null) continue;
-            if (o.l === undefined) continue;
+            if (typeof(o.l) == 'undefined') continue;
             if (o.l.length === 0) continue;
-            var m = mhloot.getKey(o.l[0],'mt');//dnuc mt=MoveType
-            if(m === undefined) continue;
-            if(b.keys.Type === undefined) {
-              b.keys.Type = m;
+            var m = MHLoot.getKey(o.l[0],'mt');//dnuc & mt=MoveType
+            if(typeof(m) == 'undefined') continue;
+            if(typeof(b.keys.Type) == 'undefined') {
+              b.keys.Type = m;//MoveType & dnucKeys aviable in this branch
+              //b.keys.dnucKeys = m;
             }
-            if(o.l[0].GetUnitGroupType ===  undefined) {
-              if(b.keys.Resources === undefined) {
-                b.keys.Resources = mhloot.getKey(o.l[0],'rer');//rer
-                if(b.keys.Resources === undefined) {
-                  b.keys.Resources = mhloot.getResKey(o.l[0],'Count');//Resouces
+            if(typeof(o.l[0].GetUnitGroupType) ==  'undefined') {
+              if(typeof(b.keys.Resources) == 'undefined') {
+                b.keys.Resources = MHLoot.getKey(o.l[0],'rer');//rer
+                if(typeof(b.keys.Resources) == 'undefined') {
+                  b.keys.Resources = MHLoot.getResKey(o.l[0],'Count');//Resouces
                 }
               }
               // buildings
@@ -174,13 +279,13 @@ console.log("MHLoot Loading...");
           if(b.rdy === undefined) {
             // get keys
             b.keys = {};
-            b.dnucKeys = {};
+            //b.dnucKeys = {};
             try {
-              b = mhloot.getKeys(city.get_CityUnitsData(), b);
-              b = mhloot.getKeys(city.get_CityBuildingsData(), b);
+              b = MHLoot.getKeys(city.get_CityUnitsData(), b);
+              b = MHLoot.getKeys(city.get_CityBuildingsData(), b);
               var o;  
               o = city.get_CityBuildingsData()[b.keys.Buildings].l;
-              b.keys.Hitpoints = mhloot.getKeyHitpoints(o);//Buildings   
+              b.keys.Hitpoints = MHLoot.getKeyHitpoints(o);//Buildings   
               b.rdy = true;
             } catch (e) {
               console.warn('getBypass: ', e);
@@ -189,9 +294,10 @@ console.log("MHLoot Loading...");
           console.dir(b.keys);
           return b;
         },
-        getData: function(city, b) {
-          if(b.rdy === undefined) {
-            b = mhloot.getBypass(city, b);//b must be obj to pass via reference
+        getData: function(city) {
+          var b = MHLoot.Data.Bypass;
+          if(typeof(b.rdy) == 'undefined') {
+            b = MHLoot.getBypass(city, b);//b must be obj to pass via reference
           }
           l = {};
           try {
@@ -226,102 +332,135 @@ console.log("MHLoot Loading...");
           //var abc = "ABCDEFGHI";//abc[column]
           list.Support = {};
           list.CY = {};
-          list.DF = {};
-          var o = {};
-          o.Condition = '-';
-          o.Row = '-';
-          o.Column = '-';
-          list.CY = o;
-          list.DF = o;
+          list.DF = {};          
+          list.Support = {Condition: '-',Row: '-',Column: '-'};
+          list.CY = {Condition: '-',Row: '-',Column: '-'};
+          list.DF = {Condition: '-',Row: '-',Column: '-'};
           if(!showInfo) return;         
           for (var j in list.Buildings) {
             var building = list.Buildings[j];
             var id = building.get_MdbUnitId();
             if(id >= 200 && id <= 205) {
-              // console.log(id,'SU',100*building.get_HitpointsPercent(),8-building.get_CoordY());
+              //console.log(id,'SU',100*building.get_HitpointsPercent(),'x',building.get_CoordX(),'y',building.get_CoordY(),'8-y',8-parseInt(building.get_CoordY()));
               list.Support.Condition = 100*building.get_HitpointsPercent();
-              list.Support.Row = 8-building.get_CoordY();
+              list.Support.Row = 8-parseInt(building.get_CoordY());
               list.Support.Column = building.get_CoordX();
             } 
-            else switch (id) {
+            else {
+              switch (id) {
                 case 112: // CONSTRUCTION YARD
                 case 151:
                 case 177:
-                  // console.log(id,'CY',100*building.get_HitpointsPercent(),building.get_CoordX(),8-building.get_CoordY());
+                  //console.log(id,'CY',100*building.get_HitpointsPercent(),'x',building.get_CoordX(),'y',building.get_CoordY(),'8-y',8-parseInt(building.get_CoordY()));
                   list.CY.Condition = 100*building.get_HitpointsPercent();
-                  list.CY.Row = 8-building.get_CoordY();
+                  list.CY.Row = 8-parseInt(building.get_CoordY());
                   list.CY.Column = building.get_CoordX();
+                  //console.log('list.CY',list.CY);
                   break;
                 case 158: // DEFENSE FACILITY
                 case 131:
                 case 195:
-                  // console.log(id,'DF',100*building.get_HitpointsPercent(),building.get_CoordX(),8-building.get_CoordY());
+                  //console.log(id,'DF',100*building.get_HitpointsPercent(),'x',building.get_CoordX(),'y',building.get_CoordY(),'8-y',8-parseInt(building.get_CoordY()));
                   list.DF.Condition = 100*building.get_HitpointsPercent();
-                  list.DF.Row = 8-building.get_CoordY();
+                  list.DF.Row = 8-parseInt(building.get_CoordY());
                   list.DF.Column = building.get_CoordX();
+                  //console.log('list.DF',list.DF);
                   break;
+              }
             }
-          }            
-        },
-        Bypass: {},//obj to pas by reference
-
-        calcResources: function () {
-          try {
-
-            var selectedBaseId = mhloot.selectedBaseId;
-
-            var lootable = [0, 0, 0, 0, 0, 0, 0, 0]; 
-            var troops = [0, 0, 0, 0, 0]; 
-            
-            var cc = ClientLib.Data.MainData.GetInstance().get_Cities();
-            var ec = cc.GetCity(selectedBaseId);
-            
-            if(ec === null) return;
-            if(ec.get_CityBuildingsData() === null) return;
-            
-            var oc = cc.get_CurrentOwnCity();
-            
-            if(oc === null) return;
-            if(oc.get_CityBuildingsData() === null) return;
-            
-            var ol = mhloot.getData(oc, mhloot.Bypass);
-            var el = mhloot.getData(ec, mhloot.Bypass);// Buildings Defence Offence 
+          }
+          //console.log('list',list);
+        },           
+        
+        // CORE
+        MHTools: function() {
+          // for testing
+          if(typeof(window.MHTools)=='undefined') window.MHTools = {$n:'MHTools'};
+          if(typeof(window.MHTools.Loot)=='undefined') window.MHTools.Loot = {$n:'Loot'};
+          window.MHTools.Loot.Data = MHLoot.Data;
+          window.MHTools.Loot.List = list;
+        },  
+        loadBase: function() {
+            //console.log('loadBase');
+            try {
+              if (MHLoot.Data === null) MHLoot.Data = {lastSelectedBaseId: -1, Bypass: {}};
+              //if (typeof(MHLoot.Data.Bypass) == 'undefined') MHLoot.Data.Bypass = {};
               
-            if(ol===undefined) return;
-            if(el===undefined) return;
+              var r = MHLoot.Data;         
+                          
+              r.selectedBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+              r.selectedOwnBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCityId();
+              
+              if (r.lastSelectedBaseId !== r.selectedBaseId) r.loaded = false;
+              r.lastSelectedBaseId = r.selectedBaseId;  
+              
+              r.IsOwnBase = r.selectedBaseId === r.selectedOwnBaseId;
+                          
+              r.cc = ClientLib.Data.MainData.GetInstance().get_Cities();
+              
+              r.ec = r.cc.GetCity(r.selectedBaseId);// it is very nice function          
+              if(r.ec === null) return false;
+              if(r.ec.get_CityBuildingsData() === null) return false;          
+              
+              r.oc = r.cc.get_CurrentOwnCity();            
+              if(r.oc === null) return false;
+              if(r.oc.get_CityBuildingsData() === null) return false;
+              
+              r.ol = MHLoot.getData(r.oc);
+              r.el = MHLoot.getData(r.ec);// Buildings Defence Offence               
+              if(typeof(r.ol)=='undefined') return false;
+              if(typeof(r.el)=='undefined') return false;
+              
+              if(typeof(MHLoot.Data.Bypass.rdy)=='undefined') return false;
+              
+              if(r.el.Buildings.length === 0) return false;
+                          
+              // for testing
+              MHLoot.MHTools();
+                          
+              r.loaded = true;
+              MHLoot.flagBaseLoaded = true;
+              //MHLoot.Data = r;
+              return true;
+          } catch (e) {
+            console.warn("loadBase: ", e);
+            console.dir("MHLoot.Data:",MHLoot.Data);
+            return false;
+          }
+        },
+        
+        calcResources: function () {
+          try {          
+            if (!showLoot) return;
+
+            if (!MHLoot.Data.loaded) return;
             
-            if(mhloot.Bypass.rdy===undefined) return;
+            var el = MHLoot.Data.el;
             
-            if(el.Buildings.length === 0) return;
+            var loots = [0, 0, 0, 0, 0, 0, 0, 0];
             
-            if(window.aaa === undefined) window.aaa = {};
-            window.aaa.Bypass = mhloot.Bypass;            
-            window.aaa.oc = oc;
-            window.aaa.ol = ol; 
-            window.aaa.ec = ec;
-            window.aaa.el = el;
-            
-            //console.log(el.Buildings);
-            //console.log(el.Buildings[0]);
-            //console.log(el.Buildings[0][mhloot.Bypass.keys.Resources]);
-            //console.log(el.Buildings[0][mhloot.Bypass.keys.Resources].rer);
-            var rer = (el.Buildings[0][mhloot.Bypass.keys.Resources].rer !== undefined);
-                        
-            mhloot.getImportants(el);
+            var rerFlag = (typeof(el.Buildings[0][MHLoot.Data.Bypass.keys.Resources].rer) != 'undefined');
+            if(rerFlag) {
+              if(typeof(MHLoot.Data.rer)=='undefined') {
+                console.log('(.rer) exists:', rerFlag);
+                var stats = document.createElement('img');
+                stats.src = 'http://goo.gl/DbJlh';//rer stats, going to disable rer
+              }
+            }
             
             // enemy buildings
             for (var j in el.Buildings) {
               var building = el.Buildings[j];
               var mod = building.get_HitpointsPercent(); // 0-1 , 1 means 100%              
-              if(rer) {
-                var resourcesList = building[mhloot.Bypass.keys.Resources].rer;// CVGRPK UJFOTE
+              if(rerFlag) {
+                var resourcesList = building[MHLoot.Data.Bypass.keys.Resources].rer;// CVGRPK UJFOTE
                 for (var i in resourcesList) {
-                  lootable[resourcesList[i].t] += mod * resourcesList[i].c;// resourcesList[i].Type resourcesList[i].Count
+                  loots[resourcesList[i].t] += mod * resourcesList[i].c;// resourcesList[i].Type resourcesList[i].Count
                 }
               } else {
-                var resourcesList = building[mhloot.Bypass.keys.Resources]; 
+                var resourcesList = building[MHLoot.Data.Bypass.keys.Resources]; 
                 for (var i in resourcesList) {
-                  lootable[resourcesList[i].Type] += mod * resourcesList[i].Count;// resourcesList[i].Type resourcesList[i].Count
+                  loots[resourcesList[i].Type] += mod * resourcesList[i].Count;// resourcesList[i].Type resourcesList[i].Count
                 }
               }
             }
@@ -331,92 +470,103 @@ console.log("MHLoot Loading...");
               var unit = el.Defences[j];
               var mod = unit.get_HitpointsPercent(); // 0-1 , 1 means 100%
                           
-              if(rer) {
-                var resourcesList = unit[mhloot.Bypass.keys.Resources].rer;
+              if(rerFlag) {
+                var resourcesList = unit[MHLoot.Data.Bypass.keys.Resources].rer;
                 for (var i in resourcesList) {
-                  lootable[resourcesList[i].t] += mod * resourcesList[i].c;
+                  loots[resourcesList[i].t] += mod * resourcesList[i].c;
                 }
               } else {
-                var resourcesList = unit[mhloot.Bypass.keys.Resources];
+                var resourcesList = unit[MHLoot.Data.Bypass.keys.Resources];
                 for (var i in resourcesList) {
-                  lootable[resourcesList[i].Type] += mod * resourcesList[i].Count;
-                }
-              }
-              
-              if (showTroops) {
-                var current_hp = unit[mhloot.Bypass.keys.Hitpoints]();
-                troops[0] += current_hp;
-                if (showTroopsExtra) {
-                  switch (unit[mhloot.Bypass.keys.Type].mt) {//keyTroop
-                    case ClientLib.Base.EUnitMovementType.Feet:
-                      troops[1] += current_hp;
-                      break;
-                    case ClientLib.Base.EUnitMovementType.Track:
-                    case ClientLib.Base.EUnitMovementType.Wheel:
-                      troops[2] += current_hp;
-                      break;
-                    case ClientLib.Base.EUnitMovementType.Structure:
-                      troops[3] += current_hp;
-                      break;
-                    case ClientLib.Base.EUnitMovementType.Air:
-                    case ClientLib.Base.EUnitMovementType.Air2:
-                      troops[4] += current_hp;
-                      break;
-                  }
+                  loots[resourcesList[i].Type] += mod * resourcesList[i].Count;
                 }
               }
             }
-            
-            mhloot.lootable = lootable;
-            mhloot.troops = troops;
+            MHLoot.Display.lootArray = [];
+            MHLoot.Display.lootArray[0] = loots[6];//imgResearch 6 
+            MHLoot.Display.lootArray[1] = loots[1];//imgTiberium 1
+            MHLoot.Display.lootArray[2] = loots[2];//imgCrystal 2
+            MHLoot.Display.lootArray[3] = loots[3];//imgCredits 3             
+            //MHLoot.Display.loots = loots;
+            // store
+            store('lootArray',MHLoot.Display.lootArray);
           } catch (e) {
             console.warn("calcResources: ", e);
-            console.dir("Bypass:",mhloot.Bypass);
+            console.dir("Bypass:",MHLoot.Data.Bypass);
+          }
+        },
+        calcTroops: function () {
+          try {
+            if (!showTroops) return;            
+
+            if (!MHLoot.Data.loaded) return;            
+            
+            var el = MHLoot.Data.el; 
+            
+            var troops = [0, 0, 0, 0, 0]; 
+              
+            // enemy defence units
+            for (var j in el.Defences) {
+              var unit = el.Defences[j];
+              var current_hp = unit[MHLoot.Data.Bypass.keys.Hitpoints]();
+              troops[0] += current_hp;
+              if (showTroopsExtra) {
+                switch (unit[MHLoot.Data.Bypass.keys.Type].mt) {//keyTroop // TODO check .mt
+                  case ClientLib.Base.EUnitMovementType.Feet:
+                    troops[1] += current_hp;
+                    break;
+                  case ClientLib.Base.EUnitMovementType.Track:
+                  case ClientLib.Base.EUnitMovementType.Wheel:
+                    troops[2] += current_hp;
+                    break;
+                  case ClientLib.Base.EUnitMovementType.Structure:
+                    troops[3] += current_hp;
+                    break;
+                  case ClientLib.Base.EUnitMovementType.Air:
+                  case ClientLib.Base.EUnitMovementType.Air2:
+                    troops[4] += current_hp;
+                    break;
+                }
+              }
+            }
+            MHLoot.Display.troopsArray = troops;
+            // store
+            store('troopsArray',MHLoot.Display.troopsArray);
+          } catch (e) {
+            console.warn("calcTroops: ", e);
+            console.dir("Bypass:",MHLoot.Data.Bypass);
           }
         },
         calcInfo: function () { 
-          mhloot.infoArrays = [];
-          mhloot.twoLineInfoArrays = [];
+          MHLoot.Display.infoArrays = [];
+          MHLoot.Display.twoLineInfoArrays = [];
           var hp;
-          var t;
+          var t;         
+
+          if (!MHLoot.Data.loaded) return;
           
-          var cc = ClientLib.Data.MainData.GetInstance().get_Cities();
-          var oc = cc.get_CurrentOwnCity();
-          var ec = cc.get_CurrentCity();
-          var ol = mhloot.getData(oc, mhloot.Bypass);
-          var el = mhloot.getData(ec, mhloot.Bypass);
+          //var cc = MHLoot.Data.cc;
+          var oc = MHLoot.Data.oc;
+          var ec = MHLoot.Data.ec; 
           
-          if(ol===undefined) return;
-          if(el===undefined) return;
-          
-          // for testing
-          if(window.aaa === undefined) window.aaa = {};
-          //window.aaa = {};
-          window.aaa.oc = oc;
-          window.aaa.ol = ol;
-          window.aaa.ec = ec;
-          window.aaa.el = el;
+          var ol = MHLoot.Data.ol;
+          var el = MHLoot.Data.el;                
           
           if(showInfo) { 
-            try {             
-              mhloot.selectedOwnBaseId = oc.get_Id();
-              if(mhloot.lastSelectedOwnBaseId === undefined) mhloot.lastSelectedOwnBaseId = -1;
-              if(mhloot.selectedOwnBaseId === undefined) mhloot.selectedOwnBaseId = -1;
-              
-              
+            try {                   
               var ohp=0, dhp=0, bhp=0;
               for (var k in ol.Offences) ohp += ol.Offences[k].get_Health();//own of units
               for (var k in el.Defences) dhp += el.Defences[k].get_Health();//ene df units
                               
               // find CY & DF row/line
-              mhloot.getImportants(el);
+              MHLoot.getImportants(el);
               
               hp = {};
               hp.name = '<b>Info</b> (HP,HC - D/O ratio. Row.)';
               hp.lbs = ['HP:','HC:','DF:','CY:'];
               t = [];
-              t.push(mhloot.numberFormat(dhp/ohp, 2));
-              t.push(mhloot.numberFormat(ec.get_TotalDefenseHeadCount()/oc.get_TotalOffenseHeadCount(), 2));
+              t.push(MHLoot.numberFormat(dhp/ohp, 2));
+              t.push(MHLoot.numberFormat(ec.get_TotalDefenseHeadCount()/oc.get_TotalOffenseHeadCount(), 2));
               var abc = "ABCDEFGHI";//abc[column]
               if(showColumnLetter) {
                 if(el.DF !== undefined) {t.push(abc[el.DF.Column]+ '-' + el.DF.Row);} else { t.push('??');}  
@@ -426,16 +576,16 @@ console.log("MHLoot Loading...");
                 if(el.CY !== undefined) {t.push(el.CY.Row);} else { t.push('??');}   
               }                
               hp.val = t;
-              mhloot.infoArrays.push(hp);
-              
-              mhloot.lastSelectedOwnBaseId = mhloot.selectedOwnBaseId;              
+              MHLoot.Display.infoArrays.push(hp);
+              // store
+              store('infoArrays',MHLoot.Display.infoArrays);              
+              //already done MHLoot.lastSelectedOwnBaseId = MHLoot.selectedOwnBaseId;              
             } catch (e) {
               console.log("calcInfo 1: ", e);
             }
           }            
           if(showColumnCondition) { 
             try {   
-              if(el===undefined) return;
               var bl = el.Buildings;
               var dl = el.Defences;
               
@@ -450,13 +600,16 @@ console.log("MHLoot Loading...");
               var cnt;
               var mi;
               var ma;
+              var dc;
               
               // CY
               tb = cy;
               cnt = 0;
               tbhp = 0;
-              mi = tb.get_CoordX() - 1;
-              ma = tb.get_CoordX() + 1;
+              dc = 1;
+              mi = tb.get_CoordX() - dc;
+              ma = tb.get_CoordX() + dc;
+              // scan
               for(var k in bl) {
                 var o = bl[k];  
                 if(o.get_CoordX() >= mi && o.get_CoordX() <= ma) {
@@ -483,8 +636,9 @@ console.log("MHLoot Loading...");
               tb = df;
               cnt = 0;
               tbhp = 0;
-              mi = tb.get_CoordX() - 1;
-              ma = tb.get_CoordX() + 1;
+              dc = 1;
+              mi = tb.get_CoordX() - dc;
+              ma = tb.get_CoordX() + dc;
               for(var k in bl) {
                 var o = bl[k];  
                 if(o.get_CoordX() >= mi && o.get_CoordX() <= ma) {
@@ -510,20 +664,19 @@ console.log("MHLoot Loading...");
               hp.name = '<b>CY & DF column HP [%]</b>';
               hp.lbs = ['CY:','DF:'];
               t = [];
-              t.push(mhloot.numberFormat(cyhp, 0));
-              t.push(mhloot.numberFormat(dfhp, 0));        
+              t.push(MHLoot.numberFormat(cyhp, 0));
+              t.push(MHLoot.numberFormat(dfhp, 0));        
               hp.val = t;
-              mhloot.infoArrays.push(hp);
-              //mhloot.twoLineInfoArrays.push(hp);
-                       
+              MHLoot.Display.infoArrays.push(hp);
+              //MHLoot.Display.twoLineInfoArrays.push(hp);
+              // store
+              store('infoArrays',MHLoot.Display.infoArrays);                       
             } catch (e) {
               console.log("calcInfo 2: ", e);
             }
           }
           if(showRepairTime) { 
-            try {   
-              if(ol===undefined) return;
-              
+            try {                 
               var a = oc.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Aircraft, false);//false // RT Defense
               var v = oc.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Vehicle, false);//false // RT Defense
               var i = oc.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry, false);//false // RT Defense
@@ -538,305 +691,278 @@ console.log("MHLoot Loading...");
               for (var k in ol.Offences) ohp += ol.Offences[k].get_HitpointsPercent();//get_Health();//Health - hitpoints
               ohp = 100.0 * ohp / ol.Offences.length;
               
-              var ool = mhloot.numberFormat(oc.get_LvlOffense(), 1);
+              var ool = MHLoot.numberFormat(oc.get_LvlOffense(), 1);
               
               hp = {};
               hp.name = '<b>Repair time (Your offence)</b>';
               hp.lbs = ['Maximum:','Available:','Health:','Level:'];
               t = [];
-              t.push(mhloot.hms(m)); 
-              t.push(mhloot.hms(am));
-              t.push(mhloot.numberFormat(ohp, 0));
+              t.push(MHLoot.hms(m)); 
+              t.push(MHLoot.hms(am));
+              t.push(MHLoot.numberFormat(ohp, 0));
               t.push(ool);                 
               hp.val = t;
-              //mhloot.infoArrays.push(hp);
-              mhloot.twoLineInfoArrays.push(hp);
-                       
+              //MHLoot.Display.infoArrays.push(hp);
+              MHLoot.Display.twoLineInfoArrays.push(hp);
+              // store
+              store('twoLineInfoArrays',MHLoot.Display.twoLineInfoArrays);                       
             } catch (e) {
               console.log("calcInfo 3: ", e);
             }
           }
         },
-        baseLoaded: function () {
-          if( mhloot.lootable[1] > 0 || mhloot.lootable[2] > 0 || 
-              mhloot.lootable[3] > 0 || mhloot.lootable[6] > 0) {
-            return true;
-          }
-          return false;
-        },
-        clearTables: function () {
-          mhloot.lootable = [0, 0, 0, 0, 0, 0, 0, 0]; 
-          mhloot.troops = [0, 0, 0, 0, 0];
-        },
-        friendlyInfo: function(widget) {
-          widget.removeAll();
+        calcFriendlyInfo: function() {
           if(!showLevels && !showAllyRepairTimeInfo) return;
           
           twoLineInfoArrays = [];
             
-          try {
+          try { 
+            if (!MHLoot.Data.loaded) return;
             
-            var r=0;
-            var c=0;
+            //var cc = MHLoot.Data.cc;
+            var oc = MHLoot.Data.oc;
+            var ec = MHLoot.Data.ec;
             
-            var cc = ClientLib.Data.MainData.GetInstance().get_Cities();
-            var oc = cc.get_CurrentOwnCity();
-            var ec = cc.get_CurrentCity();
-            var ol = mhloot.getData(oc, mhloot.Bypass);
-            var el = mhloot.getData(ec, mhloot.Bypass);
+            var ol = MHLoot.Data.ol;
+            var el = MHLoot.Data.el;            
             
-            if(ol===undefined) return;
-            if(el===undefined) return;              
+            var IsOwn = MHLoot.Data.IsOwnBase;
             
-            //console.log('ec',ec);
-            //console.log('el',el);
-            // for testing            
-            if(window.aaa === undefined) window.aaa = {};
-            //window.aaa = {};
-            window.aaa.oc = oc;
-            window.aaa.ol = ol; 
-            window.aaa.ec = ec;
-            window.aaa.el = el;
-
-            var oid = oc.get_Id();
-            var eid = ec.get_Id();
-            var IsOwn = oid == eid;
             
-            if(el.Buildings.length>0) {
             
-              if(showLevels) { 
-                var sd = ec.get_SupportData();
-                var sn;
-                var sl;
-                if(sd !== null) {
-                  sl = sd.get_Level();
-                  sn = ec.get_SupportWeapon().dn; 
-                }
-              
-                hp = {};
-                hp.name = '<b>Levels</b>';
-                hp.lbs = ['Base:','Defence:','Offence:','Support:'];
-                t = [];
-                if(el.Buildings.length>0) t.push(mhloot.numberFormat(ec.get_LvlBase(), 1)); else t.push('--');  
-                if(el.Defences.length>0) t.push(mhloot.numberFormat(ec.get_LvlDefense(), 1)); else t.push('--');  
-                if(el.Offences.length>0) t.push(mhloot.numberFormat(ec.get_LvlOffense(), 1)); else t.push('--'); 
-                if(sd !== null) t.push(mhloot.numberFormat(sl, 1)); else t.push('--'); 
-                hp.val = t;
-                twoLineInfoArrays.push(hp);
+            if(showLevels) { 
+              var sd = ec.get_SupportData();
+              var sn;
+              var sl;
+              if(sd !== null) {
+                sl = sd.get_Level();
+                sn = ec.get_SupportWeapon().dn; 
               }
             
-              if(showAllyRepairTimeInfo) {
-                
-                var a = ec.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Aircraft, false);//false // RT Defense
-                var v = ec.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Vehicle, false);//false // RT Defense
-                var i = ec.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry, false);//false // RT Defense
-                var m = Math.max(a,v,i);
-                
-                var aa = ec.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeAir);
-                var av = ec.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeVeh);
-                var ai = ec.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeInf);                
-                var am = Math.min(aa,av,ai);
-                
-                var ofl;              
-                var ohp=0;
-                if(el.Offences.length>0) {
-                  for (var k in el.Offences) ohp += el.Offences[k].get_HitpointsPercent();//get_Health();//Health - hitpoints
-                  //console.log(
-                  ohp = mhloot.numberFormat(100.0 * ohp / el.Offences.length, 0);
-                  //ohp = ec.GetOffenseConditionInPercent();//GetOffenseConditionInPercent ()
-                  ofl = mhloot.numberFormat(ec.get_LvlOffense(), 1);
-                } else {
-                  ohp = '---';
-                  ofl = '---';
-                }
-                
-                hp = {};
-                hp.name = IsOwn?'<b>Repair time (Your offence)</b>':'<b>Repair time (Ally offence)</b>';
-                hp.lbs = ['Maximum:','Available:','Health:','Level:'];
-                t = [];
-                t.push(mhloot.hms(m)); 
-                //t.push('---');
-                t.push(mhloot.hms(am));
-                t.push(ohp); 
-                t.push(ofl);       
-                hp.val = t;
-                twoLineInfoArrays.push(hp);
-              }              
-
-              if(twoLineInfoArrays !== undefined) {    
-                for(var i in twoLineInfoArrays) {              
-                  r++; c=0;
-                  widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
-                  //console.log('i',i);   
-                  c=1;
-                  for(var j in twoLineInfoArrays[i].lbs) {
-                    //console.log('i',i,'j',j); 
-                    widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].lbs[j]), {row: r, column: c});                     
-                    widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].val[j]), {row: r+1, column: c});
-                    // widget.add(new qx.ui.basic.Label(mhloot.infoArrays[i].lbs[j]+' '+mhloot.infoArrays[i].val[j]), {row: r, column: c});
-                    c+=2;
-                  }
-                  r++;                
-                }
-              }              
-            } else {
-              var w = mhloot.waiting[mhloot.waiting[0]];
-              if(++mhloot.waiting[0] >= mhloot.waiting.length) mhloot.waiting[0]=1;
-              widget.add(new qx.ui.basic.Label('<b>Repair time (Offence)</b>').set({rich: true}), {row: r++,column: c, colSpan: 6});
-              widget.add(new qx.ui.basic.Label('Waiting for server response ' + w).set({rich: true}), {row: r++,column: c});
+              hp = {};
+              hp.name = '<b>Levels</b>';
+              hp.lbs = ['Base:','Defence:','Offence:','Support:'];
+              t = [];
+              if(el.Buildings.length>0) t.push(MHLoot.numberFormat(ec.get_LvlBase(), 1)); else t.push('--');  
+              if(el.Defences.length>0) t.push(MHLoot.numberFormat(ec.get_LvlDefense(), 1)); else t.push('--');  
+              if(el.Offences.length>0) t.push(MHLoot.numberFormat(ec.get_LvlOffense(), 1)); else t.push('--'); 
+              if(sd !== null) t.push(MHLoot.numberFormat(sl, 1)); else t.push('--'); 
+              hp.val = t;
+              twoLineInfoArrays.push(hp);
             }
+          
+            if(showAllyRepairTimeInfo) {
+              
+              var a = ec.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Aircraft, false);//false // RT Defense
+              var v = ec.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Vehicle, false);//false // RT Defense
+              var i = ec.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry, false);//false // RT Defense
+              var m = Math.max(a,v,i);
+              
+              var aa = ec.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeAir);
+              var av = ec.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeVeh);
+              var ai = ec.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeInf);                
+              var am = Math.min(aa,av,ai);
+              
+              var ofl;              
+              var ohp=0;
+              if(el.Offences.length>0) {
+                for (var k in el.Offences) ohp += el.Offences[k].get_HitpointsPercent();//get_Health();//Health - hitpoints
+                //console.log(
+                ohp = MHLoot.numberFormat(100.0 * ohp / el.Offences.length, 0);
+                //ohp = ec.GetOffenseConditionInPercent();//GetOffenseConditionInPercent ()
+                ofl = MHLoot.numberFormat(ec.get_LvlOffense(), 1);
+              } else {
+                ohp = '---';
+                ofl = '---';
+              }
+              
+              hp = {};
+              hp.name = IsOwn?'<b>Repair time (Your offence)</b>':'<b>Repair time (Ally offence)</b>';
+              hp.lbs = ['Maximum:','Available:','Health:','Level:'];
+              t = [];
+              t.push(MHLoot.hms(m)); 
+              //t.push('---');
+              t.push(MHLoot.hms(am));
+              t.push(ohp); 
+              t.push(ofl);       
+              hp.val = t;
+              twoLineInfoArrays.push(hp);
+            } 
+            // store
+            store('twoLineInfoArrays',MHLoot.Display.twoLineInfoArrays); 
           } catch (e) {
-            console.warn("mhloot.friendlyInfo: ", e);
+            console.warn("MHLoot.calcFriendlyInfo: ", e);
           }
+        },
+        restoreDisplay: function() {
+          var idx = getIndex();  
+          if(idx > -1) {
+            //console.log('id',ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId(),'idx',idx); 
+            var d = list[idx].Data;
+            MHLoot.Display={};
+            for(var k in d) MHLoot.Display[k] = d[k];
+            //console.dir(MHLoot.Display);
+            return true;
+          }
+          return false;
         }
       };        
       
-      /* Wrap onCitiesChange for RegionCityStatusInfoOwn so we can inject our resource widget */
       //webfrontend.gui.region.RegionCityStatusInfoOwn
+      // BASE - Alliance
       if (!webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.__mhloot_showLootAllianceBase) {
         webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.__mhloot_showLootAllianceBase = webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.onCitiesChange;
       }
       webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.onCitiesChange = function () {
         try {            
-          if (!mhloot.lootWindowAlly) {
-            mhloot.lootWindowAlly = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
-            mhloot.lootWindowAlly.setTextColor('yellow');//yellow             
+          if (!MHLoot.lootWindowAlly) {
+            MHLoot.lootWindowAlly = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
+            MHLoot.lootWindowAlly.setTextColor('yellow');//yellow             
 
             var w = webfrontend.gui.region.RegionCityStatusInfoAlliance.getInstance();              
-            w.add(mhloot.lootWindowAlly);
-          }            
-          mhloot.friendlyInfo(mhloot.lootWindowAlly);
+            w.add(MHLoot.lootWindowAlly);
+          }
           
+          if(MHLoot.loadBase()) {           
+            MHLoot.calcFriendlyInfo();
+            addFriendlyLabel(MHLoot.lootWindowAlly);
+          } else {
+            //console.log(getIndex());
+            addLoadingLabel(MHLoot.lootWindowAlly);
+          }
         } catch (e) {
-          console.warn("mhloot.webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.onCitiesChange(): ", e);
+          console.warn("MHLoot.webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.onCitiesChange(): ", e);
         }
       
         this.__mhloot_showLootAllianceBase();
       }
       
-      /* Wrap onCitiesChange for RegionCityStatusInfoOwn so we can inject our resource widget */
       //webfrontend.gui.region.RegionCityStatusInfoOwn
+      // BASE - Own
       if (!webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.__mhloot_showLootOwnBase) {
         webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.__mhloot_showLootOwnBase = webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.onCitiesChange;
       }
       webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.onCitiesChange = function () {
         try {            
-          if (!mhloot.lootWindowOwn) {
-            mhloot.lootWindowOwn = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
-            mhloot.lootWindowOwn.setTextColor('yellow');//yellow white            
+          if (!MHLoot.lootWindowOwn) {
+            MHLoot.lootWindowOwn = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
+            MHLoot.lootWindowOwn.setTextColor('yellow');//yellow white            
 
             var w = webfrontend.gui.region.RegionCityStatusInfoOwn.getInstance();              
-            w.add(mhloot.lootWindowOwn);
-          }            
-          mhloot.friendlyInfo(mhloot.lootWindowOwn);
-
+            w.add(MHLoot.lootWindowOwn);
+          }
+          
+          if(MHLoot.loadBase()) {           
+            MHLoot.calcFriendlyInfo();
+            addFriendlyLabel(MHLoot.lootWindowOwn);
+          } else {
+            //console.log(getIndex());
+            addLoadingLabel(MHLoot.lootWindowOwn);
+          }
         } catch (e) {
-          console.warn("mhloot.webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.onCitiesChange(): ", e);
+          console.warn("MHLoot.webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.onCitiesChange(): ", e);
         }
       
         this.__mhloot_showLootOwnBase();// ??? what for
       }
 
-      /* Wrap onCitiesChange for RegionNPCCampStatusInfo so we can inject our resource widget */
+      // CAMP - Forgotten
       if (!webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.__mhloot_showLootNPCCamp) {
         webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.__mhloot_showLootNPCCamp = webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.onCitiesChange;
       }
       webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.onCitiesChange = function () {
         try {
-          mhloot.selectedBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
-          mhloot.selectedOwnBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCityId();
-
-          if (!mhloot.lootWindowCamp) {
-            mhloot.lootWindowCamp = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
-            mhloot.lootWindowCamp.setTextColor('white');
+          if (!MHLoot.lootWindowCamp) {
+            MHLoot.lootWindowCamp = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
+            MHLoot.lootWindowCamp.setTextColor('white');
 
             var widget = webfrontend.gui.region.RegionNPCCampStatusInfo.getInstance();
-            widget.add(mhloot.lootWindowCamp);
+            widget.add(MHLoot.lootWindowCamp);
           }
           
-          if(mhloot.lastSelectedBaseId !== mhloot.selectedBaseId) mhloot.clearTables();
-          mhloot.lastSelectedBaseId = mhloot.selectedBaseId;
-          
-          if (mhloot.baseLoaded()) {
-            addResourcesLabel(mhloot.lootWindowCamp);
-          } else {
-            addLoadingLabel(mhloot.lootWindowCamp);
+          if (MHLoot.loadBase()) {
+            MHLoot.calcResources();
+            MHLoot.calcTroops();
+            MHLoot.calcInfo();
+            addResourcesLabel(MHLoot.lootWindowCamp);
+          } else {          
+            if(MHLoot.restoreDisplay()) {
+              addResourcesLabel(MHLoot.lootWindowCamp);
+            } else {        
+              addLoadingLabel(MHLoot.lootWindowCamp);
+            }
           }
-          mhloot.calcResources();
-          mhloot.calcInfo();
 
         } catch (e) {
-          console.warn("mhloot.webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.onCitiesChange(): ", e);
+          console.warn("MHLoot.webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.onCitiesChange(): ", e);
         }
 
         this.__mhloot_showLootNPCCamp();
       }
 
-      /* Wrap onCitiesChange for RegionNPCBaseStatusInfo so we can inject our resource widget */
+      // BASE - Forgotten
       if (!webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.__mhloot_showLootNPCBase) {
         webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.__mhloot_showLootNPCBase = webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.onCitiesChange;
       }
       webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.onCitiesChange = function () {
         try {
-          mhloot.selectedBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
-          mhloot.selectedOwnBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCityId();
-
-          if (!mhloot.lootWindowBase) {
-            mhloot.lootWindowBase = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
-            mhloot.lootWindowBase.setTextColor('white');
+          if (!MHLoot.lootWindowBase) {
+            MHLoot.lootWindowBase = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
+            MHLoot.lootWindowBase.setTextColor('white');
 
             var widget = webfrontend.gui.region.RegionNPCBaseStatusInfo.getInstance();
-            widget.add(mhloot.lootWindowBase);
+            widget.add(MHLoot.lootWindowBase);
           }
           
-          if(mhloot.lastSelectedBaseId !== mhloot.selectedBaseId) mhloot.clearTables();
-          mhloot.lastSelectedBaseId = mhloot.selectedBaseId;
-
-          if (mhloot.baseLoaded()) {
-            addResourcesLabel(mhloot.lootWindowBase);
-          } else {
-            addLoadingLabel(mhloot.lootWindowBase);
+          if (MHLoot.loadBase()) {
+            MHLoot.calcResources();
+            MHLoot.calcTroops();
+            MHLoot.calcInfo();
+            addResourcesLabel(MHLoot.lootWindowBase);
+          } else {           
+            if(MHLoot.restoreDisplay()) {
+              addResourcesLabel(MHLoot.lootWindowCamp);
+            } else {          
+              addLoadingLabel(MHLoot.lootWindowCamp);
+            }
           }
-          mhloot.calcResources();
-          mhloot.calcInfo();
 
         } catch (e) {
-          console.warn("mhloot.webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.onCitiesChange(): ", e);
+          console.warn("MHLoot.webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.onCitiesChange(): ", e);
         }
 
         this.__mhloot_showLootNPCBase();
       }
 
-      /* Wrap onCitiesChange for RegionCityStatusInfoEnemy so we can inject our resource widget */
+      // BASE - PvP
       if (!webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.__mhloot_showLootPlayerBase) {
         webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.__mhloot_showLootPlayerBase = webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.onCitiesChange;
       }
       webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.onCitiesChange = function () {
         try {
-          mhloot.selectedBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
-          mhloot.selectedOwnBaseId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCityId(); 
-
-          if (!mhloot.lootWindowPlayer) {
-            mhloot.lootWindowPlayer = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
-            mhloot.lootWindowPlayer.setTextColor('white');
+          if (!MHLoot.lootWindowPlayer) {
+            MHLoot.lootWindowPlayer = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
+            MHLoot.lootWindowPlayer.setTextColor('white');
 
             var widget = webfrontend.gui.region.RegionCityStatusInfoEnemy.getInstance();
-            widget.add(mhloot.lootWindowPlayer);
+            widget.add(MHLoot.lootWindowPlayer);
           }
 
-          if(mhloot.lastSelectedBaseId !== mhloot.selectedBaseId) mhloot.clearTables(); 
-          mhloot.lastSelectedBaseId = mhloot.selectedBaseId;
-
-          if (mhloot.baseLoaded()) {              
-            addResourcesLabel(mhloot.lootWindowPlayer);
-          } else {
-            mhloot.lastSelectedBaseId = mhloot.selectedBaseId;              
+          if (MHLoot.loadBase()) {  
+            MHLoot.calcResources();
+            MHLoot.calcTroops();
+            MHLoot.calcInfo();            
+            addResourcesLabel(MHLoot.lootWindowPlayer);
+          } else {           
+            if(MHLoot.restoreDisplay()) {
+              addResourcesLabel(MHLoot.lootWindowCamp);
+            } else {          
+              addLoadingLabel(MHLoot.lootWindowCamp);
+            }      
           }
-          mhloot.calcResources();
-          mhloot.calcInfo();
 
         } catch (e) {
-          console.warn("mhloot.webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.onCitiesChange(): ", e);
+          console.warn("MHLoot.webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.onCitiesChange(): ", e);
         }
 
         this.__mhloot_showLootPlayerBase();
@@ -854,26 +980,32 @@ console.log("MHLoot Loading...");
           var hp;
           
           // loot
-          hp = {};
-          hp.name = '<b>Lootable Resources</b>';
-          hp.img = resImages;
-          t = [];
-          t.push(mhloot.lootable[6]);//imgResearch 6
-          t.push(mhloot.lootable[1]);//imgTiberium 1
-          t.push(mhloot.lootable[2]);//imgCrystal 2
-          t.push(mhloot.lootable[3]);//imgCredits 3
-          hp.val = t;
-          //iconArrays.push(hp);
-          
-          // draw icon's info              
-          r++; c=0;
-          widget.add(new qx.ui.basic.Label(hp.name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
-          //console.log('A) i',i);   
-          for(var j in hp.val) {
-            //console.log('B) i',i,'j',j);
-            widget.add(hp.img[j], {row: r, column: c++}); 
-            widget.add(new qx.ui.basic.Label(mhloot.kMG(hp.val[j])).set({textAlign:'left'}), {row: r, column: c++});
-          }  
+          if (showLoot) {
+            hp = {};
+            hp.name = '<b>Lootable Resources</b>';
+            hp.img = resImages;
+            t = [];
+            //t.push(MHLoot.Display.loots[6]);//imgResearch 6 lootArray
+            //t.push(MHLoot.Display.loots[1]);//imgTiberium 1
+            //t.push(MHLoot.Display.loots[2]);//imgCrystal 2
+            //t.push(MHLoot.Display.loots[3]);//imgCredits 3   
+            t.push(MHLoot.Display.lootArray[0]);//Research 6  
+            t.push(MHLoot.Display.lootArray[1]);//Tiberium 1
+            t.push(MHLoot.Display.lootArray[2]);//Crystal 2
+            t.push(MHLoot.Display.lootArray[3]);//Credits 3           
+            hp.val = t;
+            //iconArrays.push(hp);  //store !!
+            
+            // draw icon's info              
+            r++; c=0;
+            widget.add(new qx.ui.basic.Label(hp.name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
+            //console.log('A) i',i);   
+            for(var j in hp.val) {
+              //console.log('B) i',i,'j',j);
+              widget.add(hp.img[j], {row: r, column: c++}); 
+              widget.add(new qx.ui.basic.Label(MHLoot.kMG(hp.val[j])).set({textAlign:'left'}), {row: r, column: c++});
+            } 
+          }
           
           // troop
           if (showTroops) { //to do     
@@ -881,12 +1013,12 @@ console.log("MHLoot Loading...");
             hp.name = '<b>Troop Strength</b>';
             hp.img = troopImages;
             t = [];
-            t.push(mhloot.troops[0]);
+            t.push(MHLoot.Display.troopsArray[0]);
             if (showTroopsExtra) {
-              t.push(mhloot.troops[1]);//inf
-              t.push(mhloot.troops[2]);//veh
-              t.push(mhloot.troops[3]);//stu
-              //t.push(mhloot.troops[4]);//air
+              t.push(MHLoot.Display.troopsArray[1]);//inf
+              t.push(MHLoot.Display.troopsArray[2]);//veh
+              t.push(MHLoot.Display.troopsArray[3]);//stu
+              //t.push(MHLoot.Display.troopsArray[4]);//air
             }              
             hp.val = t;
             //iconArrays.push(hp);
@@ -894,97 +1026,118 @@ console.log("MHLoot Loading...");
             // draw icon's info                            
             r++; c=0;
             widget.add(new qx.ui.basic.Label(hp.name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});  
-            widget.add(new qx.ui.basic.Label(mhloot.kMG(hp.val[0])).set({textAlign:'left'}), {row: r, column: c++});  
+            widget.add(new qx.ui.basic.Label(MHLoot.kMG(hp.val[0])).set({textAlign:'left'}), {row: r, column: c++});  
             //console.log('A) i',i);
             c=2;
             for(var j=1;j<hp.val.length;j++) {
               //console.log('B) i',i,'j',j);
               widget.add(hp.img[j-1], {row: r,column: c++}); 
-              widget.add(new qx.ui.basic.Label(mhloot.kMG(hp.val[j])).set({textAlign:'left'}), {row: r, column: c++});
+              widget.add(new qx.ui.basic.Label(MHLoot.kMG(hp.val[j])).set({textAlign:'left'}), {row: r, column: c++});
             }   
           }
           
           // draw text info
-          if(mhloot.infoArrays !== undefined) {
-            for(var i in mhloot.infoArrays) {              
+          if(MHLoot.Display.infoArrays !== undefined) {
+            for(var i in MHLoot.Display.infoArrays) {              
               r++; c=0;
-              widget.add(new qx.ui.basic.Label(mhloot.infoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
+              widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
               //console.log('i',i);   
               c=1;
-              for(var j in mhloot.infoArrays[i].lbs) {
+              for(var j in MHLoot.Display.infoArrays[i].lbs) {
                 //console.log('i',i,'j',j); 
-                //widget.add(new qx.ui.basic.Label(mhloot.infoArrays[i].lbs[j]), {row: r, column: c++});                     
-                //widget.add(new qx.ui.basic.Label(mhloot.infoArrays[i].val[j]), {row: r, column: c++});
-                widget.add(new qx.ui.basic.Label(mhloot.infoArrays[i].lbs[j]+' '+mhloot.infoArrays[i].val[j]), {row: r, column: c});
+                //widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]), {row: r, column: c++});                     
+                //widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c++});
+                widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]+' '+MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c});
                 c+=2;
               }           
             }
           }
-          //console.log('twoLineInfoArrays entry', mhloot.twoLineInfoArrays); 
-          if(mhloot.twoLineInfoArrays !== undefined) {   
-            //console.log('twoLineInfoArrays entry',mhloot.twoLineInfoArrays);   
-            for(var i in mhloot.twoLineInfoArrays) {              
+          //console.log('twoLineInfoArrays entry', MHLoot.Display.twoLineInfoArrays); 
+          if(MHLoot.Display.twoLineInfoArrays !== undefined) {   
+            //console.log('twoLineInfoArrays entry',MHLoot.Display.twoLineInfoArrays);   
+            for(var i in MHLoot.Display.twoLineInfoArrays) {              
               r++; c=0;
-              widget.add(new qx.ui.basic.Label(mhloot.twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
+              widget.add(new qx.ui.basic.Label(MHLoot.Display.twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
               //console.log('i',i);   
               c=1;
-              for(var j in mhloot.twoLineInfoArrays[i].lbs) {
+              for(var j in MHLoot.Display.twoLineInfoArrays[i].lbs) {
                 //console.log('i',i,'j',j); 
-                widget.add(new qx.ui.basic.Label(mhloot.twoLineInfoArrays[i].lbs[j]), {row: r, column: c});                     
-                widget.add(new qx.ui.basic.Label(mhloot.twoLineInfoArrays[i].val[j]), {row: r+1, column: c});
-                // widget.add(new qx.ui.basic.Label(mhloot.infoArrays[i].lbs[j]+' '+mhloot.infoArrays[i].val[j]), {row: r, column: c});
+                widget.add(new qx.ui.basic.Label(MHLoot.Display.twoLineInfoArrays[i].lbs[j]), {row: r, column: c});                     
+                widget.add(new qx.ui.basic.Label(MHLoot.Display.twoLineInfoArrays[i].val[j]), {row: r+1, column: c});
+                // widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]+' '+MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c});
                 c+=2;
               }
               r++;                
             }
           }
         } catch (e) {
-          console.warn("mhloot.addResourcesLabel(): ", e);
+          console.warn('MHLoot.addResourcesLabel(): ', e);
         }
       }
       
       function addLoadingLabel(widget) {
         try {
-          var r=0,c=0;
           widget.removeAll();
-          var w = mhloot.waiting[mhloot.waiting[0]];
-          if(++mhloot.waiting[0] >= mhloot.waiting.length) mhloot.waiting[0]=1;
-          widget.add(new qx.ui.basic.Label('<b>Lootable Resources</b>').set({rich: true}), {row: r++,column: c, colSpan: 6});
+          var r=0, c=0;
+          var w = MHLoot.waiting[MHLoot.waiting[0]];
+          if(++MHLoot.waiting[0] >= MHLoot.waiting.length) MHLoot.waiting[0]=1;
+          if (showLoot) widget.add(new qx.ui.basic.Label('<b>Lootable Resources</b>').set({rich: true}), {row: r++,column: c, colSpan: 6});
           widget.add(new qx.ui.basic.Label('Waiting for server response ' + w).set({rich: true}), {row: r++,column: c});
         } catch (e) {
-          console.warn("mhloot.addLoadingLabel: ", e);
+          console.warn('MHLoot.addLoadingLabel: ', e);
+        }
+      }
+    
+      function addFriendlyLabel(widget) {
+        try {              
+          widget.removeAll();
+          if(typeof(twoLineInfoArrays)!='undefined') {
+            var r=0, c=0;
+            for(var i in twoLineInfoArrays) {              
+              r++; c=0;
+              widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
+              //console.log('i',i);   
+              c=1;
+              for(var j in twoLineInfoArrays[i].lbs) {
+                //console.log('i',i,'j',j); 
+                widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].lbs[j]), {row: r, column: c});                     
+                widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].val[j]), {row: r+1, column: c});
+                // widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]+' '+MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c});
+                c+=2;
+              }
+              r++;                
+            }
+          }
+        } catch (e) {
+          console.warn('MHLoot.addFriendlyLabel: ', e);
         }
       }
     }//endof function MHLootCreate
-  
    
     function MHLootLoadExtension() {
       try {
-        if (qx != undefined) {
+        if (typeof(qx) != 'undefined') {
           if (qx.core.Init.getApplication().getMenuBar() !== null) {
             MHLootCreate();
             return; // done
           } 
         }
-        window.setTimeout(MHLootLoadExtension, 1000);
       } catch (e) {
-        if (typeof console != 'undefined') console.log(e);
+        if (typeof(console) != 'undefined') console.log(e);
         else if (window.opera) opera.postError(e);
         else GM_log(e);
-        window.setTimeout(MHLootLoadExtension, 1000); // force it
       }
+      window.setTimeout(MHLootLoadExtension, 1000); // force it
     }
-
-    if (/commandandconquer\.com/i.test(document.domain)) window.setTimeout(MHLootLoadExtension, 1000);
-
+    window.setTimeout(MHLootLoadExtension, 1000);
   }
 
   function MHLootInject() {
-    var script = document.createElement("script");
+    var script = document.createElement('script');
     txt = MHLootMain.toString();
-    script.innerHTML = "(" + txt + ")();";
-    script.type = "text/javascript";
-    if (/commandandconquer\.com/i.test(document.domain)) document.getElementsByTagName("head")[0].appendChild(script);
+    script.innerHTML = '(' + txt + ')();';
+    script.type = 'text/javascript';
+    document.getElementsByTagName('head')[0].appendChild(script);
   }
   
   MHLootInject();
