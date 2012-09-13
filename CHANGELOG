@@ -1,4 +1,7 @@
 CHANGELOGS:
+1.2.4.7:
+  - Add "CnC: MH Tiberium Alliances Pure Loot Summary" script (disabled by default)
+  - Update "Maelstrom ADDON Basescanner" to version 0.2
 1.2.4.6:
   - Small fix to make "Maelstrom ADDON Basescanner" works on Chrome
 1.2.4.5:

@@ -3,44 +3,50 @@
 // @namespace   a
 // @description Maelstrom ADDON Basescanner
 // @include     http*://prodgame*.alliances.commandandconquer.com/*
-// @version     0.1
+// @version     0.2
 // @author      BlinDManX
 // ==/UserScript==
-var __msbs_version = 0.1;
+__msbs_version = 0.2;
 (function () {
 	var MaelstromTools_Basescanner = function () {
 		try {
-			console.log("Maelstrom_Basescanner " + __msbs_version + " loaded");
-			var MT_Lang = null;
-			var MT_Cache = null;
-			var MT_Base = null;
-			var fileManager = null;
-			var rowData = null;
-			var lastid = 0;
-			var countlastidchecked = 0;
+			console.log("Maelstrom_Basescanner " + window.__msbs_version + " loaded");
 
 			function createMaelstromTools_Basescanner() {
 				console.log("Maelstrom_Basescanner initalisiert");
+				var MT_Lang = null;
+				var MT_Cache = null;
+				var MT_Base = null;
+				var fileManager = null;
+				var lastid = 0;
+				var countlastidchecked = 0;
 				fileManager = ClientLib.File.FileManager.GetInstance();
 				MT_Lang = window.MaelstromTools.Language.getInstance();
 				MT_Cache = window.MaelstromTools.Cache.getInstance();
 				MT_Base = window.MaelstromTools.Base.getInstance();
 				var l = MT_Lang.Languages.indexOf(qx.locale.Manager.getInstance().getLocale());
 				if(l >= 0) { //TODO other Languages
-					MT_Lang.Data["Point"] = ["Position", "Position", "Position"][l]; //[eng] = [de,pl,fr]
+					MT_Lang.Data["Point"] = ["Position", "Position", "Position"][l]; //[eng] = [de,pt,fr]
 					MT_Lang.Data["BaseScanner Overview"] = ["Basescanner Übersicht", "Visão geral do scanner de base", "Aperçu du scanner de base"][l]; //[eng] = [de,pt,fr]
-					MT_Lang.Data["Scan"] = ["Scannen", "Esquadrinhar", "Balayer"][l]; //[eng] = [de,pl,fr]
-					MT_Lang.Data["Location"] = ["Lage", "localização", "Emplacement"][l]; //[eng] = [de,pl,fr]
-					MT_Lang.Data["Player"] = ["Spieler", "Jogador", "Joueur"][l]; //[eng] = [de,pl,fr]
-					MT_Lang.Data["Bases"] = ["Basen", "Bases", "Bases"][l]; //[eng] = [de,pl,fr]
-					MT_Lang.Data["Stock,Outpost"] = ["Lager,Vorposten", "Estoque,posto avançado", "Stock,avant-poste"][l]; //[eng] = [de,pl,fr]
-					
-					
+					MT_Lang.Data["Scan"] = ["Scannen", "Esquadrinhar", "Balayer"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Location"] = ["Lage", "localização", "Emplacement"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Player"] = ["Spieler", "Jogador", "Joueur"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Bases"] = ["Basen", "Bases", "Bases"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Camp,Outpost"] = ["Lager,Vorposten", "Camp,posto avançado", "Camp,avant-poste"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["BaseScanner Layout"] = ["BaseScanner Layout", "Layout da Base de Dados de Scanner", "Mise scanner de base"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Show Layouts"] = ["Layouts anzeigen", "Mostrar Layouts", "Voir Layouts"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Building state"] = ["Gebäudezustand", "construção do Estado", "construction de l'État"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["Defense state"] = ["Verteidigungszustand", "de Defesa do Estado", "défense de l'Etat"][l]; //[eng] = [de,pt,fr]
 				}
 				MT_Base.createNewImage("BaseScanner", "ui/icons/icon_item.png", fileManager);
-				MT_Base.createNewWindow("BaseScanner", "L", 120, 60, 870, 400);
+				MT_Base.createNewImage("Emptypixels", "ui/menues/main_menu/misc_empty_pixel.png", fileManager);
+				MT_Base.createNewWindow("BaseScanner", "L", 120, 60, 820, 400);
+				MT_Base.createNewWindow("BaseScannerLayout", "L", 120, 460, 820, 350);
 				var openBaseScannerOverview = MT_Base.createDesktopButton(MT_Lang.gt("BaseScanner Overview"), "BaseScanner", false, MT_Base.desktopPosition(2));
 				openBaseScannerOverview.addListener("execute", function () {
+					if(window.HuffyTools.BaseScannerGUI.getInstance().Window != null) {
+						window.HuffyTools.BaseScannerGUI.getInstance().createOptions();
+					}
 					window.HuffyTools.BaseScannerGUI.getInstance().openWindow("BaseScanner", MT_Lang.gt("BaseScanner Overview"));
 				}, this);
 				MT_Base.addToMainMenu("BaseScanner", openBaseScannerOverview);
@@ -56,18 +62,21 @@ var __msbs_version = 0.1;
 						scanButton: null,
 						runloop: null,
 						CitySelect: null,
-						HT_ShowBase: null,						
+						HT_ShowBase: null,
+						resmap: null,
+						resmapViewOptions: null,
+						resmapViewButton: null,
+						rowData: null,
 						init: function () {
-							try {								
+							try {
 								this.upgradeInProgress = false;
+								this.resmap = {};
 								this.createTable();
-								this.createOptions();							
+								this.createOptions();
 								if(this.rowData == null) {
 									this.rowData = [];
 								}
-								
 								this.Window.setPadding(0);
-								
 								this.Window.set({
 									resizable: true
 								});
@@ -82,7 +91,7 @@ var __msbs_version = 0.1;
 						createTable: function () {
 							try {
 								this.HT_Models = new qx.ui.table.model.Simple();
-								this.HT_Models.setColumns(["ID", "LoadState", MT_Lang.gt("City"), MT_Lang.gt("Location"), MT_Lang.gt("Level"), MT_Lang.gt(MaelstromTools.Statics.Tiberium), MT_Lang.gt(MaelstromTools.Statics.Crystal), MT_Lang.gt(MaelstromTools.Statics.Dollar), MT_Lang.gt(MaelstromTools.Statics.Research)]);
+								this.HT_Models.setColumns(["ID", "LoadState", MT_Lang.gt("City"), MT_Lang.gt("Location"), MT_Lang.gt("Level"), MT_Lang.gt(MaelstromTools.Statics.Tiberium), MT_Lang.gt(MaelstromTools.Statics.Crystal), MT_Lang.gt(MaelstromTools.Statics.Dollar), MT_Lang.gt(MaelstromTools.Statics.Research), "", "", MT_Lang.gt("Building state"), MT_Lang.gt("Defense state")]);
 								this.HT_Tables = new qx.ui.table.Table(this.HT_Models);
 								this.HT_Tables.setColumnVisibilityButtonVisible(false);
 								this.HT_Tables.setColumnWidth(0, 0);
@@ -94,9 +103,13 @@ var __msbs_version = 0.1;
 								this.HT_Tables.setColumnWidth(6, 70);
 								this.HT_Tables.setColumnWidth(7, 70);
 								this.HT_Tables.setColumnWidth(8, 70);
+								this.HT_Tables.setColumnWidth(9, 30);
+								this.HT_Tables.setColumnWidth(10, 30);
 								var tcm = this.HT_Tables.getTableColumnModel();
 								tcm.setColumnVisible(0, false);
 								tcm.setColumnVisible(1, false);
+								tcm.setHeaderCellRenderer(9, new qx.ui.table.headerrenderer.Icon(MT_Base.images[MaelstromTools.Statics.Crystal]));
+								tcm.setHeaderCellRenderer(10, new qx.ui.table.headerrenderer.Icon(MT_Base.images[MaelstromTools.Statics.Tiberium]));
 								// tcm.setDataCellRenderer(4, new qx.ui.table.cellrenderer.Number().set({
 								// numberFormat: new qx.util.format.NumberFormat().set({
 								// maximumFractionDigits: 2,
@@ -116,10 +129,10 @@ var __msbs_version = 0.1;
 									ReplaceFunction: this.formatTiberiumAndPower
 								}));
 								this.HT_Tables.addListener("cellDblclick", function (e) {
-									window.HuffyTools.BaseScannerGUI.getInstance().cellDoubleClickCallback(e)
+									window.HuffyTools.BaseScannerGUI.getInstance().cellDoubleClickCallback(e);
 								}, this);
 							} catch(e) {
-								console.log("HuffyTools.BaseScannerGUI.createTable: ", e)
+								console.log("HuffyTools.BaseScannerGUI.createTable: ", e);
 							}
 						},
 						cellDoubleClickCallback: function (e) {
@@ -134,8 +147,9 @@ var __msbs_version = 0.1;
 								}
 								/* and highlight base */
 								if(cityId) {
-									ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(cityId);
+									//ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(cityId);
 									//webfrontend.gui.UtilView.openCityInMainWindow(cityId);
+									webfrontend.gui.UtilView.openVisModeInMainWindow(1, cityId, false);
 								}
 							} catch(ex) {
 								console.log("HuffyTools.BaseScannerGUI cellDoubleClickCallback error: ", ex);
@@ -147,7 +161,7 @@ var __msbs_version = 0.1;
 						},
 						CBChanged: function (e) {
 							this.upgradeInProgress = false;
-							this.runloop = false;							
+							this.runloop = false;
 						},
 						formatTiberiumAndPower: function (oValue) {
 							return webfrontend.gui.Util.formatNumbersCompact(oValue);
@@ -167,47 +181,45 @@ var __msbs_version = 0.1;
 								//this.HT_Models.setData([]);							
 								this.HT_Models.setData(this.rowData);
 							} catch(e) {
-								console.log("HuffyTools.BaseScannerGUI.setWidgetLabels: ", e)
+								console.log("HuffyTools.BaseScannerGUI.setWidgetLabels: ", e);
 							}
 						},
 						createOptions: function () {
 							var oBox = new qx.ui.layout.Flow();
 							var oOptions = new qx.ui.container.Composite(oBox);
 							oOptions.setMargin(5);
-					
-							this.CitySelect = new qx.ui.form.SelectBox();						
+							this.CitySelect = new qx.ui.form.SelectBox();
+							MT_Cache.updateCityCache();
+							MT_Cache = window.MaelstromTools.Cache.getInstance();
 							for(var cname in MT_Cache.Cities) {
-								var item = new qx.ui.form.ListItem( cname , null, MT_Cache.Cities[cname].Object );									
-								this.CitySelect.add(item);	
-								
-								if(MaelstromTools.LocalStorage.get("MS_Basescanner_LastCityID") == MT_Cache.Cities[cname].Object.get_Id() ){
-									this.CitySelect.setSelection([item]);			
-								}															
+								var item = new qx.ui.form.ListItem(cname, null, MT_Cache.Cities[cname].Object);
+								this.CitySelect.add(item);
+								if(MaelstromTools.LocalStorage.get("MS_Basescanner_LastCityID") == MT_Cache.Cities[cname].Object.get_Id()) {
+									this.CitySelect.setSelection([item]);
+								}
 							}
 							oOptions.add(this.CitySelect);
-							
 							this.scanButton = new qx.ui.form.Button(MT_Lang.gt("Scan")).set({
 								appearance: "button-text-small",
-								width: 200,
-								minWidth: 200,
-								maxWidth: 300
+								width: 100,
+								minWidth: 100,
+								maxWidth: 100
 							});
 							this.scanButton.addListener("execute", function () {
 								this.rowData = [];
-								this.scan()
+								this.scan();
 							}, this);
-							
 							oOptions.add(this.scanButton, {
 								left: 10,
 								top: 10
 							});
-							this.HT_ShowBase = new Array();
+							this.HT_ShowBase = [];
 							this.HT_ShowBase[0] = new qx.ui.form.CheckBox(MT_Lang.gt("Player"));
 							this.HT_ShowBase[0].setMargin(5);
 							this.HT_ShowBase[0].setTextColor("white");
 							this.HT_ShowBase[0].setValue(MaelstromTools.LocalStorage.get("MS_Basescanner_Show0", false));
 							oOptions.add(this.HT_ShowBase[0], {
-								left: 10, 
+								left: 10,
 								top: 10
 							});
 							this.HT_ShowBase[1] = new qx.ui.form.CheckBox(MT_Lang.gt("Bases"));
@@ -215,20 +227,48 @@ var __msbs_version = 0.1;
 							this.HT_ShowBase[1].setTextColor("white");
 							this.HT_ShowBase[1].setValue(MaelstromTools.LocalStorage.get("MS_Basescanner_Show1", false));
 							oOptions.add(this.HT_ShowBase[1], {
-								left: 10, 
+								left: 10,
 								top: 10
 							});
-							this.HT_ShowBase[2] = new qx.ui.form.CheckBox(MT_Lang.gt("Stock,Outpost"));
+							this.HT_ShowBase[2] = new qx.ui.form.CheckBox(MT_Lang.gt("Camp,Outpost"));
 							this.HT_ShowBase[2].setMargin(5);
 							this.HT_ShowBase[2].setTextColor("white");
 							this.HT_ShowBase[2].setValue(MaelstromTools.LocalStorage.get("MS_Basescanner_Show2", true));
 							oOptions.add(this.HT_ShowBase[2], {
-								left: 10, 
+								left: 10,
 								top: 10
 							});
-							
-							
-							
+							this.resmapViewOptions = new qx.ui.form.SelectBox();
+							this.resmapViewOptions.setWidth(150);
+							var item = new qx.ui.form.ListItem("7 " + MT_Lang.gt(MaelstromTools.Statics.Tiberium) + " 5 " + MT_Lang.gt(MaelstromTools.Statics.Crystal), null, 7);
+							this.resmapViewOptions.add(item);
+							item = new qx.ui.form.ListItem("6 " + MT_Lang.gt(MaelstromTools.Statics.Tiberium) + " 6 " + MT_Lang.gt(MaelstromTools.Statics.Crystal), null, 6);
+							this.resmapViewOptions.add(item);
+							item = new qx.ui.form.ListItem("5 " + MT_Lang.gt(MaelstromTools.Statics.Tiberium) + " 7 " + MT_Lang.gt(MaelstromTools.Statics.Crystal), null, 5);
+							this.resmapViewOptions.add(item);
+							oOptions.add(this.resmapViewOptions, {
+								left: 10,
+								top: 10
+							});
+							this.resmapViewButton = new qx.ui.form.Button(MT_Lang.gt("Get Layouts")).set({
+								appearance: "button-text-small",
+								width: 120,
+								minWidth: 120,
+								maxWidth: 120
+							});
+							this.resmapViewButton.addListener("execute", function () {
+								var layout = window.HuffyTools.BaseScannerLayout.getInstance();								
+								if(layout.Window != null) { //after first run
+									layout.Window.close();
+									layout.createmap();
+								}								
+								layout.openWindow("BaseScannerLayout", MT_Lang.gt("BaseScanner Layout"));
+							}, this);
+							this.resmapViewButton.setEnabled(false);
+							oOptions.add(this.resmapViewButton, {
+								left: 10,
+								top: 10
+							});
 							this.HT_Options = oOptions;
 						},
 						scan: function () {
@@ -237,17 +277,13 @@ var __msbs_version = 0.1;
 								var allCities = ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d;
 								this.rowData = [];
 								var selectedBase = this.CitySelect.getSelection()[0].getModel();
-								
-								MaelstromTools.LocalStorage.set("MS_Basescanner_LastCityID", selectedBase.get_Id() );
-								
-								var c1 =this.HT_ShowBase[0].getValue();
-								var c2 =this.HT_ShowBase[1].getValue();
-								var c3 =this.HT_ShowBase[2].getValue();
-								
+								MaelstromTools.LocalStorage.set("MS_Basescanner_LastCityID", selectedBase.get_Id());
+								var c1 = this.HT_ShowBase[0].getValue();
+								var c2 = this.HT_ShowBase[1].getValue();
+								var c3 = this.HT_ShowBase[2].getValue();
 								MaelstromTools.LocalStorage.set("MS_Basescanner_Show0", c1);
 								MaelstromTools.LocalStorage.set("MS_Basescanner_Show1", c2);
 								MaelstromTools.LocalStorage.set("MS_Basescanner_Show2", c3);
-								
 								var posX = selectedBase.get_PosX();
 								var posY = selectedBase.get_PosY();
 								var scanX = 0;
@@ -262,17 +298,21 @@ var __msbs_version = 0.1;
 										var distance = Math.sqrt((distX * distX) + (distY * distY));
 										if(distance <= maxAttackDistance) {
 											var object = world.GetObjectFromPosition(scanX, scanY);
-											var loot = new Object();
+											var loot = {};
 											if(object && !object.isLocked) {
-												//console.log(object);
+												console.log(object);
+												// 0:ID , 1:Scanned, 2:Name, 3:Location, 4:Level, 5:Tib, 6:Kristal, 7:Credits, 8:Forschung, 9:Kristalfelder, 10:Tiberiumfelder, 11:ConditionBuildings,12:ConditionDefense
+												if(object.ConditionBuildings != 100 || object.ConditionDefense != 100) {
+													console.log("------------------", object.ConditionBuildings, object.ConditionDefense);
+												}
 												if(object.Type == 1 && c1) { //User
-													this.rowData.push([object.Id, - 1, object.Name, scanX + ":" + scanY, object.Level, 0, 0, 0, 0]);
+													this.rowData.push([object.Id, - 1, object.Name, scanX + ":" + scanY, object.Level, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense]);
 												}
 												if(object.Type == 2 && c2) { //basen
-													this.rowData.push([object.KOBHAO, - 1, "Basis", scanX + ":" + scanY, object.UPWSFR, 0, 0, 0, 0]);
+													this.rowData.push([object.KOBHAO, - 1, "Basis", scanX + ":" + scanY, object.UPWSFR, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense]);
 												}
 												if(object.Type == 3 && c3) { //Lager Vposten													
-													this.rowData.push([object.QRDMVJ, - 1, "Lager/Vorposten", scanX + ":" + scanY, object.DDTOJV, 0, 0, 0, 0]);
+													this.rowData.push([object.QRDMVJ, - 1, "Lager/Vorposten", scanX + ":" + scanY, object.DDTOJV, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense]);
 												}
 											}
 										}
@@ -291,7 +331,6 @@ var __msbs_version = 0.1;
 								var maxLoops = 10;
 								var i = 0;
 								var sleeptime = 150;
-								
 								//console.log("getResourcesByID start ");
 								while(!retry) {
 									// if (g3_baseScan.cancel)
@@ -309,20 +348,19 @@ var __msbs_version = 0.1;
 										this.runloop = false;
 										break;
 									}
-									
 									for(i = 0; i < this.rowData.length; i++) {
 										// 1= "LoadState"
 										if(this.rowData[i][1] == -1) {
 											break;
 										}
 									}
-									
 									if(i == this.rowData.length) {
 										this.runloop = false;
 									}
 									if(this.rowData[i] == null) {
 										console.log("rowData[i] null: ");
 										this.runloop = false;
+										this.resmapViewButton.setEnabled(true);
 										break;
 									}
 									posData = this.rowData[i][3];
@@ -335,11 +373,10 @@ var __msbs_version = 0.1;
 										//var obj = ClientLib.Vis.VisMain.GetInstance().get_SelectedObject();
 										//console.log("obj", obj);
 										id = this.rowData[i][0];
-										webfrontend.gui.UtilView.openCityInMainWindow(id);
+										//webfrontend.gui.UtilView.openCityInMainWindow(id);
+										webfrontend.gui.UtilView.openVisModeInMainWindow(1, id, false);
 										ncity = window.MaelstromTools.Wrapper.GetCity(id);
-										
 										//console.log("ncity", ncity);
-										
 										if(ncity != null) {
 											if(!ncity.get_IsGhostMode() && !ncity.get_IsLocked()) {
 												//console.log("ncity.get_Name()", ncity.get_Name());
@@ -359,15 +396,45 @@ var __msbs_version = 0.1;
 														this.rowData[i][6] = buildingLoot[ClientLib.Base.EResourceType.Crystal] + unitLoot[ClientLib.Base.EResourceType.Crystal];
 														this.rowData[i][7] = buildingLoot[ClientLib.Base.EResourceType.Gold] + unitLoot[ClientLib.Base.EResourceType.Gold];
 														this.rowData[i][8] = buildingLoot[ClientLib.Base.EResourceType.ResearchPoints] + unitLoot[ClientLib.Base.EResourceType.ResearchPoints];
+														//console.log(ncity);
 														if(this.rowData[i][5] != 0) {
+															var c = 0;
+															var t = 0;
+															this.resmap[id] = new Array(9);
+															for(var m = 0; m < 9; m++) {
+																this.resmap[id][m] = new Array(8);
+															}
+															for(var k = 0; k < 9; k++) {
+																for(var l = 0; l < 8; l++) {
+																	//console.log( ncity.GetResourceType(k,l) );
+																	switch(ncity.GetResourceType(k, l)) {
+																	case 1:
+																		/* Crystal */
+																		this.resmap[id][k][l] = 1;
+																		c++;
+																		break;
+																	case 2:
+																		/* Tiberium */
+																		this.resmap[id][k][l] = 2;
+																		t++;
+																		break;
+																	default:
+																		//none
+																		break;
+																	}
+																}
+															}
+															//console.log( c,t );
+															this.rowData[i][9] = c;
+															this.rowData[i][10] = t;
 															this.rowData[i][1] = 0;
 															retry = true;
-															console.log(ncity.get_Name() , " finish");
+															console.log(ncity.get_Name(), " finish");
 														}
 													}
 												}
 											} else {
-												console.log( this.rowData[i][2] , " on " , posX, posY , " removed (Locked or GhostMode)");
+												console.log(this.rowData[i][2], " on ", posX, posY, " removed (Locked or GhostMode)");
 												this.rowData.splice(i, 1); //entfernt element aus array
 												break;
 											}
@@ -390,14 +457,12 @@ var __msbs_version = 0.1;
 									this.countlastidchecked = 0;
 								} else {
 									this.countlastidchecked++;
-									if(this.countlastidchecked > 5){
+									if(this.countlastidchecked > 5) {
 										sleeptime = 250;
-									}
-									else if(this.countlastidchecked > 12){
+									} else if(this.countlastidchecked > 12) {
 										sleeptime = 500;
-									}									
-									else if(this.countlastidchecked > 18) {
-										console.log( this.rowData[i][2] , " on " , posX, posY , " removed (found no data)");
+									} else if(this.countlastidchecked > 18) {
+										console.log(this.rowData[i][2], " on ", posX, posY, " removed (found no data)");
 										this.rowData.splice(i, 1); //entfernt element aus array
 									}
 								}
@@ -409,6 +474,149 @@ var __msbs_version = 0.1;
 								console.log("MaelstromTools_Basescanner getResources", e);
 							}
 						}
+					} //member				  
+				});
+				qx.Class.define("HuffyTools.BaseScannerLayout", {
+					type: "singleton",
+					extend: MaelstromTools.DefaultObject,
+					members: {
+						labels: null,
+						scrollpane: null,
+						comp: null,
+						idcache: null,
+						init: function () {
+							try {
+								console.log("BaseScannerLayout.init: ");
+								this.labels = [];
+								this.Window.setPadding(0);
+								this.Window.set({
+									resizable: false
+								});
+								this.Window.removeAll();
+								this.Window.setLayout(new qx.ui.layout.Flow().set({
+									spacingX: 3,
+									spacingY: 3
+								}));
+								this.scrollpane = new qx.ui.container.Scroll().set(
+								{
+									width: 800,
+									height: 350
+								});
+								this.comp = new qx.ui.container.Composite();
+								this.comp.setLayout(new qx.ui.layout.Flow().set({
+									spacingX: 3,
+									spacingY: 3
+								}));
+								this.Window.add(this.scrollpane);
+								this.scrollpane.add(this.comp);
+								
+								this.createmap();
+							} catch(e) {
+								console.log("HuffyTools.BaseScannerLayout.init: ", e);
+							}
+						},
+						updateCache: function () {
+							try {
+								//
+							} catch(e) {
+								console.log("HuffyTools.BaseScannerLayout.updateCache: ", e);
+							}
+						},
+						setWidgetLabels: function () {
+							try {
+								if(this.labels == null) {
+									this.init();
+								}
+							} catch(e) {
+								console.log("HuffyTools.BaseScannerLayout.setWidgetLabels: ", e)
+							}
+						},
+						createmap: function () {
+							var resmap = window.HuffyTools.BaseScannerGUI.getInstance().resmap;
+							var rowData = window.HuffyTools.BaseScannerGUI.getInstance().rowData;
+							this.idcache = [];
+							var selectedtype = window.HuffyTools.BaseScannerGUI.getInstance().resmapViewOptions.getSelection()[0].getModel();
+							
+							var rowDataLine = null;
+							if(rowData == null) {
+								console.log("rowData null: ");
+								return;
+							}
+							//console.log("createmap: " , resmap);
+							this.labels = [];
+							for(var id in resmap) {
+								for(i = 0; i < rowData.length; i++) {
+									if(rowData[i][0] == id) {
+										rowDataLine = rowData[i];
+									}
+								}
+								
+								if(rowDataLine == null){
+									continue;
+								}
+								
+								if( selectedtype >4 && selectedtype<8){
+									if( selectedtype != rowDataLine[10] ){
+										continue;
+									}
+								} else {
+									continue;
+								}
+								
+								
+								posData = rowDataLine[3];
+								if(posData != null && posData.split(':').length == 2) {
+									posX = parseInt(posData.split(':')[0]);
+									posY = parseInt(posData.split(':')[1]);
+								}
+								var st = '<table border="2" cellspacing="0" cellpadding="0">';
+								var link = rowDataLine[2] + " - " + rowDataLine[3];
+								st = st + '<tr><td colspan="9"><font color="#FFF">' + link + '</font></td></tr>';
+								for(y = 0; y < 8; y++) {
+									st = st + "<tr>";
+									for(x = 0; x < 9; x++) {
+										var img = "";
+										var res = resmap[id][x][y];
+										//console.log("Res ",res);
+										switch(res == undefined ? 0 : res) {
+										case 2:
+											//console.log("Tiberium " , MT_Base.images[MaelstromTools.Statics.Tiberium] );
+											img = '<img width="14" height="14" src="' + MT_Base.images[MaelstromTools.Statics.Tiberium] + '">';
+											break;
+										case 1:
+											//console.log("Crystal ");
+											img = '<img width="14" height="14" src="' + MT_Base.images[MaelstromTools.Statics.Crystal] + '">';
+											break;
+										default:
+											img = '<img width="14" height="14" src="' + MT_Base.images["Emptypixels"] + '">';
+											break;
+										}
+										st = st + "<td>" + img + "</td>";
+									}
+									st = st + "</tr>";
+								}
+								st = st + "</table>";
+								//console.log("setWidgetLabels ", st);
+								var l = new qx.ui.basic.Label().set({
+									backgroundColor: "#303030",
+									value: st,
+									rich: true
+								});
+								l.cid = id;
+								this.idcache.push(id);
+								l.addListener("click", function (e) {
+									
+									console.log("clickid ", this.cid  );
+									webfrontend.gui.UtilView.openCityInMainWindow(this.cid);
+								});
+								l.setReturnValue = id;
+								this.labels.push(l);
+								this.comp.removeAll();
+								for(a = 0; a < this.labels.length; a++) {
+									this.comp.add(this.labels[a]);
+								}
+							}
+						},
 					} //member				  
 				});
 			}
@@ -430,7 +638,7 @@ var __msbs_version = 0.1;
 		} catch(e) {
 			console.log("Maelstrom_Basescanner ERROR A: ", e);
 		}
-	}
+	};
 	try {
 		var MaelstromScript_Basescanner = document.createElement("script");
 		MaelstromScript_Basescanner.innerHTML = "(" + MaelstromTools_Basescanner.toString() + ")();";
