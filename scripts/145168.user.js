@@ -3,10 +3,10 @@
 // @namespace   a
 // @description Maelstrom ADDON Basescanner
 // @include     http*://prodgame*.alliances.commandandconquer.com/*
-// @version     0.2
+// @version     0.3
 // @author      BlinDManX
 // ==/UserScript==
-__msbs_version = 0.2;
+__msbs_version = 0.3;
 (function () {
 	var MaelstromTools_Basescanner = function () {
 		try {
@@ -37,6 +37,8 @@ __msbs_version = 0.2;
 					MT_Lang.Data["Show Layouts"] = ["Layouts anzeigen", "Mostrar Layouts", "Voir Layouts"][l]; //[eng] = [de,pt,fr]
 					MT_Lang.Data["Building state"] = ["Gebäudezustand", "construção do Estado", "construction de l'État"][l]; //[eng] = [de,pt,fr]
 					MT_Lang.Data["Defense state"] = ["Verteidigungszustand", "de Defesa do Estado", "défense de l'Etat"][l]; //[eng] = [de,pt,fr]
+					MT_Lang.Data["CP"] = ["KP", "CP", "CP"][l]; //[eng] = [de,pt,fr]
+					
 				}
 				MT_Base.createNewImage("BaseScanner", "ui/icons/icon_item.png", fileManager);
 				MT_Base.createNewImage("Emptypixels", "ui/menues/main_menu/misc_empty_pixel.png", fileManager);
@@ -45,7 +47,7 @@ __msbs_version = 0.2;
 				var openBaseScannerOverview = MT_Base.createDesktopButton(MT_Lang.gt("BaseScanner Overview"), "BaseScanner", false, MT_Base.desktopPosition(2));
 				openBaseScannerOverview.addListener("execute", function () {
 					if(window.HuffyTools.BaseScannerGUI.getInstance().Window != null) {
-						window.HuffyTools.BaseScannerGUI.getInstance().createOptions();
+						//window.HuffyTools.BaseScannerGUI.getInstance().createOptions();
 					}
 					window.HuffyTools.BaseScannerGUI.getInstance().openWindow("BaseScanner", MT_Lang.gt("BaseScanner Overview"));
 				}, this);
@@ -69,8 +71,7 @@ __msbs_version = 0.2;
 						rowData: null,
 						init: function () {
 							try {
-								this.upgradeInProgress = false;
-								this.resmap = {};
+								this.upgradeInProgress = false;								
 								this.createTable();
 								this.createOptions();
 								if(this.rowData == null) {
@@ -91,20 +92,23 @@ __msbs_version = 0.2;
 						createTable: function () {
 							try {
 								this.HT_Models = new qx.ui.table.model.Simple();
-								this.HT_Models.setColumns(["ID", "LoadState", MT_Lang.gt("City"), MT_Lang.gt("Location"), MT_Lang.gt("Level"), MT_Lang.gt(MaelstromTools.Statics.Tiberium), MT_Lang.gt(MaelstromTools.Statics.Crystal), MT_Lang.gt(MaelstromTools.Statics.Dollar), MT_Lang.gt(MaelstromTools.Statics.Research), "", "", MT_Lang.gt("Building state"), MT_Lang.gt("Defense state")]);
+								this.HT_Models.setColumns(["ID", "LoadState", MT_Lang.gt("City"), MT_Lang.gt("Location"), MT_Lang.gt("Level"), MT_Lang.gt(MaelstromTools.Statics.Tiberium), MT_Lang.gt(MaelstromTools.Statics.Crystal), MT_Lang.gt(MaelstromTools.Statics.Dollar), MT_Lang.gt(MaelstromTools.Statics.Research), "", "", MT_Lang.gt("Building state"), MT_Lang.gt("Defense state"),MT_Lang.gt("CP")]);
 								this.HT_Tables = new qx.ui.table.Table(this.HT_Models);
 								this.HT_Tables.setColumnVisibilityButtonVisible(false);
 								this.HT_Tables.setColumnWidth(0, 0);
 								this.HT_Tables.setColumnWidth(1, 0);
 								this.HT_Tables.setColumnWidth(2, 120);
-								this.HT_Tables.setColumnWidth(3, 70);
+								this.HT_Tables.setColumnWidth(3, 60);
 								this.HT_Tables.setColumnWidth(4, 50);
-								this.HT_Tables.setColumnWidth(5, 70);
-								this.HT_Tables.setColumnWidth(6, 70);
-								this.HT_Tables.setColumnWidth(7, 70);
-								this.HT_Tables.setColumnWidth(8, 70);
+								this.HT_Tables.setColumnWidth(5, 60);
+								this.HT_Tables.setColumnWidth(6, 60);
+								this.HT_Tables.setColumnWidth(7, 60);
+								this.HT_Tables.setColumnWidth(8, 60);
 								this.HT_Tables.setColumnWidth(9, 30);
 								this.HT_Tables.setColumnWidth(10, 30);
+								this.HT_Tables.setColumnWidth(11, 50);
+								this.HT_Tables.setColumnWidth(12, 50);
+								this.HT_Tables.setColumnWidth(13, 50);
 								var tcm = this.HT_Tables.getTableColumnModel();
 								tcm.setColumnVisible(0, false);
 								tcm.setColumnVisible(1, false);
@@ -205,8 +209,7 @@ __msbs_version = 0.2;
 								minWidth: 100,
 								maxWidth: 100
 							});
-							this.scanButton.addListener("execute", function () {
-								this.rowData = [];
+							this.scanButton.addListener("execute", function () {								
 								this.scan();
 							}, this);
 							oOptions.add(this.scanButton, {
@@ -273,14 +276,14 @@ __msbs_version = 0.2;
 						},
 						scan: function () {
 							try {
-								this.upgradeInProgress = true;
-								var allCities = ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d;
+								this.upgradeInProgress = true;								
 								this.rowData = [];
 								var selectedBase = this.CitySelect.getSelection()[0].getModel();
 								MaelstromTools.LocalStorage.set("MS_Basescanner_LastCityID", selectedBase.get_Id());
 								var c1 = this.HT_ShowBase[0].getValue();
 								var c2 = this.HT_ShowBase[1].getValue();
 								var c3 = this.HT_ShowBase[2].getValue();
+								console.log("Select", c1 ,c2 ,c3);
 								MaelstromTools.LocalStorage.set("MS_Basescanner_Show0", c1);
 								MaelstromTools.LocalStorage.set("MS_Basescanner_Show1", c2);
 								MaelstromTools.LocalStorage.set("MS_Basescanner_Show2", c3);
@@ -299,26 +302,30 @@ __msbs_version = 0.2;
 										if(distance <= maxAttackDistance) {
 											var object = world.GetObjectFromPosition(scanX, scanY);
 											var loot = {};
-											if(object && !object.isLocked) {
-												console.log(object);
-												// 0:ID , 1:Scanned, 2:Name, 3:Location, 4:Level, 5:Tib, 6:Kristal, 7:Credits, 8:Forschung, 9:Kristalfelder, 10:Tiberiumfelder, 11:ConditionBuildings,12:ConditionDefense
-												if(object.ConditionBuildings != 100 || object.ConditionDefense != 100) {
-													console.log("------------------", object.ConditionBuildings, object.ConditionDefense);
-												}
-												if(object.Type == 1 && c1) { //User
-													this.rowData.push([object.Id, - 1, object.Name, scanX + ":" + scanY, object.Level, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense]);
-												}
-												if(object.Type == 2 && c2) { //basen
-													this.rowData.push([object.KOBHAO, - 1, "Basis", scanX + ":" + scanY, object.UPWSFR, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense]);
-												}
-												if(object.Type == 3 && c3) { //Lager Vposten													
-													this.rowData.push([object.QRDMVJ, - 1, "Lager/Vorposten", scanX + ":" + scanY, object.DDTOJV, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense]);
+											if(object) {
+												//console.log(object);
+												if(object.ConditionBuildings>0){
+													var needcp = selectedBase.CalculateAttackCommandPointCostToCoord(scanX, scanY);
+													// 0:ID , 1:Scanned, 2:Name, 3:Location, 4:Level, 5:Tib, 6:Kristal, 7:Credits, 8:Forschung, 9:Kristalfelder, 10:Tiberiumfelder, 11:ConditionBuildings,12:ConditionDefense,13: CP pro Angriff
+													if(object.ConditionBuildings != 100 || object.ConditionDefense != 100) {
+														//console.log("------------------", object.ConditionBuildings, object.ConditionDefense);
+													}
+													if(object.Type == 1 && c1) { //User
+														this.rowData.push([object.Id, - 1, object.Name, scanX + ":" + scanY, object.Level, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense,needcp]    );
+													}
+													if(object.Type == 2 && c2) { //basen
+														this.rowData.push([object.KOBHAO, - 1, "Basis", scanX + ":" + scanY, object.UPWSFR, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense,needcp]    );
+													}
+													if(object.Type == 3 && c3) { //Lager Vposten													
+														this.rowData.push([object.QRDMVJ, - 1, "Lager/Vorposten", scanX + ":" + scanY, object.DDTOJV, 0, 0, 0, 0, 0, 0, object.ConditionBuildings, object.ConditionDefense,needcp]   );
+													}
 												}
 											}
 										}
 									}
 								}
 								this.runloop = true;
+								this.resmap = {};
 								window.setTimeout("window.HuffyTools.BaseScannerGUI.getInstance().getResourcesByID()", 50);
 							} catch(ex) {
 								console.log("Maelstrom_Basescanner scan error: ", ex);
@@ -331,6 +338,7 @@ __msbs_version = 0.2;
 								var maxLoops = 10;
 								var i = 0;
 								var sleeptime = 150;
+								
 								//console.log("getResourcesByID start ");
 								while(!retry) {
 									// if (g3_baseScan.cancel)
