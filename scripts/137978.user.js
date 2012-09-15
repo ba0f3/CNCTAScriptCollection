@@ -1,5 +1,5 @@
 // ==UserScript==
-// @version       1.7.0
+// @version       1.7.2
 // @name          CnC: MH Tiberium Alliances Available Loot Summary
 // @namespace     MHLoot
 // @description   CROSS SERVERS Loot & troops info.
@@ -23,8 +23,9 @@
     
       if(typeof(window.MHTools)=='undefined') window.MHTools = {$n:'MHTools'};
       if(typeof(window.MHTools.Loot)=='undefined') window.MHTools.Loot = {$n:'Loot'};
+      MHTools.Loot.Version = '1.7.2';
       var stats = document.createElement('img');
-      stats.src = 'http://goo.gl/0Fiza';//1.7.0
+      stats.src = 'http://goo.gl/0Fiza';//1.7.2
       
       var resPaths = [
         "webfrontend/ui/common/icn_res_research_mission.png",
@@ -54,10 +55,11 @@
 
       // BASES
       var list = [];
+      var storeName = 'MHToolsLootList';
       function reload() {
         var S = ClientLib.Base.LocalStorage;
         var l;
-        if (S.get_IsSupported()) l = S.GetItem('MHLootList');
+        if (S.get_IsSupported()) l = S.GetItem(storeName);
         if(l!==null) list = l;
         list.max = 50;
         list.idx = 0;
@@ -93,7 +95,7 @@
               // found
               l[i] = c;
               // JSON
-              if (S.get_IsSupported()) S.SetItem('MHLootList', l);
+              if (S.get_IsSupported()) S.SetItem(storeName, l);
               // done
               return;
             }
@@ -102,7 +104,7 @@
           l[l.idx] = c;
           if(++l.idx >= l.max) l.idx = 0;
           // JSON
-          if (S.get_IsSupported()) S.SetItem('MHLootList', l);   
+          if (S.get_IsSupported()) S.SetItem(storeName, l);   
         } catch (e) {
           console.warn("save: ", e);
         }
@@ -157,13 +159,9 @@
         lootWindowOwn: null,
         lootWindowAlly: null,
 
-        //lootable: [0, 0, 0, 0, 0, 0, 0, 0],
-        //troops: [0, 0, 0, 0, 0],
         waiting: [1,'','.','..','...'],
         
         Display: {
-          //loots: [0, 0, 0, 0, 0, 0, 0, 0],
-          //troops: [0, 0, 0, 0, 0],
           troopsArray: [],
           lootArray: [],
           iconArrays: [],
@@ -224,20 +222,20 @@
             if (o === null) continue;
             if (!Array.isArray(o)) continue;
             if (o.length===0) continue;
-            if (o[0][find] === undefined) continue;
+            if (typeof(o[0][find]) == 'undefined') continue;
             return k;
           }
         },
         getKeyHitpoints: function(l) {
           var unit = l[0];
-          //var s = unit.get_HitpointsPercent.toSource();
-          var s = unit.get_HitpointsPercent.toString();
-          var sa = 'Math.min(1, this.';
-          var sb = '() / this.';
+          s = unit.get_IsAlive.toString();//get_HitpointsPercent
+          var sa = 'this.';
+          var sb = '()';
           var a = s.indexOf(sa) + sa.length;
-          var b = s.indexOf(sb);
-          var k = s.substr(a, b - a);
-          //console.info('MHLoot.getKey',k);
+          var t = s.substr(a);
+          var b = t.indexOf(sb);    
+          var k = t.substr(0, b);      
+          //console.info('a',a,'b',b,'k',k);
           return k;
         },         
         getKeys: function(list, b) {
@@ -254,10 +252,7 @@
             }
             if(typeof(o.l[0].GetUnitGroupType) ==  'undefined') {
               if(typeof(b.keys.Resources) == 'undefined') {
-                b.keys.Resources = MHLoot.getKey(o.l[0],'rer');//rer
-                if(typeof(b.keys.Resources) == 'undefined') {
-                  b.keys.Resources = MHLoot.getResKey(o.l[0],'Count');//Resouces
-                }
+                b.keys.Resources = MHLoot.getResKey(o.l[0],'Count');//Resouces
               }
               // buildings
               b.keys.Buildings = k;
@@ -328,11 +323,7 @@
           }            
           return l;
         },
-        getImportants: function(list) {
-          //var abc = "ABCDEFGHI";//abc[column]
-          list.Support = {};
-          list.CY = {};
-          list.DF = {};          
+        getImportants: function(list) {         
           list.Support = {Condition: '-',Row: '-',Column: '-'};
           list.CY = {Condition: '-',Row: '-',Column: '-'};
           list.DF = {Condition: '-',Row: '-',Column: '-'};
@@ -355,6 +346,7 @@
                   list.CY.Condition = 100*building.get_HitpointsPercent();
                   list.CY.Row = 8-parseInt(building.get_CoordY());
                   list.CY.Column = building.get_CoordX();
+                  //console.log('CY',building,list.CY);
                   //console.log('list.CY',list.CY);
                   break;
                 case 158: // DEFENSE FACILITY
@@ -364,7 +356,10 @@
                   list.DF.Condition = 100*building.get_HitpointsPercent();
                   list.DF.Row = 8-parseInt(building.get_CoordY());
                   list.DF.Column = building.get_CoordX();
+                  //console.log('DF',building,list.DF);
                   //console.log('list.DF',list.DF);
+                  break;
+                default:
                   break;
               }
             }
@@ -381,10 +376,8 @@
           window.MHTools.Loot.List = list;
         },  
         loadBase: function() {
-            //console.log('loadBase');
             try {
               if (MHLoot.Data === null) MHLoot.Data = {lastSelectedBaseId: -1, Bypass: {}};
-              //if (typeof(MHLoot.Data.Bypass) == 'undefined') MHLoot.Data.Bypass = {};
               
               var r = MHLoot.Data;         
                           
@@ -420,7 +413,6 @@
                           
               r.loaded = true;
               MHLoot.flagBaseLoaded = true;
-              //MHLoot.Data = r;
               return true;
           } catch (e) {
             console.warn("loadBase: ", e);
@@ -438,30 +430,14 @@
             var el = MHLoot.Data.el;
             
             var loots = [0, 0, 0, 0, 0, 0, 0, 0];
-            
-            var rerFlag = (typeof(el.Buildings[0][MHLoot.Data.Bypass.keys.Resources].rer) != 'undefined');
-            if(rerFlag) {
-              if(typeof(MHLoot.Data.rer)=='undefined') {
-                console.log('(.rer) exists:', rerFlag);
-                var stats = document.createElement('img');
-                stats.src = 'http://goo.gl/DbJlh';//rer stats, going to disable rer
-              }
-            }
-            
+           
             // enemy buildings
             for (var j in el.Buildings) {
               var building = el.Buildings[j];
-              var mod = building.get_HitpointsPercent(); // 0-1 , 1 means 100%              
-              if(rerFlag) {
-                var resourcesList = building[MHLoot.Data.Bypass.keys.Resources].rer;// CVGRPK UJFOTE
-                for (var i in resourcesList) {
-                  loots[resourcesList[i].t] += mod * resourcesList[i].c;// resourcesList[i].Type resourcesList[i].Count
-                }
-              } else {
-                var resourcesList = building[MHLoot.Data.Bypass.keys.Resources]; 
-                for (var i in resourcesList) {
-                  loots[resourcesList[i].Type] += mod * resourcesList[i].Count;// resourcesList[i].Type resourcesList[i].Count
-                }
+              var mod = building.get_HitpointsPercent(); // 0-1 , 1 means 100%
+              var resourcesList = building[MHLoot.Data.Bypass.keys.Resources]; 
+              for (var i in resourcesList) {
+                loots[resourcesList[i].Type] += mod * resourcesList[i].Count;// resourcesList[i].Type resourcesList[i].Count
               }
             }
             
@@ -469,26 +445,16 @@
             for (var j in el.Defences) {
               var unit = el.Defences[j];
               var mod = unit.get_HitpointsPercent(); // 0-1 , 1 means 100%
-                          
-              if(rerFlag) {
-                var resourcesList = unit[MHLoot.Data.Bypass.keys.Resources].rer;
-                for (var i in resourcesList) {
-                  loots[resourcesList[i].t] += mod * resourcesList[i].c;
-                }
-              } else {
-                var resourcesList = unit[MHLoot.Data.Bypass.keys.Resources];
-                for (var i in resourcesList) {
-                  loots[resourcesList[i].Type] += mod * resourcesList[i].Count;
-                }
+              var resourcesList = unit[MHLoot.Data.Bypass.keys.Resources];
+              for (var i in resourcesList) {
+                loots[resourcesList[i].Type] += mod * resourcesList[i].Count;
               }
             }
             MHLoot.Display.lootArray = [];
             MHLoot.Display.lootArray[0] = loots[6];//imgResearch 6 
             MHLoot.Display.lootArray[1] = loots[1];//imgTiberium 1
             MHLoot.Display.lootArray[2] = loots[2];//imgCrystal 2
-            MHLoot.Display.lootArray[3] = loots[3];//imgCredits 3             
-            //MHLoot.Display.loots = loots;
-            // store
+            MHLoot.Display.lootArray[3] = loots[3];//imgCredits 3 
             store('lootArray',MHLoot.Display.lootArray);
           } catch (e) {
             console.warn("calcResources: ", e);
@@ -530,7 +496,6 @@
               }
             }
             MHLoot.Display.troopsArray = troops;
-            // store
             store('troopsArray',MHLoot.Display.troopsArray);
           } catch (e) {
             console.warn("calcTroops: ", e);
@@ -554,7 +519,7 @@
           
           if(showInfo) { 
             try {                   
-              var ohp=0, dhp=0, bhp=0;
+              var ohp=0, dhp=0;
               for (var k in ol.Offences) ohp += ol.Offences[k].get_Health();//own of units
               for (var k in el.Defences) dhp += el.Defences[k].get_Health();//ene df units
                               
@@ -788,7 +753,6 @@
               hp.val = t;
               twoLineInfoArrays.push(hp);
             } 
-            // store
             store('twoLineInfoArrays',MHLoot.Display.twoLineInfoArrays); 
           } catch (e) {
             console.warn("MHLoot.calcFriendlyInfo: ", e);
@@ -796,12 +760,10 @@
         },
         restoreDisplay: function() {
           var idx = getIndex();  
-          if(idx > -1) {
-            //console.log('id',ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId(),'idx',idx); 
+          if(idx > -1) { 
             var d = list[idx].Data;
             MHLoot.Display={};
             for(var k in d) MHLoot.Display[k] = d[k];
-            //console.dir(MHLoot.Display);
             return true;
           }
           return false;
@@ -827,7 +789,6 @@
             MHLoot.calcFriendlyInfo();
             addFriendlyLabel(MHLoot.lootWindowAlly);
           } else {
-            //console.log(getIndex());
             addLoadingLabel(MHLoot.lootWindowAlly);
           }
         } catch (e) {
@@ -856,7 +817,6 @@
             MHLoot.calcFriendlyInfo();
             addFriendlyLabel(MHLoot.lootWindowOwn);
           } else {
-            //console.log(getIndex());
             addLoadingLabel(MHLoot.lootWindowOwn);
           }
         } catch (e) {
@@ -984,11 +944,7 @@
             hp = {};
             hp.name = '<b>Lootable Resources</b>';
             hp.img = resImages;
-            t = [];
-            //t.push(MHLoot.Display.loots[6]);//imgResearch 6 lootArray
-            //t.push(MHLoot.Display.loots[1]);//imgTiberium 1
-            //t.push(MHLoot.Display.loots[2]);//imgCrystal 2
-            //t.push(MHLoot.Display.loots[3]);//imgCredits 3   
+            t = [];  
             t.push(MHLoot.Display.lootArray[0]);//Research 6  
             t.push(MHLoot.Display.lootArray[1]);//Tiberium 1
             t.push(MHLoot.Display.lootArray[2]);//Crystal 2
@@ -1021,8 +977,6 @@
               //t.push(MHLoot.Display.troopsArray[4]);//air
             }              
             hp.val = t;
-            //iconArrays.push(hp);
-            //console.log('iconArrays.push(hp);');
             // draw icon's info                            
             r++; c=0;
             widget.add(new qx.ui.basic.Label(hp.name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});  
@@ -1040,31 +994,23 @@
           if(MHLoot.Display.infoArrays !== undefined) {
             for(var i in MHLoot.Display.infoArrays) {              
               r++; c=0;
-              widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
-              //console.log('i',i);   
+              widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6}); 
               c=1;
               for(var j in MHLoot.Display.infoArrays[i].lbs) {
-                //console.log('i',i,'j',j); 
-                //widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]), {row: r, column: c++});                     
-                //widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c++});
                 widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]+' '+MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c});
                 c+=2;
               }           
             }
-          }
-          //console.log('twoLineInfoArrays entry', MHLoot.Display.twoLineInfoArrays); 
-          if(MHLoot.Display.twoLineInfoArrays !== undefined) {   
-            //console.log('twoLineInfoArrays entry',MHLoot.Display.twoLineInfoArrays);   
+          } 
+          if(MHLoot.Display.twoLineInfoArrays !== undefined) {     
             for(var i in MHLoot.Display.twoLineInfoArrays) {              
               r++; c=0;
               widget.add(new qx.ui.basic.Label(MHLoot.Display.twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
               //console.log('i',i);   
               c=1;
               for(var j in MHLoot.Display.twoLineInfoArrays[i].lbs) {
-                //console.log('i',i,'j',j); 
                 widget.add(new qx.ui.basic.Label(MHLoot.Display.twoLineInfoArrays[i].lbs[j]), {row: r, column: c});                     
                 widget.add(new qx.ui.basic.Label(MHLoot.Display.twoLineInfoArrays[i].val[j]), {row: r+1, column: c});
-                // widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]+' '+MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c});
                 c+=2;
               }
               r++;                
@@ -1095,14 +1041,11 @@
             var r=0, c=0;
             for(var i in twoLineInfoArrays) {              
               r++; c=0;
-              widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6});    
-              //console.log('i',i);   
+              widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].name).set({width: 200, rich: true}), { row: r++, column: c, colSpan: 6}); 
               c=1;
               for(var j in twoLineInfoArrays[i].lbs) {
-                //console.log('i',i,'j',j); 
                 widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].lbs[j]), {row: r, column: c});                     
                 widget.add(new qx.ui.basic.Label(twoLineInfoArrays[i].val[j]), {row: r+1, column: c});
-                // widget.add(new qx.ui.basic.Label(MHLoot.Display.infoArrays[i].lbs[j]+' '+MHLoot.Display.infoArrays[i].val[j]), {row: r, column: c});
                 c+=2;
               }
               r++;                

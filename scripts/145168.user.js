@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name        Maelstrom ADDON Basescanner
-// @namespace   a
+// @namespace   http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @description Maelstrom ADDON Basescanner
-// @include     http*://prodgame*.alliances.commandandconquer.com/*
-// @version     0.3
+// @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
+// @version     0.4
 // @author      BlinDManX
+// @grant       none
 // ==/UserScript==
-__msbs_version = 0.3;
+__msbs_version = 0.4;
 (function () {
 	var MaelstromTools_Basescanner = function () {
 		try {
@@ -85,6 +86,10 @@ __msbs_version = 0.3;
 								this.Window.add(this.HT_Options);
 								this.Window.add(this.HT_Tables);
 								this.Window.addListener("close", window.HuffyTools.BaseScannerGUI.getInstance().closeCallback);
+								
+								var stats = document.createElement('img');
+								stats.src = 'http://goo.gl/RTscG';//0.4
+								
 							} catch(e) {
 								console.log("HuffyTools.BaseScannerGUI.init: ", e);
 							}
@@ -92,9 +97,9 @@ __msbs_version = 0.3;
 						createTable: function () {
 							try {
 								this.HT_Models = new qx.ui.table.model.Simple();
-								this.HT_Models.setColumns(["ID", "LoadState", MT_Lang.gt("City"), MT_Lang.gt("Location"), MT_Lang.gt("Level"), MT_Lang.gt(MaelstromTools.Statics.Tiberium), MT_Lang.gt(MaelstromTools.Statics.Crystal), MT_Lang.gt(MaelstromTools.Statics.Dollar), MT_Lang.gt(MaelstromTools.Statics.Research), "", "", MT_Lang.gt("Building state"), MT_Lang.gt("Defense state"),MT_Lang.gt("CP")]);
+								this.HT_Models.setColumns(["ID", "LoadState", MT_Lang.gt("City"), MT_Lang.gt("Location"), MT_Lang.gt("Level"), MT_Lang.gt(MaelstromTools.Statics.Tiberium), MT_Lang.gt(MaelstromTools.Statics.Crystal), MT_Lang.gt(MaelstromTools.Statics.Dollar), MT_Lang.gt(MaelstromTools.Statics.Research), "", "", MT_Lang.gt("Building state"), MT_Lang.gt("Defense state"),MT_Lang.gt("CP"),"Def.HP/Off.HP"]);
 								this.HT_Tables = new qx.ui.table.Table(this.HT_Models);
-								this.HT_Tables.setColumnVisibilityButtonVisible(false);
+								this.HT_Tables.setColumnVisibilityButtonVisible(true);
 								this.HT_Tables.setColumnWidth(0, 0);
 								this.HT_Tables.setColumnWidth(1, 0);
 								this.HT_Tables.setColumnWidth(2, 120);
@@ -109,6 +114,7 @@ __msbs_version = 0.3;
 								this.HT_Tables.setColumnWidth(11, 50);
 								this.HT_Tables.setColumnWidth(12, 50);
 								this.HT_Tables.setColumnWidth(13, 50);
+								this.HT_Tables.setColumnWidth(14, 90);
 								var tcm = this.HT_Tables.getTableColumnModel();
 								tcm.setColumnVisible(0, false);
 								tcm.setColumnVisible(1, false);
@@ -153,7 +159,10 @@ __msbs_version = 0.3;
 								if(cityId) {
 									//ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(cityId);
 									//webfrontend.gui.UtilView.openCityInMainWindow(cityId);
-									webfrontend.gui.UtilView.openVisModeInMainWindow(1, cityId, false);
+									//webfrontend.gui.UtilView.openVisModeInMainWindow(1, cityId, false);
+									var bk=qx.core.Init.getApplication();
+									bk.getBackgroundArea().closeCityInfo();
+									bk.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupDefense,cityId,0,0);
 								}
 							} catch(ex) {
 								console.log("HuffyTools.BaseScannerGUI cellDoubleClickCallback error: ", ex);
@@ -293,6 +302,9 @@ __msbs_version = 0.3;
 								var scanY = 0;
 								var world = ClientLib.Data.MainData.GetInstance().get_World();
 								console.log("Scanning from: " + selectedBase.get_Name());
+								ClientLib.Vis.VisMain.GetInstance().CenterGridPosition(posX, posY); //Load data of region
+								ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(selectedBase.get_Id());
+								
 								var maxAttackDistance = ClientLib.Data.MainData.GetInstance().get_Server().get_MaxAttackDistance();
 								for(scanY = posY - Math.floor(maxAttackDistance + 1); scanY <= posY + Math.floor(maxAttackDistance + 1); scanY++) {
 									for(scanX = posX - Math.floor(maxAttackDistance + 1); scanX <= posX + Math.floor(maxAttackDistance + 1); scanX++) {
@@ -305,7 +317,7 @@ __msbs_version = 0.3;
 											if(object) {
 												//console.log(object);
 												if(object.ConditionBuildings>0){
-													var needcp = selectedBase.CalculateAttackCommandPointCostToCoord(scanX, scanY);
+													var needcp = selectedBase.CalculateAttackCommandPointCostToCoord(scanX, scanY);														
 													// 0:ID , 1:Scanned, 2:Name, 3:Location, 4:Level, 5:Tib, 6:Kristal, 7:Credits, 8:Forschung, 9:Kristalfelder, 10:Tiberiumfelder, 11:ConditionBuildings,12:ConditionDefense,13: CP pro Angriff
 													if(object.ConditionBuildings != 100 || object.ConditionDefense != 100) {
 														//console.log("------------------", object.ConditionBuildings, object.ConditionDefense);
@@ -384,7 +396,7 @@ __msbs_version = 0.3;
 										//webfrontend.gui.UtilView.openCityInMainWindow(id);
 										webfrontend.gui.UtilView.openVisModeInMainWindow(1, id, false);
 										ncity = window.MaelstromTools.Wrapper.GetCity(id);
-										//console.log("ncity", ncity);
+										console.log("ncity", ncity);
 										if(ncity != null) {
 											if(!ncity.get_IsGhostMode() && !ncity.get_IsLocked()) {
 												//console.log("ncity.get_Name()", ncity.get_Name());
@@ -433,8 +445,35 @@ __msbs_version = 0.3;
 																}
 															}
 															//console.log( c,t );
+															
+																										
+															
 															this.rowData[i][9] = c;
 															this.rowData[i][10] = t;
+															this.rowData[i][11] = ncity.GetBuildingsConditionInPercent();
+															this.rowData[i][12] = ncity.GetDefenseConditionInPercent();
+															
+															try {
+																var selectedBase = this.CitySelect.getSelection()[0].getModel();
+																var u = selectedBase.get_CityUnitsData().get_OffenseUnits().l;
+																console.log("OffenseUnits",u);
+																var offhp = 0;
+																var defhp =0;
+																for (var g = 0; g < u.length; g++) {
+																	offhp += u[g].get_Health();														
+																}
+																
+																u = ncity.get_CityUnitsData().get_DefenseUnits().l
+																console.log("DefUnits",u);
+																for (g = 0; g < u.length; g++) {
+																	defhp += u[g].get_Health();		
+																}
+																
+																console.log("HPs",offhp,defhp, (defhp/offhp) );
+															} catch (x) {
+																console.log("HPRecord",x);
+															}
+															this.rowData[i][14] =(defhp/offhp);
 															this.rowData[i][1] = 0;
 															retry = true;
 															console.log(ncity.get_Name(), " finish");
@@ -615,7 +654,11 @@ __msbs_version = 0.3;
 								l.addListener("click", function (e) {
 									
 									console.log("clickid ", this.cid  );
-									webfrontend.gui.UtilView.openCityInMainWindow(this.cid);
+									//webfrontend.gui.UtilView.openCityInMainWindow(this.cid);
+									var bk=qx.core.Init.getApplication();
+									bk.getBackgroundArea().closeCityInfo();
+									bk.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupBase,this.cid,0,0);
+									
 								});
 								l.setReturnValue = id;
 								this.labels.push(l);

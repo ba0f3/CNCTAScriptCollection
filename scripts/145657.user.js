@@ -1,5 +1,5 @@
 // ==UserScript==
-// @version       1.7.1p
+// @version       1.7.2p
 // @name          CnC: MH Tiberium Alliances Pure Loot Summary
 // @namespace     MHLoot
 // @description   CROSS SERVERS Pure Loot info.
@@ -14,9 +14,9 @@
     
       if(typeof(window.MHTools)=='undefined') window.MHTools = {$n:'MHTools'};
       if(typeof(window.MHTools.Loot)=='undefined') window.MHTools.Loot = {$n:'Loot'};
-      MHTools.Loot.Version = '1.7.1p';
+      MHTools.Loot.Version = '1.7.2p';
       var stats = document.createElement('img');
-      stats.src = 'http://goo.gl/lXeEK';//1.7.1p
+      stats.src = 'http://goo.gl/lXeEK';//1.7.2p
       
       var resPaths = [
         "webfrontend/ui/common/icn_res_research_mission.png",
@@ -180,16 +180,16 @@
         },
         getKeyHitpoints: function(l) {
           var unit = l[0];
-          //var s = unit.get_HitpointsPercent.toSource();
-          var s = unit.get_HitpointsPercent.toString();
-          var sa = 'Math.min(1, this.';
-          var sb = '() / this.';
+          s = unit.get_IsAlive.toString();//get_HitpointsPercent
+          var sa = 'this.';
+          var sb = '()';
           var a = s.indexOf(sa) + sa.length;
-          var b = s.indexOf(sb);
-          var k = s.substr(a, b - a);
-          //console.info('MHLoot.getKey',k);
+          var t = s.substr(a);
+          var b = t.indexOf(sb);    
+          var k = t.substr(0, b);      
+          //console.info('a',a,'b',b,'k',k);
           return k;
-        },         
+        },           
         getKeys: function(list, b) {
           for (var k in list) {
             var o = list[k];

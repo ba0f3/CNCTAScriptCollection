@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.4.8";
+var CURRENT_VERSION = "1.2.4.9";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -21,13 +21,13 @@ var DEFAULT_SCRIPTS = [
     {
         id: 137978,
         name: "CnC: MH Tiberium Alliances Available Loot Summary",
-        version: "1.7.0",
+        version: "1.7.2",
         enabled: true, 
     },
     {
         id: 145657,
         name: "CnC: MH Tiberium Alliances Pure Loot Summary",
-        version: "1.7.1p",
+        version: "1.7.2p",
         enabled: false, 
     },
     {
@@ -63,7 +63,7 @@ var DEFAULT_SCRIPTS = [
     {
         id: 145168,
         name: "Maelstrom ADDON Basescanner",
-        version: "0.3",
+        version: "0.4",
         enabled: true,
     }
 ];
