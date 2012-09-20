@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.5.0";
+var CURRENT_VERSION = "1.2.5.1";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -63,7 +63,7 @@ var DEFAULT_SCRIPTS = [
     {
         id: 145168,
         name: "Maelstrom ADDON Basescanner",
-        version: "0.4",
+        version: "0.6",
         enabled: true,
     }
 ];
