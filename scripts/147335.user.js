@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name        C&C - Tiberium Alliances Combat Simulator
 // @namespace   Deyhak
-// @description Temp Combat Simulator
+// @description Nothing to see hre
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.3
+// @version     0.1.4
 // @grant MetaData
 // ==/UserScript==
 
-var lock = false;
 
 var unsafeWindow=window;
 function initSimulateBattle(){
@@ -15,13 +14,15 @@ function initSimulateBattle(){
 	qx = unsafeWindow["qx"];
 	ClientLib = unsafeWindow["ClientLib"];
 	
+    var lock = false;
 	var application = qx.core.Init.getApplication();
 	var bas = application.getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
 	var btn = new qx.ui.form.Button("Simulate");
 	
-	btn.set({ width: 68, height: 26});
+	btn.set({ width: 68, height: 30});
 	btn.addListener("click", function(){
-		if (lock) return;
+		if (lock)                 
+            return;
 		
 		qx = unsafeWindow["qx"];
 		ClientLib = unsafeWindow["ClientLib"];
@@ -36,12 +37,15 @@ function initSimulateBattle(){
 		app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, city.get_Id(), 0, 0);
 
 		lock = true;
-
+        var cooldown = new qx.ui.form.Button("Wait...");
+        cooldown.set({ width: 68, height: 30});
+        bas.add(cooldown, { right: 66, bottom: 4 });
 		setTimeout(function(){
 			lock = false;
-		}, 1000)
+            bas.remove(cooldown);
+		}, 10000)
 	}, this)
-        bas.add(btn, { right: 66, bottom: 6 });
+        bas.add(btn, { right: 66, bottom: 4 });
 }
 
 
@@ -98,7 +102,35 @@ function initUnlockCombat()
       
 }
 
+function initTools(){
+     var buttonTools = new qx.ui.form.Button("Tools");
+     buttonTools.set({
+        width: 68, height: 30,
+        appearance: "button-text-small",
+        toolTipText: "Open Simulator Tools"
+     });
+     var battleResultsBox = new qx.ui.window.Window("Battle Simulator");
+     buttonTools.addListener("click", function() {
 
+                     battleResultsBox.setPadding(1);
+                     battleResultsBox.setLayout(new qx.ui.layout.VBox(1));
+                     battleResultsBox.setShowMaximize(false);
+                     battleResultsBox.setShowMinimize(false);
+                     battleResultsBox.moveTo(125, 125);
+                     battleResultsBox.setHeight(300);
+                     battleResultsBox.setWidth(200);
+                     if (battleResultsBox.isVisible()) {
+                        battleResultsBox.close();
+                     }
+                     else battleResultsBox.open();
+                     }, this);
+    var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+    armyBar.add(buttonTools, {
+    bottom: 42,
+    right: 66
+    });
+    
+}
 
 
 function waitForClientLib(){
@@ -114,6 +146,7 @@ function waitForClientLib(){
 		initSimulateBattle();
         initReturnSetup();
         initUnlockCombat();
+        initTools();
 };
 
 function startup(){

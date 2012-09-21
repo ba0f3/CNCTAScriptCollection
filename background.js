@@ -1,4 +1,3 @@
-var CURRENT_VERSION = "1.2.5.3";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -69,15 +68,17 @@ var DEFAULT_SCRIPTS = [
     {
         id: 147335,
         name: "C&C Combat Simulator (Pure)",
-        version: "0.1.3",
+        version: "0.1.4",
         enabled: true,     
     }
 ];
-
-if(localStorage.getItem('CNCTA_VERSION') != CURRENT_VERSION) {
+var CURRENT_VERSION = chrome.app.getDetails().version;
+var PREVIOUS_VERSION = localStorage.getItem('CNCTA_VERSION');
+if(CURRENT_VERSION != PREVIOUS_VERSION) {
 	localStorage.setItem('CNCTA_VERSION', CURRENT_VERSION);
 	localStorage.setItem('CNCTA_SCRIPTS', JSON.stringify(DEFAULT_SCRIPTS));
 
+    window.open(chrome.extension.getURL('updated.html'));
 
 	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED')) || [];
 
