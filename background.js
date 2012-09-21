@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.5.1";
+var CURRENT_VERSION = "1.2.5.2";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -65,6 +65,12 @@ var DEFAULT_SCRIPTS = [
         name: "Maelstrom ADDON Basescanner",
         version: "0.6",
         enabled: true,
+    },
+    {
+        id: 147335,
+        name: "C&C Combat Simulator (Pure)",
+        version: "0.1.2",
+        enabled: true,     
     }
 ];
 
@@ -91,14 +97,15 @@ if(localStorage.getItem('CNCTA_VERSION') != CURRENT_VERSION) {
             enabled[script.id] = script.enabled;
         }
     }
-    if(CURRENT_VERSION == "1.2.4.4") {
-         // force CnCOpt enabled again
-        enabled[131289] = true;
+    if(CURRENT_VERSION == "1.2.5.2") {
+         // disable SIM
+        enabled[138212] = false;
     }
     
 
     localStorage.setItem('CNCTA_ENABLED', JSON.stringify(enabled));
 }
+
 
 function  processRequest(request, sender, sendResponse) {
     switch (request.type) {

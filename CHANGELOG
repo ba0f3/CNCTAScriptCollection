@@ -1,4 +1,7 @@
 CHANGELOGS:
+1.2.5.2:
+  - Add "C&C Combat Simulator (Pure)" 0.1.2
+  - Temporary disable "Tiberium Alliances Combat Simulator"
 1.2.5.1:
   - Update "C&C:Tiberium Alliances Maelstrom ADDON Basescanner" to version 0.6
 1.2.5.0:
@@ -7,7 +10,6 @@ CHANGELOGS:
   - Update "CnC: MH Tiberium Alliances Available Loot Summary" to version 1.7.2
   - Update "C&C:Tiberium Alliances Maelstrom ADDON Basescanner" to version 0.4
   - Update "CnC: MH Tiberium Alliances Pure Loot Summary" to version 1.7.2p
-
 1.2.4.8:
   - Update "Maelstrom ADDON Basescanner" to version 0.3
 1.2.4.7:
@@ -36,7 +38,6 @@ CHANGELOGS:
   - Add Options page, allow user to chooice which scripts to use.
   - Add CnC:Tiberium Alliances Shortcut 1.7.2 (disabled by default)
   - Disable C&C:TA CNCOpt Link Button cuz it is not working w/ recent updates
-  
 1.2.2:
   - Allow more servers: prodgame10-29
   - Add CNCOpt Link Button 1.6

@@ -17,7 +17,7 @@
    "manifest_version": 2,
    "name": "CnC TA Script Collection",
    "update_url": "http://clients2.google.com/service/update2/crx",
-   "version": "1.2.5.1",
+   "version": "1.2.5.2",
    "options_page": "options.html",
    "background": {
         "scripts": ["background.js"]
@@ -33,6 +33,7 @@
       "scripts/140991.user.js",
       "scripts/131289.user.js",
       "scripts/135806.user.js",
-      "scripts/145168.user.js"
+      "scripts/145168.user.js",
+      "scripts/147335.user.js"
     ]
 }
