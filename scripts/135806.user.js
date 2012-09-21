@@ -13,13 +13,13 @@
 // @description    Alt+I - Insert to message/chat/post all your bases/cities info 
 // @description    Alt+B - Repair all.
 // @description    Alt+V - Get back to attack (just after unfinished battle) or attack selected base. This do NOT repair.
-// @description    Alt+; - EA Simulation.
+// @description    Alt+; , Alt+L - EA Simulation.
 // @description    Ctrl+SPACE - Get back to attack (just after unfinished battle) or attack selected base. This DO repair.
 // @description    Provides user kayboard shortcuts to make live easy. Alt+1,Alt+2 ect for login. Alt+X,A,S for coordinates
 // @include        *alliances.commandandconquer.com*
 // @include        http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @require        http://sizzlemctwizzle.com/updater.php?id=135806&days=2
-// @version        1.7.2
+// @version        1.7.3
 // ==/UserScript==
 // Plapce your apccounts details here. Maximum of apccounts is 9.
 var Logins = [ //"email","password" table
@@ -36,7 +36,6 @@ var Logins = [ //"email","password" table
 var lang = "en";
 
 function Ini() {
-	//console.log(localStorage);
 	console.log("CnC: Tiberium Alliances Shortcuts has been loaded - Part 1.");
 };
 
@@ -263,6 +262,7 @@ Ini();
 									this.TAS.main.getInstance().goBackToFight();
 									break;
 								case ";":
+								case "L":
 									this.TAS.main.getInstance().eaSimulator();
 									break;
 								default:

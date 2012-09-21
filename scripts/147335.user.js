@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name        C&C - Tiberium Alliances Combat Simulator
 // @namespace   Deyhak
-// @description Nothing to see hre
+// @description Temp Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.2
+// @version     0.1.3
 // @grant MetaData
 // ==/UserScript==
 
 var lock = false;
 
-var unsafeWindow = window;
+var unsafeWindow=window;
 function initSimulateBattle(){
     
 	qx = unsafeWindow["qx"];
@@ -39,7 +39,7 @@ function initSimulateBattle(){
 
 		setTimeout(function(){
 			lock = false;
-		}, 11000)
+		}, 1000)
 	}, this)
         bas.add(btn, { right: 66, bottom: 6 });
 }

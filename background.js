@@ -1,4 +1,4 @@
-var CURRENT_VERSION = "1.2.5.2";
+var CURRENT_VERSION = "1.2.5.3";
 var DEFAULT_SCRIPTS = [
     {
         id: 131289,
@@ -57,7 +57,7 @@ var DEFAULT_SCRIPTS = [
     {
         id: 135806,
         name: "CnC: Tiberium Alliances Shortcuts",
-        version: "1.7.2",
+        version: "1.7.3",
         enabled: false, 
     },
     {
@@ -69,7 +69,7 @@ var DEFAULT_SCRIPTS = [
     {
         id: 147335,
         name: "C&C Combat Simulator (Pure)",
-        version: "0.1.2",
+        version: "0.1.3",
         enabled: true,     
     }
 ];
