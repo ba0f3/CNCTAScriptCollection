@@ -47,12 +47,12 @@ var DEFAULT_SCRIPTS = [
         version: "0.9.2",
         enabled: true, 
     },
-    {
+    /*{
         id: 140991,
         name: "MaelstromTools Dev",
         version: "0.1.1.6",
         enabled: true, 
-    },
+    },*/
     {
         id: 135806,
         name: "CnC: Tiberium Alliances Shortcuts",
@@ -62,16 +62,35 @@ var DEFAULT_SCRIPTS = [
     {
         id: 145168,
         name: "Maelstrom ADDON Basescanner",
-        version: "0.6",
+        version: "0.7",
         enabled: true,
     },
     {
         id: 147335,
         name: "C&C Combat Simulator (Pure)",
-        version: "0.1.4",
+        version: "0.1.6",
         enabled: true,     
+    },
+    /*{
+        id: 147441,
+        name: "Tiberium Alliances Combat Simulator (Patch)",
+        version: "1.4.1.5",
+        enabled: true, 
+    },
+    {
+        id: 147442,
+        name: "C&C Tiberium Alliances Wrapper (Patch)",
+        version: "0.9.2",
+        enabled: true, 
+    },*/
+    {
+        id: 147370,
+        name: 'C&C:Tiberium Alliances Maelstrom Tools',
+        version: "0.1.1.4",
+        enabled: true
     }
 ];
+
 var CURRENT_VERSION = chrome.app.getDetails().version;
 var PREVIOUS_VERSION = localStorage.getItem('CNCTA_VERSION');
 if(CURRENT_VERSION != PREVIOUS_VERSION) {
@@ -101,8 +120,7 @@ if(CURRENT_VERSION != PREVIOUS_VERSION) {
     if(CURRENT_VERSION == "1.2.5.2") {
          // disable SIM
         enabled[138212] = false;
-    }
-    
+    }  
 
     localStorage.setItem('CNCTA_ENABLED', JSON.stringify(enabled));
 }
