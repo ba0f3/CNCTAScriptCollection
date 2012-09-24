@@ -47,12 +47,12 @@ var DEFAULT_SCRIPTS = [
         version: "0.9.2",
         enabled: true, 
     },
-    /*{
+    {
         id: 140991,
         name: "MaelstromTools Dev",
-        version: "0.1.1.6",
+        version: "0.1.1.7",
         enabled: true, 
-    },*/
+    },
     {
         id: 135806,
         name: "CnC: Tiberium Alliances Shortcuts",
@@ -83,12 +83,6 @@ var DEFAULT_SCRIPTS = [
         version: "0.9.2",
         enabled: true, 
     },*/
-    {
-        id: 147370,
-        name: 'C&C:Tiberium Alliances Maelstrom Tools',
-        version: "0.1.1.4",
-        enabled: true
-    }
 ];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;

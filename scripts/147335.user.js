@@ -3,9 +3,10 @@
 // @namespace   Deyhak
 // @description C&C Tiberium Alliances Basic Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.6.1
+// @version     0.1.6.3
 // @author      Deyhak
-// @grant MetaData
+// @require     http://sizzlemctwizzle.com/updater.php?id=147335
+// @grant       MetaData
 // ==/UserScript==
 
 var unsafeWindow=window;
@@ -207,7 +208,7 @@ function initTools(){
      hboxSupportContainer.setLayout(new qx.ui.layout.HBox(5));
      var enemySupportLevelLabel = new qx.ui.basic.Label("Support lvl ");
      hboxSupportContainer.add(enemySupportLevelLabel);
-     var enemySupportStrengthLabel = new qx.ui.basic.Label("--: 100");
+     var enemySupportStrengthLabel = new qx.ui.basic.Label("--: Undefined");
      hboxSupportContainer.add(enemySupportStrengthLabel);
      enemySupportStrengthLabel.setTextColor("red");
      eVBox.add(hboxSupportContainer);
@@ -222,7 +223,7 @@ function initTools(){
      var tHBox1 = new qx.ui.container.Composite();
      tHBox1.setLayout(new qx.ui.layout.HBox(5));
      tHBox1.add(new qx.ui.basic.Label("Repair Time: "));
-     var simRepairTimeLabel = new qx.ui.basic.Label("0:00:00");
+     var simRepairTimeLabel = new qx.ui.basic.Label("Undefined");
      tHBox1.add(simRepairTimeLabel);
      simRepairTimeLabel.setTextColor("blue");
      tVBox.add(tHBox1);
@@ -230,7 +231,7 @@ function initTools(){
      var tHBox5 = new qx.ui.container.Composite();
      tHBox5.setLayout(new qx.ui.layout.HBox(5));
      tHBox5.add(new qx.ui.basic.Label("Overall: "));
-     var simTroopDamageLabel = new qx.ui.basic.Label("100");
+     var simTroopDamageLabel = new qx.ui.basic.Label("Undefined");
      tHBox5.add(simTroopDamageLabel);
      simTroopDamageLabel.setTextColor("blue");
      tVBox.add(tHBox5);
@@ -238,7 +239,7 @@ function initTools(){
      var tHBox2 = new qx.ui.container.Composite();
      tHBox2.setLayout(new qx.ui.layout.HBox(5));
      tHBox2.add(new qx.ui.basic.Label("Infantry: "));
-     var infantryTroopStrengthLabel = new qx.ui.basic.Label("100");
+     var infantryTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      tHBox2.add(infantryTroopStrengthLabel);
      infantryTroopStrengthLabel.setTextColor("green");
      tVBox.add(tHBox2);
@@ -246,7 +247,7 @@ function initTools(){
      var tHBox3 = new qx.ui.container.Composite();
      tHBox3.setLayout(new qx.ui.layout.HBox(5));
      tHBox3.add(new qx.ui.basic.Label("Vehicle: "));
-     var vehicleTroopStrengthLabel = new qx.ui.basic.Label("100");
+     var vehicleTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      tHBox3.add(vehicleTroopStrengthLabel);
      vehicleTroopStrengthLabel.setTextColor("green");
      tVBox.add(tHBox3);
@@ -254,7 +255,7 @@ function initTools(){
      var tHBox4 = new qx.ui.container.Composite();
      tHBox4.setLayout(new qx.ui.layout.HBox(5));
      tHBox4.add(new qx.ui.basic.Label("Aircraft: "));
-     var airTroopStrengthLabel = new qx.ui.basic.Label("100");
+     var airTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      tHBox4.add(airTroopStrengthLabel);
      airTroopStrengthLabel.setTextColor("green");
      tVBox.add(tHBox4);
@@ -277,7 +278,7 @@ function initTools(){
      var hBox1 = new qx.ui.container.Composite()
      hBox1.setLayout(new qx.ui.layout.HBox(5));
      hBox1.add(new qx.ui.basic.Label("Battle Time: "));
-     var simTimeLabel = new qx.ui.basic.Label("120");
+     var simTimeLabel = new qx.ui.basic.Label("Undefined");
      hBox1.add(simTimeLabel);
      simTimeLabel.setTextColor("black");
      vBox.add(hBox1);
