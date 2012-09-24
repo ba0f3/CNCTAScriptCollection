@@ -3,11 +3,10 @@
 // @namespace   Deyhak
 // @description C&C Tiberium Alliances Basic Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.6
+// @version     0.1.6.1
 // @author      Deyhak
 // @grant MetaData
 // ==/UserScript==
-
 
 var unsafeWindow=window;
 function initSimulateBattle(){
@@ -103,7 +102,15 @@ function initUnlockCombat()
       
 }
 
+
 function initTools(){
+    ///////////////Labels//////////////
+    var enemyTroopStrengthLabel = null;
+    var enemyUnitsStrengthLabel = null;
+    var enemyBuildingsStrengthLabel = null;
+    var CYTroopStrengthLabel = null;
+    var DFTroopStrengthLabel = null;
+    //////////End Labels//////////////
      var buttonTools = new qx.ui.form.Button("Tools");
      buttonTools.set({
         width: 68, height: 30,
@@ -124,6 +131,17 @@ function initTools(){
                         battleResultsBox.close();
                      }
                      else battleResultsBox.open();
+                     var curCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
+                     var targetHP = curCity.GetDefenseConditionInPercent(); 
+                     var targetBuilding = curCity.GetBuildingsConditionInPercent();
+                     var targetDefense = curCity.GetDefenseConditionInPercent();
+
+
+                     enemyTroopStrengthLabel.setValue(""+targetHP);
+                     enemyUnitsStrengthLabel.setValue(""+targetDefense);
+                     enemyBuildingsStrengthLabel.setValue(""+targetBuilding);
+                     //CYTroopStrengthLabel.setValue(""+targetCY);
+
                      }, this);
     var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
     
@@ -147,7 +165,8 @@ function initTools(){
      var eHBox1 = new qx.ui.container.Composite();
      eHBox1.setLayout(new qx.ui.layout.HBox(5));
      eHBox1.add(new qx.ui.basic.Label("Enemy Base: "));
-     var enemyTroopStrengthLabel = new qx.ui.basic.Label("100");
+
+     enemyTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      eHBox1.add(enemyTroopStrengthLabel);
      enemyTroopStrengthLabel.setTextColor("red");
      eVBox.add(eHBox1);
@@ -155,7 +174,7 @@ function initTools(){
      var eHBox4 = new qx.ui.container.Composite();
      eHBox4.setLayout(new qx.ui.layout.HBox(5));
      eHBox4.add(new qx.ui.basic.Label("Defences: "));
-     var enemyUnitsStrengthLabel = new qx.ui.basic.Label("100");
+     enemyUnitsStrengthLabel = new qx.ui.basic.Label("Undefined");
      eHBox4.add(enemyUnitsStrengthLabel);
      enemyUnitsStrengthLabel.setTextColor("green");
      eVBox.add(eHBox4);
@@ -163,7 +182,7 @@ function initTools(){
      var eHBox5 = new qx.ui.container.Composite();
      eHBox5.setLayout(new qx.ui.layout.HBox(5));
      eHBox5.add(new qx.ui.basic.Label("Buildings: "));
-     var enemyBuildingsStrengthLabel = new qx.ui.basic.Label("100");
+     enemyBuildingsStrengthLabel = new qx.ui.basic.Label("Undefined");
      eHBox5.add(enemyBuildingsStrengthLabel);
      enemyBuildingsStrengthLabel.setTextColor("green");
      eVBox.add(eHBox5);
@@ -171,7 +190,7 @@ function initTools(){
      var eHBox2 = new qx.ui.container.Composite();
      eHBox2.setLayout(new qx.ui.layout.HBox(5));
      eHBox2.add(new qx.ui.basic.Label("Construction Yard: "));
-     var CYTroopStrengthLabel = new qx.ui.basic.Label("100");
+     CYTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      eHBox2.add(CYTroopStrengthLabel);
      CYTroopStrengthLabel.setTextColor("red");
      eVBox.add(eHBox2);
@@ -179,7 +198,7 @@ function initTools(){
      var eHBox3 = new qx.ui.container.Composite();
      eHBox3.setLayout(new qx.ui.layout.HBox(5));
      eHBox3.add(new qx.ui.basic.Label("Defense Facility: "));
-     var DFTroopStrengthLabel = new qx.ui.basic.Label("100");
+     DFTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      eHBox3.add(DFTroopStrengthLabel);
      DFTroopStrengthLabel.setTextColor("red");
      eVBox.add(eHBox3);
