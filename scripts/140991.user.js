@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.1.6
+// @version     0.1.1.7
 // @author      Maelstrom, HuffyLuf and KRS_L
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @require http://sizzlemctwizzle.com/updater.php?id=140991
@@ -72,86 +72,86 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               }
             
               this.Data = new Object();
-              this.Data["Collect all packages"] = ["Alle Pakete einsammeln", "Recolher todos os pacotes", "Récupérez tous les paquets"][l];
-              this.Data["Overall production"] = ["Produktionsübersicht", "Produção global", "La production globale"][l];
-              this.Data["Army overview"] = ["Truppenübersicht", "Vista Geral de Exército", "Armée aperçu"][l];
+              this.Data["Collect all packages"] = ["Alle Pakete einsammeln", "Recolher todos os pacotes", "RÃ©cupÃ©rez tous les paquets"][l];
+              this.Data["Overall production"] = ["ProduktionsÃ¼bersicht", "ProduÃ§Ã£o global", "La production globale"][l];
+              this.Data["Army overview"] = ["TruppenÃ¼bersicht", "Vista Geral de ExÃ©rcito", "ArmÃ©e aperÃ§u"][l];
               this.Data["Base resources"] = ["Basis Ressourcen", "Recursos base", "ressources de base"][l];
-              this.Data["Main menu"] = ["Hauptmenü", "Menu Principal", "menu principal"][l];
-              this.Data["Repair all units"] = ["Alle Einheiten reparieren", "Reparar todas as unidades", "Réparer toutes les unités"][l];
-              this.Data["Repair all buildings"] = ["Alle Gebäurde reparieren", "Reparar todos os edifícios", "Réparer tous les bâtiments"][l];
-              this.Data["Base status overview"] = ["Basisübersicht", "Estado geral da base", "aperçu de l'état de base"][l];
-              this.Data["Upgrade priority overview"] = ["Upgrade Übersicht", "Prioridade de upgrades", "aperçu des priorités de mise à niveau"][l];
-              this.Data["MaelstromTools Preferences"] = ["MaelstromTools Einstellungen", "Preferências de MaelstromTools", "Préférences MaelstromTools"][l];
-              this.Data["Options"] = ["Einstellungen", "Opções", "Options"][l];
-              this.Data["Target out of range, no resource calculation possible"] = ["Ziel nicht in Reichweite, kann die plünderbaren Ressourcen nicht berechnen", "Alvo fora do alcance, não é possivel calcular os recursos", "Cible hors de portée, pas de calcul de ressources possible"][l];
-              this.Data["Lootable resources"] = ["Plünderbare Ressourcen", "Recursos roubáveis", "Ressources à piller"][l];
+              this.Data["Main menu"] = ["HauptmenÃ¼", "Menu Principal", "menu principal"][l];
+              this.Data["Repair all units"] = ["Alle Einheiten reparieren", "Reparar todas as unidades", "RÃ©parer toutes les unitÃ©s"][l];
+              this.Data["Repair all buildings"] = ["Alle GebÃ¤urde reparieren", "Reparar todos os edifÃ­cios", "RÃ©parer tous les bÃ¢timents"][l];
+              this.Data["Base status overview"] = ["BasisÃ¼bersicht", "Estado geral da base", "aperÃ§u de l'Ã©tat de base"][l];
+              this.Data["Upgrade priority overview"] = ["Upgrade Ãœbersicht", "Prioridade de upgrades", "aperÃ§u des prioritÃ©s de mise Ã  niveau"][l];
+              this.Data["MaelstromTools Preferences"] = ["MaelstromTools Einstellungen", "PreferÃªncias de MaelstromTools", "PrÃ©fÃ©rences MaelstromTools"][l];
+              this.Data["Options"] = ["Einstellungen", "OpÃ§Ãµes", "Options"][l];
+              this.Data["Target out of range, no resource calculation possible"] = ["Ziel nicht in Reichweite, kann die plÃ¼nderbaren Ressourcen nicht berechnen", "Alvo fora do alcance, nÃ£o Ã© possivel calcular os recursos", "Cible hors de portÃ©e, pas de calcul de ressources possible"][l];
+              this.Data["Lootable resources"] = ["PlÃ¼nderbare Ressourcen", "Recursos roubÃ¡veis", "Ressources Ã  piller"][l];
               this.Data["per CP"] = ["pro KP", "por PC", "par PC"][l];
-              this.Data["2nd run"] = ["2. Angriff", "2º ataque", "2° attaque"][l];
-              this.Data["3rd run"] = ["3. Angriff", "3º ataque", "3° attaque"][l];
-              this.Data["Calculating resources..."] = ["Berechne plünderbare Ressourcen...", "A calcular recursos...", "calcul de ressources ..."][l];
-              this.Data["Time to next MCV"] = ["Nächstes MBF", "Tempo restante até ao próximo MCV", "Prochain VCM :"][l];
-              this.Data["Show time to next MCV"] = ["Zeige Zeit bis zum nächsten MBF", "Mostrar tempo restante até ao próximo MCV", "Afficher l'heure pour le prochain VCM "][l];
-              this.Data["Show lootable resources (restart required)"] = ["Zeige plünderbare Ressourcen (Neustart nötig)", "Mostrar recursos roubáveis (é necessário reiniciar)", "Afficher les ressources fouiller (redémarrage nécessaire)"][l];
-              this.Data["Use dedicated Main Menu (restart required)"] = ["Verwende extra Hauptmenü (Neustart nötig)", "Usar botão para o Menu Principal (é necessário reiniciar)", "Utiliser dédiée du menu principal (redémarrage nécessaire)"][l];
-              this.Data["Autocollect packages"] = ["Sammle Pakete automatisch", "Auto recolher pacotes", "paquets autocollecté"][l];
-              this.Data["Autorepair units"] = ["Repariere Einheiten automatisch", "Auto reparar o exército", "unités autoréparé"][l];
-              this.Data["Autorepair buildings"] = ["Repariere Gebäude automatisch", "Auto reparar edifícios", "bâtiments autoréparé"][l];
-              this.Data["Automatic interval in minutes"] = ["Auto-Intervall in Minuten", "Intervalo de tempo automático (em minutos)", "intervalle automatique en quelques minutes"][l];
+              this.Data["2nd run"] = ["2. Angriff", "2Âº ataque", "2Â° attaque"][l];
+              this.Data["3rd run"] = ["3. Angriff", "3Âº ataque", "3Â° attaque"][l];
+              this.Data["Calculating resources..."] = ["Berechne plÃ¼nderbare Ressourcen...", "A calcular recursos...", "calcul de ressources ..."][l];
+              this.Data["Time to next MCV"] = ["NÃ¤chstes MBF", "Tempo restante atÃ© ao prÃ³ximo MCV", "Prochain VCM :"][l];
+              this.Data["Show time to next MCV"] = ["Zeige Zeit bis zum nÃ¤chsten MBF", "Mostrar tempo restante atÃ© ao prÃ³ximo MCV", "Afficher l'heure pour le prochain VCM "][l];
+              this.Data["Show lootable resources (restart required)"] = ["Zeige plÃ¼nderbare Ressourcen (Neustart nÃ¶tig)", "Mostrar recursos roubÃ¡veis (Ã© necessÃ¡rio reiniciar)", "Afficher les ressources fouiller (redÃ©marrage nÃ©cessaire)"][l];
+              this.Data["Use dedicated Main Menu (restart required)"] = ["Verwende extra HauptmenÃ¼ (Neustart nÃ¶tig)", "Usar botÃ£o para o Menu Principal (Ã© necessÃ¡rio reiniciar)", "Utiliser dÃ©diÃ©e du menu principal (redÃ©marrage nÃ©cessaire)"][l];
+              this.Data["Autocollect packages"] = ["Sammle Pakete automatisch", "Auto recolher pacotes", "paquets autocollectÃ©"][l];
+              this.Data["Autorepair units"] = ["Repariere Einheiten automatisch", "Auto reparar o exÃ©rcito", "unitÃ©s autorÃ©parÃ©"][l];
+              this.Data["Autorepair buildings"] = ["Repariere GebÃ¤ude automatisch", "Auto reparar edifÃ­cios", "bÃ¢timents autorÃ©parÃ©"][l];
+              this.Data["Automatic interval in minutes"] = ["Auto-Intervall in Minuten", "Intervalo de tempo automÃ¡tico (em minutos)", "intervalle automatique en quelques minutes"][l];
               this.Data["Apply changes"] = ["Speichern", "Confirmar", "Appliquer changements"][l];
               this.Data["Discard changes"] = ["Abbrechen", "Cancelar", "Annuler changements"][l];
-              this.Data["Reset to default"] = ["Auf Standard zurücksetzen", "Definições padrão", "Réinitialiser"][l];
-              this.Data["Continuous"] = ["Kontinuierlich", "Contínua", "continue"][l];
-              this.Data["Bonus"] = ["Pakete", "Bónus", "Bonus"][l];
+              this.Data["Reset to default"] = ["Auf Standard zurÃ¼cksetzen", "DefiniÃ§Ãµes padrÃ£o", "RÃ©initialiser"][l];
+              this.Data["Continuous"] = ["Kontinuierlich", "ContÃ­nua", "continue"][l];
+              this.Data["Bonus"] = ["Pakete", "BÃ³nus", "Bonus"][l];
               this.Data["POI"] = ["POI", "POI", "POI"][l];
               this.Data["Total / h"] = ["Gesamt / h", "Total / h", "Total / h"][l];
-              this.Data["Repaircharges"] = ["Reparaturzeiten", "Custo de reparação", "frais de réparation"][l];
-              this.Data["Repairtime"] = ["Max. verfügbar", "Tempo de reparação", "Temps de réparation"][l];
+              this.Data["Repaircharges"] = ["Reparaturzeiten", "Custo de reparaÃ§Ã£o", "frais de rÃ©paration"][l];
+              this.Data["Repairtime"] = ["Max. verfÃ¼gbar", "Tempo de reparaÃ§Ã£o", "Temps de rÃ©paration"][l];
               this.Data["Attacks"] = ["Angriffe", "Ataques", "Attaques"][l];
               this.Data[MaelstromTools.Statics.Infantry] = ["Infanterie", "Infantaria", "Infanterie"][l];
-              this.Data[MaelstromTools.Statics.Vehicle] = ["Fahrzeuge", "Veículos", "Vehicule"][l];
+              this.Data[MaelstromTools.Statics.Vehicle] = ["Fahrzeuge", "VeÃ­culos", "Vehicule"][l];
               this.Data[MaelstromTools.Statics.Aircraft] = ["Flugzeuge", "Aeronaves", "Aviation"][l];
-              this.Data[MaelstromTools.Statics.Tiberium] = ["Tiberium", "Tibério", "Tiberium"][l];
+              this.Data[MaelstromTools.Statics.Tiberium] = ["Tiberium", "TibÃ©rio", "Tiberium"][l];
               this.Data[MaelstromTools.Statics.Crystal] = ["Kristalle", "Cristal", "Cristal"][l];
-              this.Data[MaelstromTools.Statics.Power] = ["Strom", "Potência", "Energie"][l];
-              this.Data[MaelstromTools.Statics.Dollar] = ["Credits", "Créditos", "Crédit"][l];
-              this.Data[MaelstromTools.Statics.Research] = ["Forschung", "Investigação", "Recherche"][l];
+              this.Data[MaelstromTools.Statics.Power] = ["Strom", "PotÃªncia", "Energie"][l];
+              this.Data[MaelstromTools.Statics.Dollar] = ["Credits", "CrÃ©ditos", "CrÃ©dit"][l];
+              this.Data[MaelstromTools.Statics.Research] = ["Forschung", "InvestigaÃ§Ã£o", "Recherche"][l];
               this.Data["Base"] = ["Basis", "Base", "Base"][l];
-              this.Data["Defense"] = ["Verteidigung", "Defesa", "Défense"][l];
-              this.Data["Army"] = ["Armee", "Exército", "Armée"][l];
-              this.Data["Level"] = ["Stufe", "Nível", "Niveau"][l];
-              this.Data["Buildings"] = ["Gebäude", "Edifícios", "Bâtiments"][l];
-              this.Data["Health"] = ["Leben", "Vida", "Santé"][l];
-              this.Data["Units"] = ["Einheiten", "Unidades", "Unités"][l];
-              this.Data["Hide Mission Tracker"] = ["Missionsfenster ausblenden", "Esconder janela das Missões", "Cacher la fenêtre de mission"][l];
+              this.Data["Defense"] = ["Verteidigung", "Defesa", "DÃ©fense"][l];
+              this.Data["Army"] = ["Armee", "ExÃ©rcito", "ArmÃ©e"][l];
+              this.Data["Level"] = ["Stufe", "NÃ­vel", "Niveau"][l];
+              this.Data["Buildings"] = ["GebÃ¤ude", "EdifÃ­cios", "BÃ¢timents"][l];
+              this.Data["Health"] = ["Leben", "Vida", "SantÃ©"][l];
+              this.Data["Units"] = ["Einheiten", "Unidades", "UnitÃ©s"][l];
+              this.Data["Hide Mission Tracker"] = ["Missionsfenster ausblenden", "Esconder janela das MissÃµes", "Cacher la fenÃªtre de mission"][l];
               this.Data["none"] = ["keine", "nenhum", "aucun"][l];
-              this.Data["Cooldown"] = ["Cooldown", "Relocalização", "Recharge"][l];
-              this.Data["Protection"] = ["Geschützt bis", "Protecção", "Protection"][l];
-              this.Data["Available weapon"] = ["Verfügbare Artillerie", "Apoio disponível", "arme disponible"][l];
-              this.Data["Calibrated on"] = ["Kalibriert auf", "Calibrado em", "Calibré sur "][l];
+              this.Data["Cooldown"] = ["Cooldown", "RelocalizaÃ§Ã£o", "Recharge"][l];
+              this.Data["Protection"] = ["GeschÃ¼tzt bis", "ProtecÃ§Ã£o", "Protection"][l];
+              this.Data["Available weapon"] = ["VerfÃ¼gbare Artillerie", "Apoio disponÃ­vel", "arme disponible"][l];
+              this.Data["Calibrated on"] = ["Kalibriert auf", "Calibrado em", "CalibrÃ© sur "][l];
               this.Data["Total resources"] = ["Gesamt", "Total de recursos", "Ressources totales"][l];
-              this.Data["Max. storage"] = ["Max. Kapazität", "Armazenamento Máx.", "Max. de stockage"][l];
+              this.Data["Max. storage"] = ["Max. KapazitÃ¤t", "Armazenamento MÃ¡x.", "Max. de stockage"][l];
               this.Data["Storage full!"] = ["Lager voll!", "Armazenamento cheio!", "Stockage plein"][l];
               this.Data["Storage"] = ["Lagerstand", "Armazenamento", "Stockage"][l];
-              this.Data["display only top buildings"] = ["Nur Top-Gebäude anzeigen", "Mostrar apenas melhores edifícios", "afficher uniquement les bâtiments principaux"][l];
-              this.Data["display only affordable buildings"] = ["Nur einsetzbare Gebäude anzeigen", "Mostrar apenas edíficios acessíveis", "afficher uniquement les bâtiments abordables"][l];
+              this.Data["display only top buildings"] = ["Nur Top-GebÃ¤ude anzeigen", "Mostrar apenas melhores edifÃ­cios", "afficher uniquement les bÃ¢timents principaux"][l];
+              this.Data["display only affordable buildings"] = ["Nur einsetzbare GebÃ¤ude anzeigen", "Mostrar apenas edÃ­ficios acessÃ­veis", "afficher uniquement les bÃ¢timents abordables"][l];
               this.Data["City"] = ["Stadt", "Base", "Base"][l];
               this.Data["Type (coord)"] = ["Typ (Koord.)", "Escrever (coord)", "Type (coord)"][l];
-              this.Data["to Level"] = ["Auf Stufe", "para nível", "à Niveau "][l];
+              this.Data["to Level"] = ["Auf Stufe", "para nÃ­vel", "Ã  Niveau "][l];
               this.Data["Gain/h"] = ["Zuwachs/h", "Melhoria/h", "Gain / h"][l];
               this.Data["Factor"] = ["Faktor", "Factor", "Facteur"][l];
               this.Data["Tib/gain"] = ["Tib./Zuwachs", "Tib/melhoria", "Tib / gain"][l];
               this.Data["Pow/gain"] = ["Strom/Zuwachs", "Potencia/melhoria", "Puissance / Gain"][l];
-              this.Data["ETA"] = ["Verfügbar in", "Tempo restante", "Temps restant"][l];
-              this.Data["Upgrade"] = ["Aufrüsten", "Upgrade", "Upgrade"][l];
+              this.Data["ETA"] = ["VerfÃ¼gbar in", "Tempo restante", "Temps restant"][l];
+              this.Data["Upgrade"] = ["AufrÃ¼sten", "Upgrade", "Upgrade"][l];
               this.Data["Powerplant"] = ["Kratfwerk", "Central de Energia", "Centrale"][l];
               this.Data["Refinery"] = ["Raffinerie", "Refinaria", "Raffinerie"][l];
               this.Data["Harvester"] = ["Sammler", "Harvester", "Collecteur"][l];
               this.Data["Silo"] = ["Silo", "Silo", "Silo"][l];
               this.Data["Accumulator"] = ["Akkumulator", "Acumulador", "Accumulateur"][l];
               this.Data["Calibrate support"] = ["Artillerie kalibrieren", "Calibrar apoio", "Calibrer soutien"][l];
-              this.Data["Access"] = ["Öffne", "Aceder", "Accès "][l];
-              this.Data["Focus on"] = ["Zentriere auf", "Concentrar em", "Centré sur"][l];
-              this.Data["Possible attacks from this base (available CP)"] = ["Mögliche Angriffe (verfügbare KP)"][l];
+              this.Data["Access"] = ["Ã–ffne", "Aceder", "AccÃ¨s "][l];
+              this.Data["Focus on"] = ["Zentriere auf", "Concentrar em", "CentrÃ© sur"][l];
+              this.Data["Possible attacks from this base (available CP)"] = ["MÃ¶gliche Angriffe (verfÃ¼gbare KP)"][l];
             //this.Data[""] = [""][l];
             },
           
@@ -1781,9 +1781,9 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.Cache[cname] = Object();
                   // Movement lock
                   this.Cache[cname]["HasCooldown"] = ncity.get_hasCooldown();
-                  this.Cache[cname]["CooldownEnd"] = Math.max(ncity.get_MoveCooldownEndStep(), ncity.get_MoveLockdownEndStep());
+                  this.Cache[cname]["CooldownEnd"] = Math.max(ncity.get_MoveCooldownEndStep(), ncity.get_MoveRestictionEndStep());
                   this.Cache[cname]["MoveCooldownEnd"] = ncity.get_MoveCooldownEndStep();
-                  this.Cache[cname]["MoveLockdownEnd"] = ncity.get_MoveLockdownEndStep();
+                  this.Cache[cname]["MoveLockdownEnd"] = ncity.get_MoveRestictionEndStep();
                   this.Cache[cname]["IsProtected"] = ncity.get_isProtected();
                   this.Cache[cname]["ProtectionEnd"] = ncity.get_ProtectionEndStep();
                   this.Cache[cname]["IsProtected"] = ncity.get_ProtectionEndStep();
@@ -3056,7 +3056,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                       }
                     }
                   }
-                  // Nutzen ins VerhÃƒÆ’Ã‚Â¤ltnis zu den Kosten setzten
+                  // Nutzen ins VerhÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¤ltnis zu den Kosten setzten
                   var TechLevelData = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(city_building.get_CurrentLevel() + 1, city_building.get_TechGameData_Obj());
 				  console.log(TechLevelData);
                   var RatioPerCostType = new Object();
@@ -3327,8 +3327,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
       try {
         if (typeof qx != 'undefined' && 
           qx.core.Init.getApplication() && 
-          qx.core.Init.getApplication().getNavigationBar() && 
-          qx.core.Init.getApplication().getNavigationBar().isVisible()) {
+          qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION) && 
+          qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION).isVisible()) {
           createMaelstromTools();
           window.MaelstromTools.Base.getInstance().initialize();
         } else {
