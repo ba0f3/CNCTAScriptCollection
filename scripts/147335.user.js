@@ -3,7 +3,7 @@
 // @namespace   Deyhak
 // @description C&C Tiberium Alliances Basic Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.7.3
+// @version     0.1.7.4
 // @author      Deyhak
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       MetaData
@@ -456,7 +456,6 @@
             MHLoot.Display.lootArray[0] = loots[6];//imgResearch 6 
             MHLoot.Display.lootArray[1] = loots[1];//imgTiberium 1
             MHLoot.Display.lootArray[2] = loots[2];//imgCrystal 2
-            crystalAmount = loots[2];
             MHLoot.Display.lootArray[3] = loots[3];//imgCredits 3 
             store('lootArray',MHLoot.Display.lootArray);
           } catch (e) {
@@ -1651,16 +1650,17 @@ function initTools(){
                      var targetHP = curCity.GetDefenseConditionInPercent(); 
                      var targetBuilding = curCity.GetBuildingsConditionInPercent();
                      var targetDefense = curCity.GetDefenseConditionInPercent();
-                     var test = getCityPreArmyUnits().get_ArmyUnits().l;
-
-                     logObject(test);
+                     var CYHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100;
+                     var DFHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(74).get_HitpointsPercent()) * 100;
          
                      var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
                      battleground.SimulateBattle();
+
                      setTimeout(function() {
                          var battleDuration = battleground.get_BattleDuration ()/1000;
                          console.log("battleDuration = " + battleDuration); 
                          simTimeLabel.setValue(""+ battleDuration);
+                         console.log("CYHP After sim = " + ((curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100));
                      }, 1000);
 
 
@@ -1668,6 +1668,8 @@ function initTools(){
                      enemyTroopStrengthLabel.setValue(""+targetHP);
                      enemyUnitsStrengthLabel.setValue(""+targetDefense);
                      enemyBuildingsStrengthLabel.setValue(""+targetBuilding);
+                     CYTroopStrengthLabel.setValue(""+CYHP.toFixed(2));
+                     DFTroopStrengthLabel.setValue(""+DFHP.toFixed(2));
                      }, this);
     
     var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
@@ -2040,7 +2042,6 @@ function initViewChange(){
     try{
     var add_ViewModeChange = (new ClientLib.Vis.ViewModeChange).NBGYGU(this, onViewChange);
 
-//    logObject(add_ViewModeChange);
     ClientLib.Vis.VisMain.GetInstance().add_ViewModeChange(add_ViewModeChange);
     }
     catch(e){

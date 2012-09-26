@@ -9,7 +9,7 @@ var DEFAULT_SCRIPTS = [
         id: 135955,
         name: "Tiberium Alliances Map",
         version: "1.8",
-        enabled: true, 
+        enabled: false, 
     },
     {
         id: 136299,
@@ -68,52 +68,27 @@ var DEFAULT_SCRIPTS = [
     {
         id: 147335,
         name: "C&C Combat Simulator (Pure)",
-        version: "0.1.7.1",
+        version: "0.1.7.4",
         enabled: true,     
     }
-    /*{
-        id: 147441,
-        name: "Tiberium Alliances Combat Simulator (Patch)",
-        version: "1.4.1.5",
-        enabled: true, 
-    },
-    {
-        id: 147442,
-        name: "C&C Tiberium Alliances Wrapper (Patch)",
-        version: "0.9.2",
-        enabled: true, 
-    },*/
 ];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
 var PREVIOUS_VERSION = localStorage.getItem('CNCTA_VERSION');
-if(CURRENT_VERSION == PREVIOUS_VERSION) {
+if(CURRENT_VERSION != PREVIOUS_VERSION) {
 	localStorage.setItem('CNCTA_VERSION', CURRENT_VERSION);
 	localStorage.setItem('CNCTA_SCRIPTS', JSON.stringify(DEFAULT_SCRIPTS));
 
     window.open(chrome.extension.getURL('updated.html'));
 
 	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED'));
-    if(enabled == undefined || enabled == null) {
-        enabled = {};
-    }
+    var tmp = {};
 
 	for(var i in DEFAULT_SCRIPTS) {
 		var script = DEFAULT_SCRIPTS[i];
-        if(typeof enabled[script.id] == 'undefined') {
-            enabled[script.id] = script.enabled;
-        }
+        tmp[script.id] = enabled[script.id] || script.enabled;
     }
-
-    var tmp = {};
-    for(var i in enabled) {
-        if isNaN(enabled[i]) {
-           tmp[tmp.length] = enabled[i];
-        }
-        enabled = tmp;
-    }
-
-    localStorage.setItem('CNCTA_ENABLED', JSON.stringify(enabled));
+    localStorage.setItem('CNCTA_ENABLED', JSON.stringify(tmp));
 }
 
 

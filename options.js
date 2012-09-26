@@ -20,10 +20,15 @@ $(document).ready(function(){
 		backgroundWindow._gaq.push(['_trackPageview', '/options.html']);
 	}
 
+	$("#close").click(function() {
+		window.close();
+	});
+
 	$("#save").click(function() {
-		var enabled = [];
+		var enabled = {};
 		for(var i in CNCTA_SCRIPTS) {
-			enabled[CNCTA_SCRIPTS[i].id] = $('input[name="cb-' + CNCTA_SCRIPTS[i].id + '"]').is(':checked');
+			var script = CNCTA_SCRIPTS[i];
+			enabled[CNCTA_SCRIPTS[i].id] = $('input[name="cb-' + script.id + '"]').is(':checked');
 
 			var tmp = enabled[CNCTA_SCRIPTS[i].id]?'enabled':'disabled';
 			backgroundWindow._gaq.push(['_trackEvent', CNCTA_SCRIPTS[i].name, tmp]);
