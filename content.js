@@ -1,4 +1,5 @@
 var USERSCRIPT_PATH = "http://userscripts.org/scripts/source/";
+var unsafeWindow = window;
 
 function isStorageSupported() {
   try {

@@ -3,7 +3,7 @@ var DEFAULT_SCRIPTS = [
         id: 131289,
         name: "C&C:TA CNCOpt Link Button",
         version: "1.6",
-        enabled: false, 
+        enabled: true, 
     },
     {
         id: 135955,
@@ -33,7 +33,7 @@ var DEFAULT_SCRIPTS = [
         id: 138212,
         name: "Tiberium Alliances Combat Simulator",
         version: "1.4.1.5",
-        enabled: true, 
+        enabled: false, 
     },
     {
         id: 138436,
@@ -70,7 +70,7 @@ var DEFAULT_SCRIPTS = [
         name: "C&C Combat Simulator (Pure)",
         version: "0.1.7.1",
         enabled: true,     
-    },
+    }
     /*{
         id: 147441,
         name: "Tiberium Alliances Combat Simulator (Patch)",
@@ -87,34 +87,31 @@ var DEFAULT_SCRIPTS = [
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
 var PREVIOUS_VERSION = localStorage.getItem('CNCTA_VERSION');
-if(CURRENT_VERSION != PREVIOUS_VERSION) {
+if(CURRENT_VERSION == PREVIOUS_VERSION) {
 	localStorage.setItem('CNCTA_VERSION', CURRENT_VERSION);
 	localStorage.setItem('CNCTA_SCRIPTS', JSON.stringify(DEFAULT_SCRIPTS));
 
     window.open(chrome.extension.getURL('updated.html'));
 
-	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED')) || [];
-
-    if(enabled instanceof Array) { //migrate from 1.2.4
-        var tmp = {}
-        for(var i in enabled) {
-            var id = enabled[i];
-            tmp[id] = true;
-        }
-        enabled = tmp;
+	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED'));
+    if(enabled == undefined || enabled == null) {
+        enabled = {};
     }
 
 	for(var i in DEFAULT_SCRIPTS) {
 		var script = DEFAULT_SCRIPTS[i];
-
         if(typeof enabled[script.id] == 'undefined') {
             enabled[script.id] = script.enabled;
         }
     }
-    if(CURRENT_VERSION == "1.2.5.2") {
-         // disable SIM
-        enabled[138212] = false;
-    }  
+
+    var tmp = {};
+    for(var i in enabled) {
+        if isNaN(enabled[i]) {
+           tmp[tmp.length] = enabled[i];
+        }
+        enabled = tmp;
+    }
 
     localStorage.setItem('CNCTA_ENABLED', JSON.stringify(enabled));
 }

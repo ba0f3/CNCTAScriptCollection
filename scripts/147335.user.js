@@ -3,13 +3,12 @@
 // @namespace   Deyhak
 // @description C&C Tiberium Alliances Basic Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.7.1
+// @version     0.1.7.3
 // @author      Deyhak
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       MetaData
 // ==/UserScript==
 
-var unsafeWindow=window;
     (function () {
     var MHLootMain = function () {
     var showLoot = true;                // shows Loot resources info
@@ -1439,6 +1438,84 @@ var unsafeWindow=window;
   }
 })();
 
+
+function initOptions(){
+	var application = qx.core.Init.getApplication();
+	var bas = application.getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);  
+    var opBtn = new qx.ui.form.Button("O");
+    opBtn.set({ width: 30, 
+               height: 30,
+               toolTipText: "Addons Options"
+              
+              });
+    var optionBox = new qx.ui.window.Window("Optons");
+    opBtn.addListener("click", function(){
+                     optionBox.setPadding(1);
+                     optionBox.setLayout(new qx.ui.layout.VBox(1));
+                     optionBox.setShowMaximize(false);
+                     optionBox.setShowMinimize(false);
+                     optionBox.moveTo(125, 525);
+                     optionBox.setHeight(100);
+                     optionBox.setWidth(200);
+                     if (optionBox.isVisible()) {
+                        optionBox.close();
+                        return;
+                     }
+                     else optionBox.open();
+    },this);
+    bas.add(opBtn, { right: 66, bottom: 80 });
+    
+    
+     var tabView = new qx.ui.tabview.TabView();
+     tabView.setPadding(5);
+     optionBox.add(tabView);
+
+     ////////////////// Buttons ////////////////////
+     var btnTab = new qx.ui.tabview.Page("Buttons");
+     btnTab.setLayout(new qx.ui.layout.VBox(5));
+     btnTab.setPadding(1);
+     var eHBox = new qx.ui.container.Composite()
+     eHBox.setLayout(new qx.ui.layout.HBox(5));
+     eHBox.setThemedFont("bold");
+     eHBox.setThemedPadding(2);
+     eHBox.setThemedBackgroundColor("#eef");
+     eHBox.add(new qx.ui.basic.Label("Side: "));
+
+     var leftBtn = new qx.ui.form.Button("L");
+     leftBtn.set({ width: 20, 
+                   appearance: "button-text-small",
+                   toolTipText: "Moves Buttons To The Left"
+              
+              });
+     leftBtn.addListener("click",function(){
+                                    bas.remove(opBtn);
+                                    opBtn.set({width:76});
+                                    bas.add(opBtn, { right: null, left: 6, bottom: 80 });
+                                },this);
+     
+     var rightBtn = new qx.ui.form.Button("R");
+     rightBtn.set({ width: 20, 
+                    appearance: "button-text-small",
+                    toolTipText: "Moves Buttons To The Right"
+              
+              });
+     rightBtn.addListener("click",function(){
+                                    bas.remove(opBtn);
+                                    opBtn.set({width:30});
+                                    bas.add(opBtn, { right: 66, left: null, bottom: 80 });
+                                },this);
+    
+     eHBox.add(leftBtn);
+     eHBox.add(rightBtn);    
+     btnTab.add(eHBox);
+     tabView.add(btnTab);
+    
+    
+    
+}
+
+                      
+                      
 function initSimulateBattle(){
     
 	qx = unsafeWindow["qx"];
@@ -1447,9 +1524,12 @@ function initSimulateBattle(){
     var lock = false;
 	var application = qx.core.Init.getApplication();
 	var bas = application.getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
-	var btn = new qx.ui.form.Button("Simulate");
+	var btn = new qx.ui.form.Button("S");
 	
-	btn.set({ width: 68, height: 30});
+	btn.set({ width: 30, 
+             height: 30,
+             toolTipText: "Simulates Combat"   
+            });
 	btn.addListener("click", function(){
 		if (lock)                 
             return;
@@ -1466,8 +1546,8 @@ function initSimulateBattle(){
 		app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, city.get_Id(), 0, 0);
 
 		lock = true;
-        var cooldown = new qx.ui.form.Button("Wait...");
-        cooldown.set({ width: 68, height: 30});
+        var cooldown = new qx.ui.form.Button("X");
+        cooldown.set({ width: 30, height: 30});
         bas.add(cooldown, { right: 66, bottom: 4 });
 		setTimeout(function(){
 			lock = false;
@@ -1534,8 +1614,10 @@ function initUnlockCombat()
 function formatNumberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-    var battleResultsBox = null;
-    var simTimeLabel = null;
+
+var battleResultsBox = null;
+var simTimeLabel = null;
+
 function initTools(){
     ///////////////Labels//////////////
     var enemyTroopStrengthLabel = null;
@@ -1544,9 +1626,9 @@ function initTools(){
     var CYTroopStrengthLabel = null;
     var DFTroopStrengthLabel = null;
     //////////End Labels//////////////
-     var buttonTools = new qx.ui.form.Button("Tools");
+     var buttonTools = new qx.ui.form.Button("T");
      buttonTools.set({
-        width: 68, height: 30,
+        width: 30, height: 30,
         appearance: "button-text-small",
         toolTipText: "Open Simulator Tools"
      });
@@ -1569,6 +1651,9 @@ function initTools(){
                      var targetHP = curCity.GetDefenseConditionInPercent(); 
                      var targetBuilding = curCity.GetBuildingsConditionInPercent();
                      var targetDefense = curCity.GetDefenseConditionInPercent();
+                     var test = getCityPreArmyUnits().get_ArmyUnits().l;
+
+                     logObject(test);
          
                      var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
                      battleground.SimulateBattle();
@@ -1584,7 +1669,12 @@ function initTools(){
                      enemyUnitsStrengthLabel.setValue(""+targetDefense);
                      enemyBuildingsStrengthLabel.setValue(""+targetBuilding);
                      }, this);
+    
     var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+    armyBar.add(buttonTools, {
+    bottom: 42,
+    right: 66
+    });
     
      var tabView = new qx.ui.tabview.TabView();
      tabView.setPadding(5);
@@ -1764,8 +1854,39 @@ function initTools(){
      psVBox.add(researchSpoils);
 
      battleResultsBox.add(tabView);
+
+}
+
+
+function initFormationShiftKeys(){
+
     
-     ////////////////// Shift Formation Arrows By Quor ////////////////////
+    var application = qx.core.Init.getApplication();
+	var bas = application.getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);  
+    var shiftBtn = new qx.ui.form.Button("F");
+    shiftBtn.set({ width: 30, 
+               height: 30,
+               toolTipText: "Shift Formation"
+              
+              });
+    var shiftBox = new qx.ui.window.Window("Shift Formation");
+    shiftBtn.addListener("click", function(){
+                     shiftBox.setPadding(1);
+                     shiftBox.setLayout(new qx.ui.layout.VBox(1));
+                     shiftBox.setShowMaximize(false);
+                     shiftBox.setShowMinimize(false);
+                     shiftBox.moveTo(325, 525);
+                     shiftBox.setHeight(100);
+                     shiftBox.setWidth(200);
+                     if (shiftBox.isVisible()) {
+                        shiftBox.close();
+                        return;
+                     }
+                     else shiftBox.open();
+    },this);
+    bas.add(shiftBtn, { right: 66, bottom: 118 }); 
+    
+    
 	 var shiftTab = new qx.ui.tabview.Page("Shift");
      shiftTab.setLayout(new qx.ui.layout.VBox(5));
 
@@ -1776,72 +1897,38 @@ function initTools(){
 	{
 		width: 85,
 		appearance: "button-text-small",
-		toolTipText: "Shift units Left"
+		toolTipText: "Moves Formation Left"
 	});
 	arrows.ShiftFormationLeft.addListener("click", function(){shiftFormation('l');}, this);
-    
-	arrows.ShiftFormationLeft2 = new qx.ui.form.Button("←");
-	arrows.ShiftFormationLeft2.set(
-	{
-		width: 30,
-		appearance: "button-text-small",
-		toolTipText: "Shift units Left"
-	});
-	arrows.ShiftFormationLeft2.addListener("click", function(){shiftFormation('l');}, this);
 	
 	arrows.ShiftFormationRight = new qx.ui.form.Button("→");
 	arrows.ShiftFormationRight.set(
 	{
 		width: 85,
 		appearance: "button-text-small",
-		toolTipText: "Shift units RIGHT"
+		toolTipText: "Moves Formation Right"
 	});
 	arrows.ShiftFormationRight.addListener("click", function(){shiftFormation('r');}, this);    
     
-	arrows.ShiftFormationRight2 = new qx.ui.form.Button("→");
-	arrows.ShiftFormationRight2.set(
-	{
-		width: 30,
-		appearance: "button-text-small",
-		toolTipText: "Shift units RIGHT"
-	});    
-	arrows.ShiftFormationRight2.addListener("click", function(){shiftFormation('r');}, this);
 	
 	arrows.ShiftFormationUp = new qx.ui.form.Button("↑");
 	arrows.ShiftFormationUp.set(
 	{
 		width: 30,
 		appearance: "button-text-small",
-		toolTipText: "Shift units UP"
+		toolTipText: "Moves Formation Up"
 	});
 	arrows.ShiftFormationUp.addListener("click", function(){shiftFormation('u');}, this);
     
-	arrows.ShiftFormationUp2 = new qx.ui.form.Button("↑");
-	arrows.ShiftFormationUp2.set(
-	{
-		width: 30,
-		appearance: "button-text-small",
-		toolTipText: "Shift units UP"
-	});
-	arrows.ShiftFormationUp2.addListener("click", function(){shiftFormation('u');}, this);
 	
 	arrows.ShiftFormationDown = new qx.ui.form.Button("↓");
 	arrows.ShiftFormationDown.set(
 	{
 		width: 30,
 		appearance: "button-text-small",
-		toolTipText: "Shift units DOWN"
+		toolTipText: "Moves Formation Down"
 	});
 	arrows.ShiftFormationDown.addListener("click", function(){shiftFormation('d');}, this);
-    
-	arrows.ShiftFormationDown2 = new qx.ui.form.Button("↓");
-	arrows.ShiftFormationDown2.set(
-	{
-		width: 30,
-		appearance: "button-text-small",
-		toolTipText: "Shift units DOWN"
-	});
-	arrows.ShiftFormationDown2.addListener("click", function(){shiftFormation('d');}, this);
     
 	var shiftHBox = new qx.ui.container.Composite()
     shiftHBox.setLayout(new qx.ui.layout.HBox(5));         
@@ -1850,33 +1937,10 @@ function initTools(){
 	shiftHBox.add(arrows.ShiftFormationRight);
     shiftTab.add(shiftHBox);
 	shiftTab.add(arrows.ShiftFormationDown);
-    tabView.add(shiftTab);
+    
+    shiftBox.add(shiftTab);
     //End of Shift Keys
     
-    armyBar.add(arrows.ShiftFormationUp2,
-	{
-		top: 93,
-		left: 29
-	});
-    armyBar.add(arrows.ShiftFormationLeft2,
-	{
-		top: 110,
-		left: 12
-	});
-    armyBar.add(arrows.ShiftFormationRight2,
-	{
-		top: 110,
-		left: 46
-	});
-    armyBar.add(arrows.ShiftFormationDown2,
-	{
-		top: 127,
-		left: 29
-	});
-    armyBar.add(buttonTools, {
-    bottom: 42,
-    right: 66
-    });
 
 }
 
@@ -2010,15 +2074,17 @@ function waitForClientLib(){
         initTools();
         initViewChange();
         //initUnitMoved();
+        initOptions();
+        initFormationShiftKeys()
 
-};
+}
 
 function logObject(obj){
     var output = '';
     for (property in obj) {
       output += property + ': ' + obj[property]+';\n ';
     }
-    console.log(output);   
+    console.log(obj + output);   
 }
 
 function startup(){
