@@ -3,61 +3,61 @@ var DEFAULT_SCRIPTS = [
         id: 131289,
         name: "C&C:TA CNCOpt Link Button",
         version: "1.6",
-        enabled: true, 
+        enabled: true
     },
     {
         id: 135955,
         name: "Tiberium Alliances Map",
         version: "1.8.1",
-        enabled: false, 
+        enabled: false
     },
     {
         id: 136299,
         name: "Tiberium Alliances Formation Saver",
         version: "2.1.6",
-        enabled: true, 
+        enabled: true
     },
     {
         id: 137978,
         name: "CnC: MH Tiberium Alliances Available Loot Summary",
         version: "1.7.2",
-        enabled: true, 
+        enabled: true
     },
     {
         id: 145657,
         name: "CnC: MH Tiberium Alliances Pure Loot Summary",
         version: "1.7.2p",
-        enabled: false, 
+        enabled: false
     },
     {
         id: 138436,
         name: "Tiberium Alliances Zoom",
         version: "1.0.0",
-        enabled: true, 
+        enabled: true
     },
     {
         id: 140988,
         name: "C&C Tiberium Alliances Wrapper",
         version: "0.9.2",
-        enabled: true, 
+        enabled: true
     },
     {
         id: 140991,
         name: "MaelstromTools Dev",
         version: "0.1.1.7",
-        enabled: true, 
+        enabled: true
     },
     {
         id: 135806,
         name: "CnC: Tiberium Alliances Shortcuts",
         version: "1.7.3",
-        enabled: false, 
+        enabled: false
     },
     {
         id: 147335,
         name: "C&C Combat Simulator",
         version: "0.1.7.4",
-        enabled: true,     
+        enabled: true
     }
 ];
 
@@ -70,7 +70,7 @@ if(CURRENT_VERSION != PREVIOUS_VERSION) {
     window.open(chrome.extension.getURL('updated.html'));
 
 	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED'));
-    if(enabled == null || typeof enabled != 'object') {
+    if(enabled === null || typeof enabled != 'object') {
         enabled = {};
     }
     var tmp = {};
@@ -97,7 +97,7 @@ function  processRequest(request, sender, sendResponse) {
         }
         break;
     case "set":
-        localStorage[request.name] = request.value
+        localStorage[request.name] = request.value;
         break;
     case "pageAction":
         chrome.pageAction.show(sender.tab.id);
@@ -119,10 +119,10 @@ if(typeof chrome.extension.sendMessage == 'undefined') {
 /*------------------------------------------------*/
 chrome.pageAction.onClicked.addListener(function(){
     window.open(chrome.extension.getURL('options.html'));
-})
+});
 /*------------------------------------------------*/
 var CNCTA_GA = localStorage.getItem('CNCTA_GA');
-if(CNCTA_GA == null) {
+if(CNCTA_GA === null) {
     localStorage.setItem('CNCTA_GA', true);
     CNCTA_GA = true;
 }

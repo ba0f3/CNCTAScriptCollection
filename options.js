@@ -8,10 +8,13 @@ $(document).ready(function(){
 		var script = CNCTA_SCRIPTS[i];
 
 		var li = $('<div>');
-		li.append("<div class='name'><input id='s-" + script.id + "' class='cb'" +  ((CNCTA_ENABLED[script.id] == true)?" checked='checked'":'') + " name='cb-"+script.id+"' type='checkbox' value='"+script.id+"' ><label for='s-" + script.id + "'>" + script.name + "</label> \
-		<span class='version'>" + script.version + "</span> \
-		[<a title='Go to homepage' target='_blank' href='http://userscripts.org/scripts/show/" +  script.id+ "'>⚓</a>] \
-		</div>").appendTo('#scripts');
+		var html = "<div class='name'>";
+		html+= "<input id='s-" + script.id + "' class='cb'" +  ((CNCTA_ENABLED[script.id] === true)?" checked='checked'":'') + " name='cb-"+script.id+"' type='checkbox' value='"+script.id+"' >";
+		html+= "<label for='s-" + script.id + "'>" + script.name + "</label>";
+		html+= "<span class='version'>" + script.version + "</span>";
+		html+= "[<a title='Go to homepage' target='_blank' href='http://userscripts.org/scripts/show/" +  script.id+ "'>⚓</a>]";
+		html+= "</div>";
+		li.append(html).appendTo('#scripts');
 	}
 
 	if(CNCTA_GA) {
