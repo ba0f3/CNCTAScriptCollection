@@ -9,6 +9,7 @@
 // @grant       MetaData
 // ==/UserScript==
 
+var unsafeWindow=window;
     (function () {
     var MHLootMain = function () {
     var showLoot = true;                // shows Loot resources info

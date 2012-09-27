@@ -82,6 +82,9 @@ if(CURRENT_VERSION != PREVIOUS_VERSION) {
     window.open(chrome.extension.getURL('updated.html'));
 
 	var enabled =  JSON.parse(localStorage.getItem('CNCTA_ENABLED'));
+    if(typeof enabled != 'object') {
+        enabled = {};
+    }
     var tmp = {};
 
 	for(var i in DEFAULT_SCRIPTS) {
