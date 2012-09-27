@@ -1,3 +1,7 @@
+1.2.6.2:
+- Update "Tiberium Alliances Map" to version 1.8.1 (hotfix) 
+- Remove "Tiberium Alliances Combat Simulator" due to development was discontinued
+- Remove "Maelstrom ADDON Basescanner" due to development was discontinued
 1.2.6.1:
 - Fix extension init problem
 1.2.6.0:

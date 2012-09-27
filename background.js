@@ -8,7 +8,7 @@ var DEFAULT_SCRIPTS = [
     {
         id: 135955,
         name: "Tiberium Alliances Map",
-        version: "1.8",
+        version: "1.8.1",
         enabled: false, 
     },
     {
@@ -27,12 +27,6 @@ var DEFAULT_SCRIPTS = [
         id: 145657,
         name: "CnC: MH Tiberium Alliances Pure Loot Summary",
         version: "1.7.2p",
-        enabled: false, 
-    },
-    {
-        id: 138212,
-        name: "Tiberium Alliances Combat Simulator",
-        version: "1.4.1.5",
         enabled: false, 
     },
     {
@@ -60,14 +54,8 @@ var DEFAULT_SCRIPTS = [
         enabled: false, 
     },
     {
-        id: 145168,
-        name: "Maelstrom ADDON Basescanner",
-        version: "0.7",
-        enabled: true,
-    },
-    {
         id: 147335,
-        name: "C&C Combat Simulator (Pure)",
+        name: "C&C Combat Simulator",
         version: "0.1.7.4",
         enabled: true,     
     }

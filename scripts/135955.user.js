@@ -3,7 +3,7 @@
 // @description    Shows you the region map
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        1.8
+// @version        1.8.1
 // @author         Nolana Kane
 // @require        http://sizzlemctwizzle.com/updater.php?id=135955&days=1
 // ==/UserScript==
@@ -459,6 +459,19 @@
                         this.allianceSelect.setSelection([selected]);
 
                     },
+                    findAllianceById: function(s, id) {
+                        var ra = null;
+                        if (id != 0){
+                            for (var x=1; s.GetAlliance(x) != null; x++){
+                                var a = s.GetAlliance(x);
+                                if (a.FGTNFZ == id)
+                                {
+                                    ra = a;
+                                }
+                            }
+                        }
+                        return ra;
+                    },
                     updateMap : function() {
                         // this.updateFilter(); - we assume that visOptions has all the visualisation options
                         var canvas = this.mapCanvas;
@@ -487,8 +500,8 @@
                                         // ctx.fillStyle = colors[obj.Type];
                                         switch (obj.Type) {
                                             case 1:  // player city
-                                                var player = s.GetPlayer(obj.PlayerId);
-                                                var alliance = s.GetAlliance(player.Alliance);
+                                                var player = s.GetPlayer(obj.IYHCJR);
+                                                var alliance = this.findAllianceById(s, s.GetPlayerAllianceId(obj.IYHCJR));
                                                 if (alliance != null && this.visOptions.alliance == alliance.Id) {
                                                     ctx.fillStyle = this.visOptions.colors.highlightColor;
                                                     ctx.fillRect(cx * sc, cy * sc, sc, sc);
