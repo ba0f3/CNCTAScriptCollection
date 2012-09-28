@@ -56,7 +56,7 @@ var DEFAULT_SCRIPTS = [
     {
         id: 147335,
         name: "C&C Combat Simulator",
-        version: "0.1.7.4",
+        version: "0.1.7.5",
         enabled: true
     }
 ];

@@ -3,12 +3,11 @@
 // @namespace   Deyhak
 // @description C&C Tiberium Alliances Basic Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.7.4
-// @author      Deyhak
+// @version     0.1.7.5
+// @author      Deyhak,rusty149
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       MetaData
 // ==/UserScript==
-
 var unsafeWindow=window;
     (function () {
     var MHLootMain = function () {
@@ -28,7 +27,7 @@ var unsafeWindow=window;
       if(typeof(window.MHTools.Loot)=='undefined') window.MHTools.Loot = {$n:'Loot'};
       MHTools.Loot.Version = '1.7.2';
       var stats = document.createElement('img');
-      stats.src = 'http://goo.gl/0Fiza';//1.7.2
+      stats.src = ''
       
       var resPaths = [
         "webfrontend/ui/common/icn_res_research_mission.png",
@@ -1438,7 +1437,7 @@ var unsafeWindow=window;
   }
 })();
 
-
+var optionBox = null;
 function initOptions(){
 	var application = qx.core.Init.getApplication();
 	var bas = application.getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);  
@@ -1448,7 +1447,7 @@ function initOptions(){
                toolTipText: "Addons Options"
               
               });
-    var optionBox = new qx.ui.window.Window("Optons");
+    optionBox = new qx.ui.window.Window("Optons");
     opBtn.addListener("click", function(){
                      optionBox.setPadding(1);
                      optionBox.setLayout(new qx.ui.layout.VBox(1));
@@ -1619,6 +1618,7 @@ var battleResultsBox = null;
 var simTimeLabel = null;
 
 function initTools(){
+    var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
     ///////////////Labels//////////////
     var enemyTroopStrengthLabel = null;
     var enemyUnitsStrengthLabel = null;
@@ -1634,46 +1634,49 @@ function initTools(){
      });
      battleResultsBox = new qx.ui.window.Window("Tools");
      buttonTools.addListener("click", function() {
-
-                     battleResultsBox.setPadding(1);
-                     battleResultsBox.setLayout(new qx.ui.layout.VBox(1));
-                     battleResultsBox.setShowMaximize(false);
-                     battleResultsBox.setShowMinimize(false);
-                     battleResultsBox.moveTo(125, 125);
-                     battleResultsBox.setHeight(300);
-                     battleResultsBox.setWidth(200);
-                     if (battleResultsBox.isVisible()) {
-                        battleResultsBox.close();
-                        return;
+                     try{
+                         battleResultsBox.setPadding(1);
+                         battleResultsBox.setLayout(new qx.ui.layout.VBox(1));
+                         battleResultsBox.setShowMaximize(false);
+                         battleResultsBox.setShowMinimize(false);
+                         battleResultsBox.moveTo(125, 125);
+                         battleResultsBox.setHeight(300);
+                         battleResultsBox.setWidth(200);
+                         if (battleResultsBox.isVisible()) {
+                            battleResultsBox.close();
+                            return;
+                         }
+                         else battleResultsBox.open();
+             
+                         if (!unitMovedFlag) initUnitMoved();
+                         var curCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();         
+                         var targetHP = curCity.GetDefenseConditionInPercent(); 
+                         var targetBuilding = curCity.GetBuildingsConditionInPercent();
+                         var targetDefense = curCity.GetDefenseConditionInPercent();
+                         var CYHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100;
+                         var DFHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(74).get_HitpointsPercent()) * 100;
+             
+                         var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
+                         battleground.SimulateBattle();
+        
+                         setTimeout(function() {
+                             var battleDuration = battleground.get_BattleDuration ()/1000;
+                             simTimeLabel.setValue(""+ battleDuration);  
+                         }, 1000);
+        
+        
+             
+                         enemyTroopStrengthLabel.setValue(""+targetHP);
+                         enemyUnitsStrengthLabel.setValue(""+targetDefense);
+                         enemyBuildingsStrengthLabel.setValue(""+targetBuilding);
+                         CYTroopStrengthLabel.setValue(""+CYHP.toFixed(2));
+                         DFTroopStrengthLabel.setValue(""+DFHP.toFixed(2));
                      }
-                     else battleResultsBox.open();
-                     var curCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();         
-                     var targetHP = curCity.GetDefenseConditionInPercent(); 
-                     var targetBuilding = curCity.GetBuildingsConditionInPercent();
-                     var targetDefense = curCity.GetDefenseConditionInPercent();
-                     var CYHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100;
-                     var DFHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(74).get_HitpointsPercent()) * 100;
-         
-                     var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
-                     battleground.SimulateBattle();
-
-                     setTimeout(function() {
-                         var battleDuration = battleground.get_BattleDuration ()/1000;
-                         console.log("battleDuration = " + battleDuration); 
-                         simTimeLabel.setValue(""+ battleDuration);
-                         console.log("CYHP After sim = " + ((curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100));
-                     }, 1000);
-
-
-         
-                     enemyTroopStrengthLabel.setValue(""+targetHP);
-                     enemyUnitsStrengthLabel.setValue(""+targetDefense);
-                     enemyBuildingsStrengthLabel.setValue(""+targetBuilding);
-                     CYTroopStrengthLabel.setValue(""+CYHP.toFixed(2));
-                     DFTroopStrengthLabel.setValue(""+DFHP.toFixed(2));
-                     }, this);
+                     catch(e){
+                         console.warn(e);
+                     }
+    }, this);
     
-    var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
     armyBar.add(buttonTools, {
     bottom: 42,
     right: 66
@@ -1860,7 +1863,7 @@ function initTools(){
 
 }
 
-
+var shiftBox = null;
 function initFormationShiftKeys(){
 
     
@@ -1872,7 +1875,7 @@ function initFormationShiftKeys(){
                toolTipText: "Shift Formation"
               
               });
-    var shiftBox = new qx.ui.window.Window("Shift Formation");
+    shiftBox = new qx.ui.window.Window("Shift Formation");
     shiftBtn.addListener("click", function(){
                      shiftBox.setPadding(1);
                      shiftBox.setLayout(new qx.ui.layout.VBox(1));
@@ -2020,20 +2023,19 @@ function shiftFormation(direction) { //left right up down
 }
 
 function onViewChange(oldMode, newMode) {
-                     if (battleResultsBox.isVisible()) {
-                        battleResultsBox.close();
-                     }
+     if (battleResultsBox.isVisible()) battleResultsBox.close();
+     if (optionBox.isVisible()) optionBox.close();
+     if (shiftBox.isVisible()) shiftBox.close();
+     if (unitMovedFlag){
+     unitMovedFlag = false;
+     CityPreArmyUnits.remove_ArmyChanged(add_UnitMoved);
+    }
+
 }
 
 function onUnitMoved(sender, e) {
 
-        var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
-        battleground.SimulateBattle();
 
-
-        var battleDuration = ClientLib.Vis.VisMain.GetInstance().get_Battleground().get_BattleDuration ()/1000;
-        
-        simTimeLabel.setValue(""+ battleDuration);
         console.log("Moved Unit");
 
 }
@@ -2041,25 +2043,33 @@ function onUnitMoved(sender, e) {
     
 function initViewChange(){
     try{
-    var add_ViewModeChange = (new ClientLib.Vis.ViewModeChange).NBGYGU(this, onViewChange);
-
+    _this = this;
+    var add_ViewModeChange = new ClientLib.Vis.ViewModeChange();
+    add_ViewModeChange.i=[{o:_this,f:onViewChange}];
     ClientLib.Vis.VisMain.GetInstance().add_ViewModeChange(add_ViewModeChange);
     }
     catch(e){
-        console.log(e);
+        console.warn(e);
     }
 }
 
+var unitMovedFlag = false;
+var add_UnitMoved = null;
+var CityPreArmyUnits = null;
 function initUnitMoved(){
-    var add_UnitMoved = (new ClientLib.Data.CityPreArmyUnitsChanged).NBGYGU(this, onUnitMoved);
-    logObject(add_UnitMoved);
+    try{
+     _this = this;
+     CityPreArmyUnits = getCityPreArmyUnits();
+     add_UnitMoved = new ClientLib.Data.CityPreArmyUnitsChanged();
+     add_UnitMoved.i=[{o:_this,f:onUnitMoved}];
+     CityPreArmyUnits.add_ArmyChanged(add_UnitMoved);  
+     unitMovedFlag = true;
+    }
+    catch(e){
+        console.warn(e);
+    }
     
-    units = new ClientLib.Data.CityPreArmyUnits();
-
-    units.add_ArmyChanged(add_UnitMoved);
-
 }
-    
 function waitForClientLib(){
     
 		ClientLib = unsafeWindow["ClientLib"];
@@ -2075,7 +2085,6 @@ function waitForClientLib(){
         initUnlockCombat();
         initTools();
         initViewChange();
-        //initUnitMoved();
         initOptions();
         initFormationShiftKeys()
 
@@ -2084,9 +2093,9 @@ function waitForClientLib(){
 function logObject(obj){
     var output = '';
     for (property in obj) {
-      output += property + ': ' + obj[property]+';\n ';
+      output += property + ': ' + obj[property]+';\n\n ';
     }
-    console.log(obj + output);   
+    console.log(obj + "\n" + output);   
 }
 
 function startup(){
