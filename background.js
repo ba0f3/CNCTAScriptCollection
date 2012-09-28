@@ -29,11 +29,6 @@ var DEFAULT_SCRIPTS = [{
     version: "1.0.0",
     enabled: true
 }, {
-    id: 140988,
-    name: "C&C Tiberium Alliances Wrapper",
-    version: "0.9.2",
-    enabled: true
-}, {
     id: 140991,
     name: "MaelstromTools Dev",
     version: "0.1.1.7",
@@ -44,9 +39,14 @@ var DEFAULT_SCRIPTS = [{
     version: "1.7.3",
     enabled: false
 }, {
-    id: 147335,
-    name: "C&C Combat Simulator",
-    version: "0.1.7.5",
+    id: 138212,
+    name: "Tiberium Alliances Combat Simulator",
+    version: "1.5",
+    enabled: true
+}, {
+    id: 149068,
+    name: "infernal wrapper",
+    version: "0.372567",
     enabled: true
 }];
 
