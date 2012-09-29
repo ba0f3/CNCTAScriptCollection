@@ -48,6 +48,11 @@ var DEFAULT_SCRIPTS = [{
     name: "infernal wrapper",
     version: "0.372567",
     enabled: true
+}, {
+    id: 145717,
+    name: "Tiberium Alliances Combat Simulator (Basic)",
+    version: "1.5",
+    enabled: true
 }];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
