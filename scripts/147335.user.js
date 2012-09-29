@@ -8,7 +8,7 @@
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       MetaData
 // ==/UserScript==
-
+unsafeWindow=window;
     (function () {
     var MHLootMain = function () {
     var showLoot = true;                // shows Loot resources info
