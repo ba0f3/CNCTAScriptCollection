@@ -53,6 +53,11 @@ var DEFAULT_SCRIPTS = [{
     name: "Tiberium Alliances Combat Simulator (Basic)",
     version: "1.5",
     enabled: true
+}, {
+    id: 147335,
+    name: "C&C Combat Simulator",
+    version: "0.1.7.7",
+    enabled: false
 }];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
