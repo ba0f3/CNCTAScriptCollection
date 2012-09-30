@@ -51,12 +51,12 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 145717,
     name: "Tiberium Alliances Combat Simulator (Basic)",
-    version: "1.5",
+    version: "2.0",
     enabled: true
 }, {
     id: 147335,
     name: "C&C Combat Simulator",
-    version: "0.1.7.7",
+    version: "0.1.7.9",
     enabled: false
 }];
 

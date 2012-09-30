@@ -3,7 +3,7 @@
 // @namespace   Deyhak
 // @description C&C Tiberium Alliances Basic Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.1.7.7
+// @version     0.1.7.9
 // @author      Deyhak,rusty149
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       MetaData
@@ -1440,7 +1440,6 @@ unsafeWindow=window;
 var optionBox = null;
 var btnSide = localStorage.getItem('btnSide'); //true - Right, false - Left
 var isCombatLocked = localStorage.getItem('isCombatLocked'); //true - Yes, false - No
-console.log(isCombatLocked);
 function initOptions(){
     if (btnSide == null) {
         btnSide=true;
@@ -1555,7 +1554,6 @@ function initOptions(){
                                     rightBtn.setOpacity(1);         
                                     leftBtn.setOpacity(0.5);
                                     localStorage.setItem('btnSide', true);
-                                    initUnlockCombat();
                                 },this);
     
      eHBox.add(leftBtn);
@@ -1787,14 +1785,14 @@ function initTools(){
                          var DFHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(74).get_HitpointsPercent()) * 100;
              
                          var buildings = getBuildingsList();
-                         
+
 
                          var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
                          battleground.SimulateBattle();
-        
+
                          setTimeout(function() {
                              var battleDuration = battleground.get_BattleDuration ()/1000;
-                             simTimeLabel.setValue(""+ battleDuration);  
+                             simTimeLabel.setValue(""+ battleDuration); 
                          }, 1000);
         
         
@@ -1828,11 +1826,16 @@ function initTools(){
      eVBox.setThemedPadding(2);
      eVBox.setThemedBackgroundColor("#eef");
      statsPage.add(eVBox);
+    // Description Label
+     var eHBox0 = new qx.ui.container.Composite();
+     eHBox0.setLayout(new qx.ui.layout.HBox(5));
+     eHBox0.add(new qx.ui.basic.Label("Current Stats"));
+     eHBox0.setMarginLeft(40);
+     eVBox.add(eHBox0)
     // The Enemy Troop Strength Label
      var eHBox1 = new qx.ui.container.Composite();
      eHBox1.setLayout(new qx.ui.layout.HBox(5));
-     eHBox1.add(new qx.ui.basic.Label("Enemy Base: "));
-
+     eHBox1.add(new qx.ui.basic.Label("Base: "));
      enemyTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
      eHBox1.add(enemyTroopStrengthLabel);
      enemyTroopStrengthLabel.setTextColor("red");
@@ -1870,14 +1873,64 @@ function initTools(){
      DFTroopStrengthLabel.setTextColor("red");
      eVBox.add(eHBox3);
     
-     var hboxSupportContainer = new qx.ui.container.Composite();
-     hboxSupportContainer.setLayout(new qx.ui.layout.HBox(5));
-     var enemySupportLevelLabel = new qx.ui.basic.Label("Support lvl ");
-     hboxSupportContainer.add(enemySupportLevelLabel);
-     var enemySupportStrengthLabel = new qx.ui.basic.Label("--: Undefined");
-     hboxSupportContainer.add(enemySupportStrengthLabel);
-     enemySupportStrengthLabel.setTextColor("red");
-     eVBox.add(hboxSupportContainer);
+
+        // The Enemy Vertical Box
+     var pVBox = new qx.ui.container.Composite()
+     pVBox.setLayout(new qx.ui.layout.VBox(5));
+     pVBox.setThemedFont("bold");
+     pVBox.setThemedPadding(2);
+     pVBox.setThemedBackgroundColor("#eef");
+     statsPage.add(pVBox);
+    // Description Label
+     var pHBox0 = new qx.ui.container.Composite();
+     pHBox0.setLayout(new qx.ui.layout.HBox(5));
+     pHBox0.add(new qx.ui.basic.Label("Predicted Stats"));
+     pHBox0.setMarginLeft(40);
+     pVBox.add(pHBox0)
+    // The Enemy Troop Strength Label
+     var pHBox1 = new qx.ui.container.Composite();
+     pHBox1.setLayout(new qx.ui.layout.HBox(5));
+     pHBox1.add(new qx.ui.basic.Label("Base: "));
+     var PredictedTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
+     pHBox1.add(PredictedTroopStrengthLabel);
+     PredictedTroopStrengthLabel.setTextColor("red");
+     pVBox.add(pHBox1);
+     // Units
+     var pHBox4 = new qx.ui.container.Composite();
+     pHBox4.setLayout(new qx.ui.layout.HBox(5));
+     pHBox4.add(new qx.ui.basic.Label("Defences: "));
+     var PredictedUnitsStrengthLabel = new qx.ui.basic.Label("Undefined");
+     pHBox4.add(PredictedUnitsStrengthLabel);
+     PredictedUnitsStrengthLabel.setTextColor("green");
+     pVBox.add(pHBox4);
+     // Buildings
+     var pHBox5 = new qx.ui.container.Composite();
+     pHBox5.setLayout(new qx.ui.layout.HBox(5));
+     pHBox5.add(new qx.ui.basic.Label("Buildings: "));
+     var PredictedBuildingsStrengthLabel = new qx.ui.basic.Label("Undefined");
+     pHBox5.add(PredictedBuildingsStrengthLabel);
+     PredictedBuildingsStrengthLabel.setTextColor("green");
+     pVBox.add(pHBox5);
+     // Command Center
+     var pHBox2 = new qx.ui.container.Composite();
+     pHBox2.setLayout(new qx.ui.layout.HBox(5));
+     pHBox2.add(new qx.ui.basic.Label("Construction Yard: "));
+     var PredictedCYTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
+     pHBox2.add(PredictedCYTroopStrengthLabel);
+     PredictedCYTroopStrengthLabel.setTextColor("red");
+     pVBox.add(pHBox2);
+     // Defense Facility
+     var pHBox3 = new qx.ui.container.Composite();
+     pHBox3.setLayout(new qx.ui.layout.HBox(5));
+     pHBox3.add(new qx.ui.basic.Label("Defense Facility: "));
+     var PredictedDFTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
+     pHBox3.add(PredictedDFTroopStrengthLabel);
+     PredictedDFTroopStrengthLabel.setTextColor("red");
+     pVBox.add(pHBox3);
+    
+    
+    
+    
      // The Troops Vertical Box
      var tVBox = new qx.ui.container.Composite()
      tVBox.setLayout(new qx.ui.layout.VBox(5));
@@ -1943,7 +1996,7 @@ function initTools(){
      // The Battle Time Label
      var hBox1 = new qx.ui.container.Composite()
      hBox1.setLayout(new qx.ui.layout.HBox(5));
-     hBox1.add(new qx.ui.basic.Label("Battle Time: "));
+     hBox1.add(new qx.ui.basic.Label("Predicted Battle Time: "));
      simTimeLabel = new qx.ui.basic.Label("Undefined");
      hBox1.add(simTimeLabel);
      simTimeLabel.setTextColor("black");
