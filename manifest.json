@@ -1,5 +1,5 @@
 {
-  "version": "1.2.6.8",
+  "version": "1.2.6.9",
    "content_scripts": [ {
       "js": [ "content.js" ],
       "matches": [
@@ -24,7 +24,6 @@
     },
     "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
     "web_accessible_resources": [
-      "scripts/135955.user.js",
       "scripts/136299.user.js",
       "scripts/137978.user.js",
       "scripts/138436.user.js",
@@ -34,6 +33,8 @@
       "scripts/138212.user.js",
       "scripts/149068.user.js",
       "scripts/145717.user.js",
-      "scripts/147335.user.js"
+      "scripts/147335.user.js",
+      "scripts/145168.user.js",
+      "scripts/147476.user.js"
     ]
 }

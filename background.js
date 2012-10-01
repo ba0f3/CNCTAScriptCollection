@@ -4,11 +4,6 @@ var DEFAULT_SCRIPTS = [{
     version: "1.6",
     enabled: true
 }, {
-    id: 135955,
-    name: "Tiberium Alliances Map",
-    version: "1.8.1",
-    enabled: false
-}, {
     id: 136299,
     name: "Tiberium Alliances Formation Saver",
     version: "2.1.6",
@@ -58,6 +53,16 @@ var DEFAULT_SCRIPTS = [{
     name: "C&C Combat Simulator",
     version: "0.1.7.9",
     enabled: false
+}, {
+    id: 145168,
+    name: "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
+    version: "0.8",
+    enabled: true
+}, {
+    id: 147476,
+    name: "Tiberium Alliances Map and Zoom",
+    version: "1.1",
+    enabled: true
 }];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
