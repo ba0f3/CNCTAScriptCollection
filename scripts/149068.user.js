@@ -3,7 +3,7 @@
 // @description does nothing
 // @namespace infernal_wrapper
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version 0.372567
+// @version 0.373715
 // @author ppl before me and me
 // ==/UserScript==
 (function () {
@@ -37,7 +37,7 @@
         },
         _prop_name: function(prop_map) {return prop_map[this.versions[this.version]];},
         _prop_index: function(prop_map) {return prop_map[this.versions[this.version]+1];},
-        versions: {'368132': 0, '372393': 2, '372567': 4},
+        versions: {'368132': 0, '373715': 2},
         version: null,//'368132',
         init_wrap: function(wrap) {
             try {
@@ -75,52 +75,52 @@
             }
         },
         wraps: [
-            [0, 'System', 'EventHandler', ['UXDRTN', 515, 'NGTHZJ', 529, 'JCSGJY', 529]],
-            [1, 'System.EventHandler', '$ctor', ['NKAYQG', 1, 'MIARKA', 1, 'EWWHOL', 1]],
-            [1, 'ClientLib.Vis.ViewModeChange', '$ctor', ['NKAYQG', 1, 'MIARKA', 1, 'EWWHOL', 1]],
-            [0, 'SharedLib', 'Combat', ['ABMZCA', 479, 'IDXMKY', 489, 'ADKXKR', 489]],
-            [0, 'SharedLib.Combat', 'CbtSetup', ['PIZEIS', 511, 'NRUUGI', 523, 'WHLOUM', 523], 'SharedLib'],
-            [0, 'SharedLib.Combat', 'CbtSimulation', ['MTNICQ', 514, 'DZXTYL', 526, 'ACBTHR', 526], 'SharedLib'],
-            [2, 'ClientLib.Vis.Battleground.Battleground', 'get_Entities', ['VMKWMN', 47, 'XSWELH', 32, 'KMBRZW', 32]],
-            [1, 'SharedLib.Combat.CbtSimulation', 'DoStep', ['RVQKEM', 24, 'OWGEVP', 26, 'UZQRCL', 26]],
-            [2, 'SharedLib.Combat.CbtSimulation', 'get_iCombatStep', ['XPJFXB', 12, 'VMUZIL', 13, 'DRBCLE', 13]],
-            [0, 'SharedLib.Combat', 'CbtEntity', ['RMODUK', 517, 'JTEOOI', 531, 'JCGAHG', 531], 'SharedLib'],
-            [2, 'SharedLib.Combat.CbtEntity', 'get_eAlignment', ['VTZLJN', 12, 'DGCHHX', 16, 'FNFYRU', 16]],
-            [2, 'SharedLib.Combat.CbtEntity', 'get_iHitpoints', ['FOYNHE', 20, 'WVNYBU', 24, 'KZYUFV', 24]],
-            [2, 'SharedLib.Combat.CbtEntity', 'get_iHitpointsCurrent', ['BVCBXJ', 21, 'JRPGGY', 25, 'TQGPMJ', 25]],
-            [2, 'SharedLib.Combat.CbtEntity', 'get_MDCTypeId', ['ADPYGJ', 9, 'LWEMLL', 13, 'DOHVCH', 13]],
-            [2, 'SharedLib.Combat.CbtEntity', 'get_iLevel', ['XAWKEE', 33, 'BBOCMN', 40, 'VLRZBZ', 40]],
-            [0, 'ClientLib.Base.Util', 'GetUnitLevelData', ['MYJUVV', 35, 'NSRLEW', 36, 'LBVSBJ', 36]],
-            [0, 'ClientLib.Data', 'World', ['DHZVSV', 225, 'FBIHPA', 222, 'ZNNOJA', 222], 'SharedLib'],
-            [2, 'ClientLib.Data.World', 'getSectors', ['EBJZUK', 2, 'USDXCN', 8, 'XKDXDO', 8]],
-            [2, 'ClientLib.Data.CityUnits', 'get_FullRawRepairTimeForUnitGroupTypes', ['IKDTVE', 6, 'OTDSKU', 6, 'KJXNLV', 6]],
-            [1, 'ClientLib.Data.CityUnits', 'get_OffenseUnits', ['VPNCHY', 68, 'YFPFEA', 68, 'VQTZWZ', 68]],
-            [1, 'ClientLib.Data.CityUnits', 'get_DefenseUnits', ['BFENHD', 69, 'BVLEOM', 69, 'KSNJIL', 69]],
-            [0, 'ClientLib.Data', 'CityRepair', ['KBVZQX', 295, 'XSCVQY', 302, 'EMJXEK', 302], 'SharedLib'],
-            [1, 'ClientLib.Data.CityRepair', 'CanRepair', ['JPPHSL', 51, 'KPJOGJ', 51, 'CJNJHS', 51]],
-            [1, 'ClientLib.Data.CityRepair', 'UpdateCachedFullRepairAllCost', ['IMVKOC', 63, 'FPXIRL', 63, 'USKKAR', 63]],
-            [1, 'ClientLib.Data.CityRepair', 'ConvertRepairCost', ['SPZDZS', 54, 'KTBNUH', 54, 'SZMDMZ', 54]],
-            [1, 'ClientLib.Data.CityPreArmyUnits', 'RefreshData', ['UPLGQX', 20, 'AYSULX', 20, 'GGASDX', 20]],
-            [2, 'ClientLib.Data.City', 'getResourceLayout', ['TTZXUV', 50, 'VEVRWH', 51, 'LTUGHT', 51]],
-            [2, 'ClientLib.Data.CityBuildings', 'get_Buildings', ['QQXUFW', 2, 'KXNWER', 2, 'MJZVZV', 2]],
-            [2, 'ClientLib.Data.CityEntity', 'get_UnitLevelRequirements', ['JSPNOJ', 2, 'ELBALP', 2, 'GPJTIV', 2]],
-            [1, 'ClientLib.Data.CityEntity', 'get_UnitLevelRepairCost', ['get_UnitLevelRequirements', 67, 'get_UnitLevelRequirements', 69, 'get_UnitLevelRequirements', 69]],
-            [3, 'ClientLib.Data.Combat', 'set_Version', ['QVVMKN', 2, 'JVAKKQ', 1, 'SWINUM', 1]],
-            [3, 'ClientLib.Data.Combat', 'set_StartStep', ['ILFZUG', 3, 'FIGZGC', 3, 'XNBJZC', 3]],
-            [3, 'ClientLib.Data.Combat', 'set_Attacker', ['OYABQD', 4, 'TRRERK', 4, 'PYFENC', 4]],
-            [3, 'ClientLib.Data.Combat', 'set_Defender', ['UQJQSW', 5, 'ZSTKUP', 5, 'MSSCZL', 5]],
-            [3, 'ClientLib.Data.Combat', 'set_Blocker', ['ZBVZOD', 6, 'KFQWVW', 6, 'IQSLLP', 6]],
-            [3, 'ClientLib.Data.Combat', 'set_Buildings', ['DFGGIB', 7, 'FSVKTA', 7, 'OPLYEK', 7]],
-            [3, 'ClientLib.Data.Combat', 'set_Supports', ['DZOZGI', 8, 'PTSGBE', 8, 'PIHBNH', 8]],
-            [3, 'ClientLib.Data.Combat', 'set_Debug', ['GNSESK', 36, 'LEEPKR', 38, 'JNJGAB', 38]],
-            [1, 'ClientLib.Data.Combat', 'setNPCNames', ['DUVWXR', 44, 'GOAFQJ', 46, 'ZUQXYT', 46]],
-            [0, 'ClientLib.Vis.Battleground', 'BattlegroundEntity', ['BLEBFL', 516, 'QGVOPO', 530, 'KOBQGP', 530], 'System'],
-            [2, 'ClientLib.Vis.Battleground.BattlegroundEntity', 'get_Entity', ['ILLYJL', 25, 'RVVLCA', 25, 'KZYXTD', 25]],
-            [2, 'ClientLib.Vis.Battleground.BattlegroundEntity', 'get_UnitType', ['KPWXBD', 1, 'IQTKIG', 1, 'CIZUDY', 1]],
-            [2, 'ClientLib.Vis.Battleground.Battleground', 'get_Simulation', ['YPYRGP', 44, 'QRDUJM', 29, 'WQOTHV', 29]],
-            [3, 'ClientLib.Vis.Battleground.Battleground', 'set_CurrentReplay', ['YMADLI', 79, 'OMDYHD', 54, 'FMVUZS', 54]],
-            [1, 'ClientLib.Vis.Battleground.Battleground', 'setCombatData', ['ZMQRGW', 182, 'ADMYQP', 159, 'GREBVM', 159]],
-            [2, 'ClientLib.Res.ResMain', 'get_Gamedata', ['YMIGZX', 1, 'BQKOXH', 1, 'FEPVKS', 1]]
+            [0, 'System', 'EventHandler', ['UXDRTN', 515, 'YELZVJ', 529]],
+            [1, 'System.EventHandler', '$ctor', ['NKAYQG', 1, 'KGCLWX', 1]],
+            [1, 'ClientLib.Vis.ViewModeChange', '$ctor', ['NKAYQG', 1, 'KGCLWX', 1]],
+            [0, 'SharedLib', 'Combat', ['ABMZCA', 479, 'LGZURN', 489]],
+            [0, 'SharedLib.Combat', 'CbtSetup', ['PIZEIS', 511, 'INGSTT', 523], 'SharedLib'],
+            [0, 'SharedLib.Combat', 'CbtSimulation', ['MTNICQ', 514, 'SFPLFI', 526], 'SharedLib'],
+            [2, 'ClientLib.Vis.Battleground.Battleground', 'get_Entities', ['VMKWMN', 47, 'CXUBQM', 32]],
+            [1, 'SharedLib.Combat.CbtSimulation', 'DoStep', ['RVQKEM', 24, 'YJNCZX', 26]],
+            [2, 'SharedLib.Combat.CbtSimulation', 'get_iCombatStep', ['XPJFXB', 12, 'NBBKBC', 13]],
+            [0, 'SharedLib.Combat', 'CbtEntity', ['RMODUK', 517, 'GWRHCR', 531], 'SharedLib'],
+            [2, 'SharedLib.Combat.CbtEntity', 'get_eAlignment', ['VTZLJN', 12, 'NQPRNJ', 16]],
+            [2, 'SharedLib.Combat.CbtEntity', 'get_iHitpoints', ['FOYNHE', 20, 'FMKVXZ', 24]],
+            [2, 'SharedLib.Combat.CbtEntity', 'get_iHitpointsCurrent', ['BVCBXJ', 21, 'GPIIGP', 25]],
+            [2, 'SharedLib.Combat.CbtEntity', 'get_MDCTypeId', ['ADPYGJ', 9, 'OLNIQY', 13]],
+            [2, 'SharedLib.Combat.CbtEntity', 'get_iLevel', ['XAWKEE', 33, 'XOVYVU', 40]],
+            [0, 'ClientLib.Base.Util', 'GetUnitLevelData', ['MYJUVV', 35, 'EOMZOE', 36]],
+            [0, 'ClientLib.Data', 'World', ['DHZVSV', 225, 'MTTZKK', 222], 'SharedLib'],
+            [2, 'ClientLib.Data.World', 'getSectors', ['EBJZUK', 2, 'RSYPLG', 8]],
+            [2, 'ClientLib.Data.CityUnits', 'get_FullRawRepairTimeForUnitGroupTypes', ['IKDTVE', 6, 'AOHLSX', 6]],
+            [1, 'ClientLib.Data.CityUnits', 'get_OffenseUnits', ['VPNCHY', 68, 'CYDCJP', 68]],
+            [1, 'ClientLib.Data.CityUnits', 'get_DefenseUnits', ['BFENHD', 69, 'KYXUCT', 69]],
+            [0, 'ClientLib.Data', 'CityRepair', ['KBVZQX', 295, 'MCFMIY', 302], 'SharedLib'],
+            [1, 'ClientLib.Data.CityRepair', 'CanRepair', ['JPPHSL', 51, 'ZBNDBT', 51]],
+            [1, 'ClientLib.Data.CityRepair', 'UpdateCachedFullRepairAllCost', ['IMVKOC', 63, 'OCDZTU', 63]],
+            [1, 'ClientLib.Data.CityRepair', 'ConvertRepairCost', ['SPZDZS', 54, 'HOBUZP', 54]],
+            [1, 'ClientLib.Data.CityPreArmyUnits', 'RefreshData', ['UPLGQX', 20, 'XSFQFN', 20]],
+            [2, 'ClientLib.Data.City', 'getResourceLayout', ['TTZXUV', 50, 'OOQLLJ', 51]],
+            [2, 'ClientLib.Data.CityBuildings', 'get_Buildings', ['QQXUFW', 2, 'THQKBX', 2]],
+            [2, 'ClientLib.Data.CityEntity', 'get_UnitLevelRequirements', ['JSPNOJ', 2, 'DGBWEJ', 2]],
+            [1, 'ClientLib.Data.CityEntity', 'get_UnitLevelRepairCost', ['get_UnitLevelRequirements', 67, 'get_UnitLevelRequirements', 69]],
+            [3, 'ClientLib.Data.Combat', 'set_Version', ['QVVMKN', 2, 'HTAWRR', 1]],
+            [3, 'ClientLib.Data.Combat', 'set_StartStep', ['ILFZUG', 3, 'CJOWTS', 3]],
+            [3, 'ClientLib.Data.Combat', 'set_Attacker', ['OYABQD', 4, 'GVNKDR', 4]],
+            [3, 'ClientLib.Data.Combat', 'set_Defender', ['UQJQSW', 5, 'OXLHSE', 5]],
+            [3, 'ClientLib.Data.Combat', 'set_Blocker', ['ZBVZOD', 6, 'FGYDLJ', 6]],
+            [3, 'ClientLib.Data.Combat', 'set_Buildings', ['DFGGIB', 7, 'MHRFXC', 7]],
+            [3, 'ClientLib.Data.Combat', 'set_Supports', ['DZOZGI', 8, 'PLAIXC', 8]],
+            [3, 'ClientLib.Data.Combat', 'set_Debug', ['GNSESK', 36, 'YWQIHU', 38]],
+            [1, 'ClientLib.Data.Combat', 'setNPCNames', ['DUVWXR', 44, 'NMUKFE', 46]],
+            [0, 'ClientLib.Vis.Battleground', 'BattlegroundEntity', ['BLEBFL', 516, 'VKYHCS', 530], 'System'],
+            [2, 'ClientLib.Vis.Battleground.BattlegroundEntity', 'get_Entity', ['ILLYJL', 25, 'NQXMOU', 25]],
+            [2, 'ClientLib.Vis.Battleground.BattlegroundEntity', 'get_UnitType', ['KPWXBD', 1, 'DYWAMD', 1]],
+            [2, 'ClientLib.Vis.Battleground.Battleground', 'get_Simulation', ['YPYRGP', 44, 'SSSEUG', 29]],
+            [3, 'ClientLib.Vis.Battleground.Battleground', 'set_CurrentReplay', ['YMADLI', 79, 'RBNBEY', 54]],
+            [1, 'ClientLib.Vis.Battleground.Battleground', 'setCombatData', ['ZMQRGW', 182, 'VQUGNU', 159]],
+            [2, 'ClientLib.Res.ResMain', 'get_Gamedata', ['YMIGZX', 1, 'WGRXYC', 1]]
             //[2, 'SharedLib.Combat.CbtSetup', 'get_Entities', ['VMKWMN', 48, 'XSWELH', 0]],//??
             //[1, 'ClientLib.Data.CityPreArmyUnits', 'UpdateArmyLayout', ['CIVNTG', 0, 'JKGIUG', 0]],// Should not be needed
         ],
@@ -128,7 +128,8 @@
             try{
                 this._name = this.versions[this.version]
                 this._index = this._name + 1
-
+                
+                
                 System = $I
                 SharedLib = $I
 
