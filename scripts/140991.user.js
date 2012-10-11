@@ -2,8 +2,8 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.1.7
-// @author      Maelstrom, HuffyLuf and KRS_L
+// @version     0.1.1.9
+// @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @require http://sizzlemctwizzle.com/updater.php?id=140991
 // ==/UserScript==
@@ -152,6 +152,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               this.Data["Access"] = ["Ã–ffne", "Aceder", "AccÃ¨s "][l];
               this.Data["Focus on"] = ["Zentriere auf", "Concentrar em", "CentrÃ© sur"][l];
               this.Data["Possible attacks from this base (available CP)"] = ["MÃ¶gliche Angriffe (verfÃ¼gbare KP)"][l];
+              this.Data["Chat history length"] = ["Chat-Verlauf Länge", "Conversar comprimento história", "Chat longueur de l'historique"][l];
             //this.Data[""] = [""][l];
             },
           
@@ -329,6 +330,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.mainMenuWindow.placeToWidget(target, true);
                 }
                 
+                webfrontend.gui.chat.ChatWidget.recvbufsize = MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.CHATHISTORYLENGTH, 64);
                 this.runSecondlyTimer();
                 this.runMainTimer();
                 this.runAutoCollectTimer();
@@ -950,7 +952,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             AUTOHIDEMISSIONTRACKER: "autoHideMissionTracker",
             AUTOCOLLECTTIMER: "AutoCollectTimer",
             SHOWLOOT: "showLoot",
-            SHOWCOSTSFORNEXTMCV: "showCostsForNextMCV"
+            SHOWCOSTSFORNEXTMCV: "showCostsForNextMCV",
+            CHATHISTORYLENGTH: "ChatHistoryLength"
           },
           
           members: {
@@ -981,6 +984,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.Settings[MaelstromTools.Preferences.AUTOCOLLECTTIMER] = MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.AUTOCOLLECTTIMER, 60);
                 this.Settings[MaelstromTools.Preferences.SHOWLOOT] = (MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.SHOWLOOT, 1) == 1);
                 this.Settings[MaelstromTools.Preferences.SHOWCOSTSFORNEXTMCV] = (MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.SHOWCOSTSFORNEXTMCV, 1) == 1);
+                this.Settings[MaelstromTools.Preferences.CHATHISTORYLENGTH] = MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.CHATHISTORYLENGTH, 64);
                 
                 if(!CCTAWrapperIsInstalled()) {
                   this.Settings[MaelstromTools.Preferences.AUTOREPAIRUNITS] = false;
@@ -1001,7 +1005,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.Window = new webfrontend.gui.OverlayWindow().set({
                     autoHide: false,
                     title: WindowTitle,
-                    minHeight: 310
+                    minHeight: 350
                     
                   //resizable: false,
                   //showMaximize:false,
@@ -1077,12 +1081,22 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   value: this.Settings[MaelstromTools.Preferences.AUTOREPAIRBUILDINGS] == 1,
                   enabled: CCTAWrapperIsInstalled()
                 });
+
+                var spinnerChatHistoryLength = new qx.ui.form.Spinner().set({
+                  minimum: 64,
+                  maximum: 512,
+                  value: this.Settings[MaelstromTools.Preferences.CHATHISTORYLENGTH]
+                });
+
+                MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx, Lang.gt("Chat history length") + " (" + spinnerChatHistoryLength.getMinimum() + " - " + spinnerChatHistoryLength.getMaximum() + ")" );
+                MaelstromTools.Util.addElement(this.Widget, rowIdx++, colIdx+1, spinnerChatHistoryLength);
+				
                 var spinnerAutoCollectTimer = new qx.ui.form.Spinner().set({
                   minimum: 5,
                   maximum: 60 * 6,
                   value: this.Settings[MaelstromTools.Preferences.AUTOCOLLECTTIMER]
                 });
-                
+
                 MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx, Lang.gt("Automatic interval in minutes") + " (" + spinnerAutoCollectTimer.getMinimum() + " - " + spinnerAutoCollectTimer.getMaximum() + ")" );
                 MaelstromTools.Util.addElement(this.Widget, rowIdx++, colIdx+1, spinnerAutoCollectTimer);
                 MaelstromTools.Util.addElement(this.Widget, rowIdx++, colIdx, chkAutoCollectPackages, 2);
@@ -1128,7 +1142,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.addFormElement(MaelstromTools.Preferences.AUTOREPAIRUNITS, chkAutoRepairUnits);
                 this.addFormElement(MaelstromTools.Preferences.AUTOREPAIRBUILDINGS, chkAutoRepairBuildings);
                 this.addFormElement(MaelstromTools.Preferences.AUTOCOLLECTTIMER, spinnerAutoCollectTimer);
-                
+                this.addFormElement(MaelstromTools.Preferences.CHATHISTORYLENGTH, spinnerChatHistoryLength);
               } catch (e) {
                 console.log("MaelstromTools.Preferences.setWidgetLabels: ", e);
               }
@@ -1141,6 +1155,9 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   var element = this.FormElements[idx];
                   if(idx == MaelstromTools.Preferences.AUTOCOLLECTTIMER) {
                     autoRunNeeded = (MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.AUTOCOLLECTTIMER, 0) != element.getValue());
+                  }
+                  if(idx == MaelstromTools.Preferences.CHATHISTORYLENGTH) {
+                    webfrontend.gui.chat.ChatWidget.recvbufsize = element.getValue();
                   }
                   MaelstromTools.LocalStorage.set(idx, element.getValue());
                 }
@@ -1418,11 +1435,17 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Aircraft]
                     RepLargest = "Aircraft"
                   }
-                  
-                  this.Cache[cname]["RepairTime"]["LargestDiv"] = this.Cache[cname]["RepairTime"][RepLargest]
-                  this.Cache[cname]["RepairTime"]["PossibleAttacks"] = Math.floor(this.Cache[cname]["Repaircharge"].Smallest / this.Cache[cname]["RepairTime"].LargestDiv);
-                  this.Cache[cname]["RepairTime"]["MaxAttacks"] = Math.floor(this.Cache[cname]["RepairTime"].Maximum / this.Cache[cname]["RepairTime"].LargestDiv);
-                    
+
+                  if (RepLargest !== '') {
+                    this.Cache[cname]["RepairTime"]["LargestDiv"] = this.Cache[cname]["RepairTime"][RepLargest]
+                    this.Cache[cname]["RepairTime"]["PossibleAttacks"] = Math.floor(this.Cache[cname]["Repaircharge"].Smallest / this.Cache[cname]["RepairTime"].LargestDiv);
+                    this.Cache[cname]["RepairTime"]["MaxAttacks"] = Math.floor(this.Cache[cname]["RepairTime"].Maximum / this.Cache[cname]["RepairTime"].LargestDiv);
+                  } else {
+                    this.Cache[cname]["RepairTime"]["LargestDiv"] = 0;
+                    this.Cache[cname]["RepairTime"]["PossibleAttacks"] = 0;
+                    this.Cache[cname]["RepairTime"]["MaxAttacks"] = 0;
+                  }
+
                   var unitsData = ncity.get_CityUnitsData();
                   this.Cache[cname]["Base"] = Object();
                   this.Cache[cname]["Base"]["Level"] = MaelstromTools.Wrapper.GetBaseLevel(ncity);
@@ -1436,14 +1459,14 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.Cache[cname]["Offense"]["UnitLimit"] = unitsData.get_UnitLimitOffense();
                   this.Cache[cname]["Offense"]["TotalHeadCount"] = unitsData.get_TotalOffenseHeadCount();
                   this.Cache[cname]["Offense"]["FreeHeadCount"] = unitsData.get_FreeOffenseHeadCount();
-                  this.Cache[cname]["Offense"]["HealthInPercent"] = ncity.GetOffenseConditionInPercent();
+                  this.Cache[cname]["Offense"]["HealthInPercent"] = ncity.GetOffenseConditionInPercent() > 0 ? ncity.GetOffenseConditionInPercent() : 0; //krisan fix;
                   
                   this.Cache[cname]["Defense"] = Object();
                   this.Cache[cname]["Defense"]["Level"] = (Math.floor(ncity.get_LvlDefense()*100)/100).toFixed(2);
                   this.Cache[cname]["Defense"]["UnitLimit"] = unitsData.get_UnitLimitDefense();
                   this.Cache[cname]["Defense"]["TotalHeadCount"] = unitsData.get_TotalDefenseHeadCount();
                   this.Cache[cname]["Defense"]["FreeHeadCount"] = unitsData.get_FreeDefenseHeadCount();
-                  this.Cache[cname]["Defense"]["HealthInPercent"] = ncity.GetDefenseConditionInPercent();
+                  this.Cache[cname]["Defense"]["HealthInPercent"] = ncity.GetDefenseConditionInPercent() > 0 ? ncity.GetDefenseConditionInPercent() : 0;
                   
                 //console.log(ncity.get_CityUnitsData().get_UnitLimitOffense() + " / " + ncity.get_CityUnitsData().get_TotalOffenseHeadCount() + " = " + ncity.get_CityUnitsData().get_FreeOffenseHeadCount());
                 //console.log(ncity.get_CityUnitsData().get_UnitLimitDefense() + " / " + ncity.get_CityUnitsData().get_TotalDefenseHeadCount() + " = " + ncity.get_CityUnitsData().get_FreeDefenseHeadCount());

@@ -1,5 +1,5 @@
 {
-  "version": "1.2.7.1",
+  "version": "1.2.7.2",
    "content_scripts": [ {
       "js": [ "content.js" ],
       "matches": [
@@ -35,6 +35,7 @@
       "scripts/145717.user.js",
       "scripts/147335.user.js",
       "scripts/145168.user.js",
-      "scripts/147476.user.js"
+      "scripts/147476.user.js",
+      "scripts/149809.user.js"
     ]
 }

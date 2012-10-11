@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           CnC: Tiberium Alliances Shortcuts
 // @author         MrHIDEn
-// @description    Easy login to C&C from https://alliances.commandandconquer.com/login/auth
+// @description    Easy login to C&C from https://www.tiberiumalliances.com/login/auth
 // @description    to many apccounts by pressing Alt+1, Alt+2, ..... Alt+9(9th apccount)
 // @description    Alt+0 - Logout
 // @description    Get and plapce coordinates into a message with three useful keyboard shortcuts
@@ -13,14 +13,16 @@
 // @description    Alt+I - Insert to message/chat/post all your bases/cities info 
 // @description    Alt+B - Repair all.
 // @description    Alt+V - Get back to attack (just after unfinished battle) or attack selected base. This do NOT repair.
-// @description    Alt+; , Alt+L - EA Simulation.
+// @description    Alt+; - EA Simulation.
 // @description    Ctrl+SPACE - Get back to attack (just after unfinished battle) or attack selected base. This DO repair.
 // @description    Provides user kayboard shortcuts to make live easy. Alt+1,Alt+2 ect for login. Alt+X,A,S for coordinates
-// @include        *alliances.commandandconquer.com*
+// @grant          none 
+// @include        *tiberiumalliances.com*
 // @include        http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @require        http://sizzlemctwizzle.com/updater.php?id=135806&days=2
-// @version        1.7.3
+// @version        1.7.4
 // ==/UserScript==
+
 // Plapce your apccounts details here. Maximum of apccounts is 9.
 var Logins = [ //"email","password" table
 	   "change.your@email.and","PASSword.manualy.inside.the.script",

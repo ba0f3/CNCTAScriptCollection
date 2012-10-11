@@ -26,12 +26,12 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 140991,
     name: "MaelstromTools Dev",
-    version: "0.1.1.7",
+    version: "0.1.1.9",
     enabled: true
 }, {
     id: 135806,
     name: "CnC: Tiberium Alliances Shortcuts",
-    version: "1.7.3",
+    version: "1.7.4",
     enabled: false
 }, {
     id: 138212,
@@ -51,7 +51,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 147335,
     name: "C&C Combat Simulator",
-    version: "0.1.7.9",
+    version: "0.2",
     enabled: false
 }, {
     id: 145168,
@@ -63,6 +63,11 @@ var DEFAULT_SCRIPTS = [{
     name: "Tiberium Alliances Map and Zoom",
     version: "1.1",
     enabled: true
+}, {
+	id: 149809,
+	name: "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
+	version: "0.3",
+	enabled: true
 }];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
