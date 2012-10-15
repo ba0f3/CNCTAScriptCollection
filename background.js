@@ -36,7 +36,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 138212,
     name: "Tiberium Alliances Combat Simulator",
-    version: "1.5",
+    version: "1.6",
     enabled: true
 }, {
     id: 149068,
