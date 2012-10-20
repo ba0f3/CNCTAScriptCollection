@@ -36,7 +36,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 138212,
     name: "Tiberium Alliances Combat Simulator",
-    version: "1.6",
+    version: "1.6.1",
     enabled: true
 }, {
     id: 149068,
@@ -68,6 +68,11 @@ var DEFAULT_SCRIPTS = [{
 	name: "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
 	version: "0.3",
 	enabled: true
+}, {
+    id: 138386
+    name: "CnC Tiberium Coord Box Shortcut",
+    version: "1",
+    enabled: false
 }];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
