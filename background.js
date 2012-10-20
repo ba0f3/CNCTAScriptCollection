@@ -69,7 +69,7 @@ var DEFAULT_SCRIPTS = [{
 	version: "0.3",
 	enabled: true
 }, {
-    id: 138386
+    id: 138386,
     name: "CnC Tiberium Coord Box Shortcut",
     version: "1",
     enabled: false
