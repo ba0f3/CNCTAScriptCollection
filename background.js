@@ -31,12 +31,12 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 135806,
     name: "CnC: Tiberium Alliances Shortcuts",
-    version: "1.7.4",
+    version: "1.8.0",
     enabled: false
 }, {
     id: 138212,
     name: "Tiberium Alliances Combat Simulator",
-    version: "1.6.1",
+    version: "1.6.2",
     enabled: true
 }, {
     id: 149068,
