@@ -1,26 +1,26 @@
 {
-  "version": "1.2.7.6",
+  "version": "##VERSION##",
    "content_scripts": [ {
-      "js": [ "content.js" ],
+      "js": [ "js/content.js" ],
       "matches": [
         "https://*.alliances.commandandconquer.com/*"
       ]
    } ],
    "description": "This extention contains some CnC TA scripts writen by many authors. I take no credit on any script in this extension!",
    "icons": {
-      "48": "icon.png",
-      "20": "icon-20.png"
+      "48": "imgs/icon.png",
+      "20": "imgs/icon-20.png"
    },
    "page_action": {
-    "default_icon": "icon-20.png",
+    "default_icon": "imgs/icon-20.png",
     "default_title": "CnC TA Script Collection Options"
   },
    "manifest_version": 2,
    "name": "CnC TA Script Collection",
-   "update_url": "https://raw.github.com/rgv151/CNCTAScriptCollection/master/updates.xml",
+   "update_url": "##UPDATE##",
    "options_page": "options.html",
    "background": {
-        "scripts": ["background.js"]
+        "scripts": ["js/background.js"]
     },
     "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
     "web_accessible_resources": [
