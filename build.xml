@@ -44,12 +44,12 @@
 		
 		<echo message="Updating manifest.json" />
 		<replace file="${build.dir}/manifest.json" token="##VERSION##" value="${version}"/>
-		<replace file="${build.dir}/manifest.json" token="##UPDATE##" value="${ext.update.url}"/>
+		<replace file="${build.dir}/manifest.json" token="##UPDATE##" value="${ext.update.webstore}"/>
 		
 		<echo message="Packaging a non-crx for the chrome web store" />
 		<zip destfile="${dist.dir}/${ext.name}-${version}.zip" basedir="${build.dir}"/>
 		
-		<copy todir="${build.dir}">
+		<copy todir="${build.dir}" overwrite="true">
 			<fileset dir="${source.dir}">
 				<include name="manifest.json"/>
 			</fileset>
@@ -57,7 +57,7 @@
 		
 		<echo message="Updating manifest.json" />
 		<replace file="${build.dir}/manifest.json" token="##VERSION##" value="${version}"/>
-		<replace file="${build.dir}/manifest.json" token="##UPDATE##" value=""/>
+		<replace file="${build.dir}/manifest.json" token="##UPDATE##" value="${ext.update.url}"/>
 		<echo message="Generates a chrome extension" />
 		
 		<exec executable="${chrome.path}">
