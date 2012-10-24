@@ -66,7 +66,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 149809,
 	name : "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
-	version : "0.3",
+	version : "0.4",
 	enabled : true
 }, {
 	id : 138386,
