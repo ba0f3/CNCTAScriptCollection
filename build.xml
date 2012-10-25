@@ -40,7 +40,7 @@
 		<replace file="${build.dir}/updates.xml" token="##VERSION##" value="${version}"/>
 		<replace file="${build.dir}/updates.xml" token="##ID##" value="${ext.id}"/>
 		<replace file="${build.dir}/updates.xml" token="##NAME##" value="${ext.name}"/>
-		
+		<move file="${build.dir}/updates.xml" tofile="${dist.dir}/updates.xml" />
 		
 		<echo message="Updating manifest.json" />
 		<replace file="${build.dir}/manifest.json" token="##VERSION##" value="${version}"/>
