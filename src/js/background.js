@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 149068,
 	name : "infernal wrapper",
-	version : "0.376345.2",
+	version : "0.376877",
 	enabled : true
 }, {
 	id : 145717,
