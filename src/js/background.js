@@ -11,7 +11,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 137978,
 	name : "CnC: MH Tiberium Alliances Available Loot Summary",
-	version : "1.7.2",
+	version : "1.8.0",
 	enabled : true
 }, {
 	id : 145657,
@@ -51,7 +51,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 147335,
 	name : "C&C Combat Simulator",
-	version : "0.2",
+	version : "0.2.1",
 	enabled : false
 }, {
 	id : 145168,

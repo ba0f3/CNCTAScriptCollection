@@ -3,13 +3,14 @@
 // @namespace   http://userscripts.org/users/481406
 // @description C&C Tiberium Alliances Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.2
-// @author      Created by Deyhak | Contains code from Duarte | PythEch | KRS_L scripts
+// @version     0.2.1
+// @author      Created by Deyhak | Contains code which was made by Duarte, PythEch & KRS_L.
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       unsafeWindow
 // @grant       GM_log
 // ==/UserScript==
 
+unsafeWindow=window
 //Global Variables//
     var labels = {
         spoils: {
@@ -65,7 +66,7 @@
         
 //End Of Global Variables//
         
-unsafeWindow = window;
+        
         
 function initOptions(){
     console.log("Initiating Options");
@@ -313,7 +314,7 @@ function initSimulateBattle(){
 
 function initReturnSetup(){
     
-    
+        qx = unsafeWindow["qx"];
         var buttonReturnSetup = new qx.ui.form.Button("Setup");
                      buttonReturnSetup.set({
                         width: 80,
@@ -323,12 +324,13 @@ function initReturnSetup(){
                      buttonReturnSetup.addListener("click", function() {
                      // Set the scene again, just in case it didn't work the first time
                      var app = qx.core.Init.getApplication();
+                     logObject(webfrontend.gui.PlayArea);
                      var player_cities = ClientLib.Data.MainData.GetInstance().get_Cities();
                      var current_city = player_cities.get_CurrentCity();
                      try {
-                        app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupDefense, current_city.get_Id(), 0, 0);
+                        app.getPlayArea().setView(ClientLib.Data.PlayerAreaViewMode.pavmCombatSetupDefense, current_city.get_Id(), 0, 0);
                      } catch (e) {
-                        app.getPlayArea().setView(webfrontend.gui.PlayArea.modes.EMode_CombatSetupDefense, current_city.get_Id(), 0, 0);
+                        app.getPlayArea().setView(ClientLib.Data.PlayerAreaViewMode.pavmCombatSetupDefense, current_city.get_Id(), 0, 0);
                      }
                   } , this);
     
@@ -409,12 +411,12 @@ function initTools(){
                          var targetDefense = curCity.GetDefenseConditionInPercent();
                          var CYHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100;
                          var DFHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(74).get_HitpointsPercent()) * 100;
-             
                          var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
                          battleground.SimulateBattle();
                          setTimeout(function() {
                              var battleDuration = battleground.get_BattleDuration ()/1000;
                              labels.stats.pBattleDuration.setValue(""+ battleDuration); 
+                             
                          }, 1000);
         
         
@@ -937,7 +939,6 @@ function waitForClientLib(){
     qx = unsafeWindow["qx"];
     ClientLib = unsafeWindow["ClientLib"];
     webfrontend = unsafeWindow["webfrontend"];
-    _this = this;
 	
 		if ((typeof ClientLib == 'undefined') || (typeof qx == 'undefined') || (qx.core.Init.getApplication().initDone == false))
 		{
@@ -950,7 +951,7 @@ function waitForClientLib(){
         initTools();
         initViewChange();
         initFormationShiftKeys();
-        //webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Battlegr​ound(), "OnSimulateBattleFinished", ClientLib.Vis.Battleground.OnSimulateBattleFinished, _this, OnSimulateBattleFinished);
+        //webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Battlegr​ound(), "OnSimulateBattleFinished", ClientLib.Vis.Battleground.OnSimulateBattleFinished, this, OnSimulateBattleFinished);
         if (stob(localStorage.getItem('isCombatLocked'))) initUnlockCombat();
 
 }
