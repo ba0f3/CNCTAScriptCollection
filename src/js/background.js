@@ -73,7 +73,12 @@ var DEFAULT_SCRIPTS = [ {
 	name : "CnC Tiberium Coord Box Shortcut",
 	version : "1",
 	enabled : false
-} ];
+}, {
+	id: 151059,
+	name: "C&C Tiberium Alliances: Hide Mission Panel",
+	version: "0.1.1",
+	enabled: false
+}];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;
 var PREVIOUS_VERSION = localStorage.getItem('CNCTA_VERSION');
