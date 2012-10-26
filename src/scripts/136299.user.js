@@ -3,7 +3,7 @@
 // @description    Allows you to save attack formations
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        2.1.6
+// @version        2.1.8
 // @author         Panavia
 // @require        http://sizzlemctwizzle.com/updater.php?id=136299
 // ==/UserScript==
@@ -310,14 +310,26 @@
       }
       
       function updateView() {
-        switch(qx.core.Init.getApplication().getPlayArea().getViewMode()) {
-          case webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupDefense:
-          case webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupBase:
-            windowSaver.update();
-            windowSaver.show();
-            break;
-          default:
-            windowSaver.hide();
+        if (PerforceChangelist >= 376877) {
+          switch(qx.core.Init.getApplication().getPlayArea().getViewMode()) {
+            case ClientLib.Data.PlayerAreaViewMode.pavmCombatSetupDefense:
+            case ClientLib.Data.PlayerAreaViewMode.pavmCombatSetupBase:
+              windowSaver.update();
+              windowSaver.show();
+              break;
+            default:
+              windowSaver.hide();
+          }          
+        } else {
+          switch(qx.core.Init.getApplication().getPlayArea().getViewMode()) {
+            case webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupDefense:
+            case webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatSetupBase:
+              windowSaver.update();
+              windowSaver.show();
+              break;
+            default:
+              windowSaver.hide();
+          }
         }
       }
     }

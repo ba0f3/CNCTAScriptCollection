@@ -6,7 +6,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 136299,
 	name : "Tiberium Alliances Formation Saver",
-	version : "2.1.6",
+	version : "2.1.8",
 	enabled : true
 }, {
 	id : 137978,
@@ -36,7 +36,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 138212,
 	name : "Tiberium Alliances Combat Simulator",
-	version : "1.6.3",
+	version : "1.6.4",
 	enabled : true
 }, {
 	id : 149068,
