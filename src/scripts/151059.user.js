@@ -3,7 +3,8 @@
 // @namespace   BoVII
 // @description Hide mission Panel & increase notification panel height
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx* 
-// @version     0.1.1
+// @version     0.1.2
+// @grant       none
 // ==/UserScript==
 
 (function (){
@@ -16,10 +17,10 @@
       var nb = qx.core.Init.getApplication().getNotificationBar();
       var bounds = mb.getBounds();
       mb.setVisibility('hidden');
-      nb.$$parent.add(nb, bounds)
+      nb.$$parent.add(nb, bounds);
       nb.addListener('resize', function(){
-      	nb.$$parent.add(a, bounds);
-      });
+        nb.$$parent.add(nb, bounds);
+      });   
     }
  
     function script_checkIfLoaded() {
