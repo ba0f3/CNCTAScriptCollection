@@ -1,7 +1,7 @@
 var DEFAULT_SCRIPTS = [ {
 	id : 131289,
 	name : "C&C:TA CNCOpt Link Button",
-	version : "1.6",
+	version : "1.7",
 	enabled : true
 }, {
 	id : 136299,
@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.1.9",
+	version : "0.1.2.0",
 	enabled : true
 }, {
 	id : 135806,
