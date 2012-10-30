@@ -1,7 +1,7 @@
 var DEFAULT_SCRIPTS = [ {
 	id : 131289,
 	name : "C&C:TA CNCOpt Link Button",
-	version : "1.7",
+	version : "1.7.3",
 	enabled : true
 }, {
 	id : 136299,
@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 149068,
 	name : "infernal wrapper",
-	version : "0.376877",
+	version : "0.377320",
 	enabled : true
 }, {
 	id : 145717,

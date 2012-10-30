@@ -1,5 +1,5 @@
 // ==UserScript==
-// @version       1.7 (PythEch Fix)
+// @version       1.7.3
 // @name          C&C:TA CNCOpt Link Button
 // @namespace     http://cncopt.com/
 // @icon          http://cncopt.com/favicon.ico
@@ -8,13 +8,25 @@
 // @include       http*://*.cncopt.com/*
 // @include       http*://cncopt.com/*
 // @require       http://sizzlemctwizzle.com/updater.php?id=131289&days=1
+// @grant         GM_log
+// @grant         GM_setValue
+// @grant         GM_getValue
+// @grant         GM_registerMenuCommand
+// @grant         GM_xmlhttpRequest
+// @grant         GM_updatingEnabled
+// @grant         unsafeWindow
+// @contributor   PythEch (http://http://userscripts.org/users/220246)
 // ==/UserScript==
+/* 
+
+Special thanks to PythEch for fixing this up so it worked again!
+unsafeWindow=window;
+*/
 var scity = null;
 var tcity = null;
 var tbase = null;
-unsafeWindow=window;
 try {
-  unsafeWindow.__cncopt_version = 1.7;
+  unsafeWindow.__cncopt_version = "1.7.3";
   (function () {
     var cncopt_main = function () {
 
@@ -119,15 +131,18 @@ try {
       }
 
       function findBuildings(city) {
-        for (var k in city) {
-          //console.log(typeof(city[k]), "2.city[", k, "]", city[k])
-          if ((typeof (city[k]) == "object") && city[k] && city[k] && 0 in city[k]) {
-            if ((typeof (city[k][0]) == "object") && city[k][0] && "BuildingDBId" in city[k][0]) {
-              return city[k];
+        var cityBuildings = city.get_CityBuildingsData();
+        for (var k in cityBuildings) {
+          if (PerforceChangelist >= 376877) {
+            if ((typeof (cityBuildings[k]) === "object") && cityBuildings[k] && "d" in cityBuildings[k]) {
+              return cityBuildings[k].d;
+            }
+          } else {
+            if ((typeof (cityBuildings[k]) === "object") && cityBuildings[k] && "l" in cityBuildings[k]) {
+              return cityBuildings[k].l;
             }
           }
         }
-        return [];
       }
 
       function isOffenseUnit(unit) {
@@ -143,11 +158,26 @@ try {
         for (var k in city) {
           if ((typeof (city[k]) == "object") && city[k]) {
             for (var k2 in city[k]) {
-              if ((typeof (city[k][k2]) == "object") && city[k][k2] && "l" in city[k][k2]) {
-                var lst = city[k][k2].l;
-                if ((typeof (lst) == "object") && lst && 0 in lst) {
-                  if (typeof (lst[0]) == "object" && lst[0] && "get_CurrentLevel" in lst[0]) {
-                    ret.push(lst);
+              if (PerforceChangelist >= 376877) {
+                if ((typeof (city[k][k2]) == "object") && city[k][k2] && "d" in city[k][k2]) {
+                  var lst = city[k][k2].d;
+                  if ((typeof (lst) == "object") && lst) {
+                    for (var i in lst) {
+                      if (typeof (lst[i]) == "object" && lst[i] && "get_CurrentLevel" in lst[i]) {
+                        ret.push(lst);
+                      }
+                    }
+                  }
+                }
+              } else {
+                if ((typeof (city[k][k2]) == "object") && city[k][k2] && "l" in city[k][k2]) {
+                  var lst = city[k][k2].l;
+                  if ((typeof (lst) == "object") && lst) {
+                    for (var i in lst) {
+                      if (typeof (lst[i]) == "object" && lst[i] && "get_CurrentLevel" in lst[i]) {
+                        ret.push(lst);
+                      }
+                    }
                   }
                 }
               }
@@ -160,8 +190,8 @@ try {
       function getDefenseUnits(city) {
         var arr = getUnitArrays(city);
         for (var i = 0; i < arr.length; ++i) {
-          if (arr[i].length) {
-            if (isDefenseUnit(arr[i][0])) {
+          for (var j in arr[i]) {
+            if (isDefenseUnit(arr[i][j])) {
               return arr[i];
             }
           }
@@ -172,8 +202,8 @@ try {
       function getOffenseUnits(city) {
         var arr = getUnitArrays(city);
         for (var i = 0; i < arr.length; ++i) {
-          if (arr[i].length) {
-            if (isOffenseUnit(arr[i][0])) {
+          for (var j in arr[i]) {
+            if (isOffenseUnit(arr[i][j])) {
               return arr[i];
             }
           }
@@ -386,9 +416,16 @@ try {
                 defense_units.push(col)
               }
               var defense_unit_list = getDefenseUnits(city);
-              for (var i = 0; i < defense_unit_list.length; ++i) {
-                var unit = defense_unit_list[i];
-                defense_units[unit.get_CoordX()][unit.get_CoordY() + 8] = unit;
+              if (PerforceChangelist >= 376877) {
+                for (var i in defense_unit_list) {
+                  var unit = defense_unit_list[i];
+                  defense_units[unit.get_CoordX()][unit.get_CoordY() + 8] = unit;
+                }
+              } else {
+                for (var i = 0; i < defense_unit_list.length; ++i) {
+                  var unit = defense_unit_list[i];
+                  defense_units[unit.get_CoordX()][unit.get_CoordY() + 8] = unit;
+                }
               }
 
               offense_units = []
@@ -399,22 +436,22 @@ try {
                 }
                 offense_units.push(col)
               }
-              /*
-                    if (own_city.m_CityUnits && own_city.m_CityUnits.m_OffenseUnits) {
-                        for (var i=0; i < own_city.m_CityUnits.m_OffenseUnits.l.length; ++i) {
-                            unit = own_city.m_CityUnits.m_OffenseUnits.l[i];
-                            offense_units[unit.m_Coords.m_iX][unit.m_Coords.m_iY+16] = unit;
-                        }
-                    }
-*/
+
               var offense_unit_list = getOffenseUnits(own_city);
-              for (var i = 0; i < offense_unit_list.length; ++i) {
-                var unit = offense_unit_list[i];
-                offense_units[unit.get_CoordX()][unit.get_CoordY() + 16] = unit;
+              if (PerforceChangelist >= 376877) {
+                for (var i in offense_unit_list) {
+                  var unit = offense_unit_list[i];
+                  offense_units[unit.get_CoordX()][unit.get_CoordY() + 16] = unit;
+                }
+              } else {
+                for (var i = 0; i < offense_unit_list.length; ++i) {
+                  var unit = offense_unit_list[i];
+                  offense_units[unit.get_CoordX()][unit.get_CoordY() + 16] = unit;
+                }
               }
 
               var techLayout = findTechLayout(city);
-              //var buildings = findBuildings(city);
+              var buildings = findBuildings(city);
               for (var i = 0; i < 20; ++i) {
                 row = [];
                 for (var j = 0; j < 9; ++j) {
@@ -422,10 +459,7 @@ try {
                   var level = 0;
                   var building = null;
                   if (spot && spot.BuildingIndex >= 0) {
-                    if (PerforceChangelist >= 376877) building = city.get_CityBuildingsData().get_Buildings().d[spot.BuildingIndex];
-                    else building = city.get_CityBuildingsData().get_Buildings().l[spot.BuildingIndex];
-                    //building = buildings[spot.BuildingIndex];
-                    //level = building.m_CurrentLevel;
+                    building = buildings[spot.BuildingIndex];
                     level = building.get_CurrentLevel();
                   }
                   var defense_unit = defense_units[j][i];
