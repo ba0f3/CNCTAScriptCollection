@@ -6,7 +6,7 @@
 // @grant         none
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @require       http://sizzlemctwizzle.com/updater.php?id=137978
-// @version       1.8.0
+// @version       1.8.2
 // ==/UserScript==
 
  
@@ -124,9 +124,9 @@
             for(var k in this.troopPaths) {
               this.troopImages.push(new qx.ui.basic.Image("https://eaassets-a.akamaihd.net/cncalliancesgame/cdn/data/"+this.troopPaths[k]).set({Scale:true,Width:16,Height:16}));
             }
-            this.reloadList();
-            // obfu
-            this.typeReload();
+            //this.reloadList();
+            this.lootList.reloadList();
+            //console.log(this.lootList);
             // extend
             this.extendOwnBase();   
             this.extendAllianceBase();
@@ -136,6 +136,7 @@
             //this.extendOptionsWindow();
             this.extendPOI();
             this.extendHUB();
+            this.extendHUBServer();
             this.extendRUIN();
             this.extendSelectionChange();
             this.addLootPage();
@@ -145,7 +146,7 @@
             console.log('MHTools: Loot+Info loaded.'); 
           },
           statics : {
-            VERSION: '1.8.0',
+            VERSION: '1.8.2',
             AUTHOR: 'MrHIDEn',
             CLASS: 'Loot',
             DATA: this.Data
@@ -183,129 +184,188 @@
             ],
             troopImages: [],
             
-            // Obfuscation tst
-            typeList: [],
-            typeStoreName: 'MHToolsLootType',
-            typeReload: function() {
-              try {
-                var S = ClientLib.Base.LocalStorage;
-                var l = [];
-                if (S.get_IsSupported()) l = S.GetItem(this.typeStoreName);
-                if(l===null) {
-                  l = [];
-                  for(var i=0;i<10;i++) l.push('');
-                }
-                this.typeList = l; 
-              } catch (e) {
-                console.warn("typeReload: ", e);
-              }
-            },
-            typeStore: function(d) {
-              try {
-                this.typeList.pop();
-                this.typeList.unshift(d);
-                var l = this.typeList;
-                var S = ClientLib.Base.LocalStorage;
-                if (S.get_IsSupported()) S.SetItem(this.typeStoreName, l);
-                //console.log('Last 10 Type:',this.typeGet());
-                console.dir(this.typeList);
-              } catch (e) {
-                console.warn("typeStore: ", e);
-              }
-            },
-            typeGet: function() {
-              var s = '';
-              for(var k in this.typeList) s += this.typeList[k] + " ";
-              return s;
-            },            
-            // store
-            list: [],
-            listStoreName: 'MHToolsLootList',
-            reloadList: function() {
-              var S = ClientLib.Base.LocalStorage;
-              var l;
-              if (S.get_IsSupported()) l = S.GetItem(this.listStoreName);
-              if(l!==null) this.list = l;
-              this.list.max = 50;
-              this.list.idx = 0;
-              for(var i=0;i<this.list.max;i++) {
-                this.list.idx = i;
-                if(typeof(this.list[i])=='undefined') break;
-              }
-              console.log('MHTools: LootList reloaded/created');
-            },
-            getIndex: function() {
-              var l = this.list;
-              var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
-              //console.log('getIndex id=',id);
-              for(i=0;i<this.list.max;i++) {
-                if(typeof(l[i])=='undefined') continue;
-                if(l[i]===null) continue;
-                if(l[i].id == id) return i;
-              }
-              return -1;
-            },
-            save: function(d) {
-            //TODO some problems with refreshing
-              try {
-                var l = this.list;
-                var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
-                var c = {id:id, Data:d};
-                var S = ClientLib.Base.LocalStorage;
-                for(var i=0;i<l.max;i++) {
-                  if(typeof(l[i])=='undefined') continue;
-                  if(l[i]===null) continue;
-                  if(l[i].id == id) 
-                  {
-                    // found
-                    l[i] = c;
-                    // JSON
-                    if (S.get_IsSupported()) S.SetItem(this.listStoreName, l);
-                    // done
-                    return;
+            // store v2 - compact
+            //UNDERCONSTRUCTION
+            lootList: {
+              list: {
+                l: [],
+                max: 50,//na
+                idx: 0,//na
+              },
+              storeName: 'MHToolsLootList2',
+              getIndex: function() {//in use
+                var res = -1;
+                try {
+                  var l = this.list.l;
+                  var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+                  for(i=0;i<this.list.max;i++) {
+                    if(typeof(l[i])=='undefined') continue;
+                    if(l[i]===null) continue;
+                    if(l[i].id == id) {
+                      res = i;
+                      break;
+                    }
                   }
+                } catch (e) {
+                  console.warn("save: ", e);
                 }
-                // new
-                l[l.idx] = c;
-                if(++l.idx >= l.max) l.idx = 0;
-                // JSON
-                if (S.get_IsSupported()) S.SetItem(this.listStoreName, l);   
-              } catch (e) {
-                console.warn("save: ", e);
-              }
-            },
-            load: function() {
-              try {
-                var l = this.list;
-                var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
-                for(var i=0;i<l.max;i++) {
-                  if(typeof(l[i])=='undefined') continue;
-                  if(l[i]===null) continue;
-                  if(l[i].id == id) return l[i];
+                return res;
+              },
+              reloadList: function() {//in use
+                var S = ClientLib.Base.LocalStorage;
+                var l;
+                if (S.get_IsSupported()) l = S.GetItem(this.storeName);
+                if(l!==null) this.list = l;
+                console.log('MHTools: LootList reloaded/created');
+              },
+              save: function(d) {//in use
+                try {
+                  var l = this.list.l;
+                  var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+                  var c = {id:id, Data:d};
+                  var S = ClientLib.Base.LocalStorage;
+                  for(var i=0;i<this.list.max;i++) {
+                    if(typeof(l[i])=='undefined') continue;
+                    if(l[i]===null) continue;
+                    if(l[i].id == id) 
+                    {
+                      // found
+                      l[i] = c;
+                      // JSON
+                      if (S.get_IsSupported()) S.SetItem(this.storeName, this.list);
+                      // done
+                      return;
+                    }
+                  }
+                  // new
+                  l[this.list.idx] = c;
+                  if(++this.list.idx >= this.list.max) this.list.idx = 0;
+                  // JSON
+                  if (S.get_IsSupported()) S.SetItem(this.storeName, this.list);   
+                } catch (e) {
+                  console.warn("save: ", e);
                 }
-                return {id:id,Data:{}};     
-              } catch (e) {
-                console.warn("load: ", e);
-              }
+              },
+              load: function() {//in use
+                try {
+                  var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+                  var i = this.getIndex();
+                  if(i>=0) return this.list.l[i];
+                  return {id:id,Data:{}};     
+                } catch (e) {
+                  console.warn("load: ", e);
+                }
+              },
+              store: function(k, d) {//in use
+                try {
+                  var mem = this.load().Data;
+                  mem[k] = d;
+                  this.save(mem);        
+                } catch (e) {
+                  console.warn("store: ", e);
+                }
+              },
+              restore: function(k) {//?? not in use
+                console.log('this.lootList.restore');
+                try {
+                  var mem = this.load().Data;
+                  if(typeof(mem[k])=='undefined') return 'undefined';
+                  return mem[k];    
+                } catch (e) {
+                  console.warn("restore: ", e);
+                }
+              }              
             },
-            store: function(k, d) {
-              try {
-                var mem = this.load().Data;
-                mem[k] = d;
-                this.save(mem);        
-              } catch (e) {
-                console.warn("store: ", e);
-              }
-            },
-            restore: function(k) {//?? not in use
-              try {
-                var mem = this.load().Data;
-                if(typeof(mem[k])=='undefined') return 'undefined';
-                return mem[k];    
-              } catch (e) {
-                console.warn("restore: ", e);
-              }
-            },
+            // store   
+            /*         
+            // list: [],
+            // listStoreName: 'MHToolsLootList',
+            // reloadList: function() {
+              // var S = ClientLib.Base.LocalStorage;
+              // var l;
+              // if (S.get_IsSupported()) l = S.GetItem(this.listStoreName);
+              // if(l!==null) this.list = l;
+              // this.list.max = 50;
+              // this.list.idx = 0;
+              // for(var i=0;i<this.list.max;i++) {
+                // this.list.idx = i;
+                // if(typeof(this.list[i])=='undefined') break;
+              // }
+              // console.log('MHTools: LootList reloaded/created');
+            // },
+            // getIndex: function() {
+              // var l = this.list;
+              // var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+              // //console.log('getIndex id=',id);
+              // for(i=0;i<this.list.max;i++) {
+                // if(typeof(l[i])=='undefined') continue;
+                // if(l[i]===null) continue;
+                // if(l[i].id == id) return i;
+              // }
+              // return -1;
+            // },
+            // save: function(d) {
+            // //TODO some problems with refreshing
+              // try {
+                // var l = this.list;
+                // var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+                // var c = {id:id, Data:d};
+                // var S = ClientLib.Base.LocalStorage;
+                // for(var i=0;i<l.max;i++) {
+                  // if(typeof(l[i])=='undefined') continue;
+                  // if(l[i]===null) continue;
+                  // if(l[i].id == id) 
+                  // {
+                    // // found
+                    // l[i] = c;
+                    // // JSON
+                    // if (S.get_IsSupported()) S.SetItem(this.listStoreName, l);
+                    // // done
+                    // return;
+                  // }
+                // }
+                // // new
+                // l[l.idx] = c;
+                // if(++l.idx >= l.max) l.idx = 0;
+                // // JSON
+                // if (S.get_IsSupported()) S.SetItem(this.listStoreName, l);   
+              // } catch (e) {
+                // console.warn("save: ", e);
+              // }
+            // },
+            // load: function() {
+              // try {
+                // var l = this.list;
+                // var id = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCityId();
+                // for(var i=0;i<l.max;i++) {
+                  // if(typeof(l[i])=='undefined') continue;
+                  // if(l[i]===null) continue;
+                  // if(l[i].id == id) return l[i];
+                // }
+                // return {id:id,Data:{}};     
+              // } catch (e) {
+                // console.warn("load: ", e);
+              // }
+            // },
+            // store: function(k, d) {
+              // try {
+                // var mem = this.load().Data;
+                // mem[k] = d;
+                // this.save(mem);        
+              // } catch (e) {
+                // console.warn("store: ", e);
+              // }
+            // },
+            // restore: function(k) {//?? not in use
+              // try {
+                // var mem = this.load().Data;
+                // if(typeof(mem[k])=='undefined') return 'undefined';
+                // return mem[k];    
+              // } catch (e) {
+                // console.warn("restore: ", e);
+              // }
+            // },
+            */
             // bases
             Data: {},
             // display containers
@@ -316,7 +376,9 @@
             lootWindowAlly: null,
             lootWindowPOI: null,
             lootWindowRUIN: null,
-            waiting: [1,'','.','..','...','...?'],          
+            lootWindowHUBServer: null,
+            //waiting: [1,'','.','..','...','...?'],          
+            waiting: [1,'>-','->','--','-<','<-','??'],          
             Display: {
               troopsArray: [],
               lootArray: [],
@@ -362,7 +424,7 @@
               var d = Math.floor(s/86400); s%=86400;
               var h = Math.floor(s/3600); s%=3600;
               var m = Math.floor(s/60); s%=60;
-              var r = (d<1?"":d.toString() + ".");//  3:01:23:45
+              var r = (d<1?"":d.toString() + "d ");//  3:01:23:45
               r += (h<10?"0"+h.toString():h.toString()) + ":";
               r += (m<10?"0"+m.toString():m.toString()) + ":";
               s = s.toFixed(0);
@@ -382,7 +444,7 @@
             // BYPASS
             getBypass: function(c,d) {
               try {
-                function getKeys(obj, b) {
+                function getKeys(obj, d) {
                   for (var k in obj) {
                     var o = obj[k];
                     if (o === null) continue;
@@ -396,71 +458,65 @@
                     if(typeof(u.get_UnitLevelRepairRequirements) != 'function') continue;
                     if(typeof(u.GetUnitGroupType) ==  'undefined') {
                       // buildings
-                      b.Keys.Buildings = k;
+                      d.Keys.Buildings = k;
+                      //c.GetNumBuildings.toString()==return this.XUQAIB.YYZSYN().c; //YYZSYN()==return this.GBZDQJ; //==this.XUQAIB.GBZDQJ.c
                     } else {
-                      //console.log('GetUnitGroupType:',u.GetUnitGroupType());
-                      // units
+                      // units 3-attack
                       if(u.GetUnitGroupType()) {
-                        //3-attack
-                        b.Keys.Offences = k;
+                        d.Keys.Offences = k;
                       } else {
-                        //0-defend
-                        b.Keys.Defences = k;
+                        // units 0-defend
+                        d.Keys.Defences = k;
                       }
                     }
                   }
-                  if(typeof(b.Keys.Buildings)!='undefined') {
-                    b.get_Buildings = function(c){
-                      //return c.get_CityBuildingsData()[this.Keys.Buildings].d;
-                      return c.get_CityBuildingsData()[this.Keys.Buildings];
-                    }
+                  if(typeof(d.Keys.Buildings)!='undefined') {
+                    //ClientLib.Data.CityBuildings.prototype.kBuildings = d.Keys.Buildings;
+                    //ClientLib.Data.CityBuildings.prototype.get_Buildings = function(){return this[this.kBuildings];};
+                    ClientLib.Data.City.prototype.kBuildings = d.Keys.Buildings;
+                    ClientLib.Data.City.prototype.get_Buildings = function(){return this.get_CityBuildingsData()[this.kBuildings];};
                   }
-                  if(typeof(b.Keys.Offences)!='undefined') {
-                    b.get_OffenseUnits = function(c){
-                      //return c.get_CityUnitsData()[this.Keys.Offences].d;
-                      return c.get_CityUnitsData()[this.Keys.Offences];
-                    }
+                  if(typeof(d.Keys.Offences)!='undefined') {
+                    //ClientLib.Data.CityUnits.prototype.kOffenseUnits = d.Keys.Offences;
+                    //ClientLib.Data.CityUnits.prototype.get_OffenseUnits = function(){return this[this.kOffenseUnits];};
+                    ClientLib.Data.City.prototype.kOffenseUnits = d.Keys.Offences;
+                    ClientLib.Data.City.prototype.get_OffenseUnits = function(){return this.get_CityUnitsData()[this.kOffenseUnits];};
                   }
-                  if(typeof(b.Keys.Defences)!='undefined') {
-                    b.get_DefenseUnits = function(c){
-                      //return c.get_CityUnitsData()[this.Keys.Defences].d;
-                      return c.get_CityUnitsData()[this.Keys.Defences];
-                    }
+                  if(typeof(d.Keys.Defences)!='undefined') {
+                    //ClientLib.Data.CityUnits.prototype.kDefenseUnits = d.Keys.Defences;
+                    //ClientLib.Data.CityUnits.prototype.get_DefenseUnits = function(){return this[this.kDefenseUnits];};
+                    ClientLib.Data.City.prototype.kDefenseUnits = d.Keys.Defences;
+                    ClientLib.Data.City.prototype.get_DefenseUnits = function(){return this.get_CityUnitsData()[this.kDefenseUnits];};
                   }
                 }
-                if(typeof(d.Bypass)=='undefined') d.Bypass={
-                  Keys:{},
-                  Rdy:false,
-                  get_Buildings:function(){return {};},
-                  get_DefenseUnits:function(){return {};},
-                  get_OffenseUnits:function(){return {};}
-                };
-                if(Object.keys(d.Bypass.Keys).length==3) return d.Bypass.Rdy=true;
-                getKeys(c.get_CityBuildingsData(), d.Bypass);
-                getKeys(c.get_CityUnitsData(), d.Bypass);
-                var cnt=Object.keys(d.Bypass.Keys).length;
-                d.Bypass.Rdy=cnt==3;
-                if(d.Bypass.Rdy) {
-                  console.log('MHTools.Loot.Helpers:');
-                  console.dir(d.Bypass.Keys);
+                if(typeof(d.Keys)=='undefined') d.Keys={};
+                getKeys(c.get_CityBuildingsData(), d);
+                getKeys(c.get_CityUnitsData(), d);
+                var cnt=Object.keys(d.Keys).length;
+                if(cnt==3) {
+                  //console.log('MHTools.Loot Helpers are ready');
+                  //console.log('MHTools.Loot Helpers are ready:',d.Keys.Buildings,d.Keys.Defences,d.Keys.Offences);
+                  console.log('MHTools.Loot Helpers are ready:');
+                  console.log(d.Keys);
+                  delete d.Keys;
+                  this.getBypass = function(){return true;};
+                  return true;
                 }
-                else console.log('#Keys(=3): ',cnt);
+                else console.log('#Keys(!=3): ',cnt);
               } catch (e) {
                 console.warn("MHTools.Loot.",arguments.callee.name,': ', e);
               }
-              return d.Bypass.Rdy;
+              //return d.Bypass.Rdy;
+              return false;
             },
             loadBypass: function(self) {
-              try {              
-                //console.log('loadBypass self: ',self);  
+              try {                
                 if(typeof(self)=='undefined') self = this;
                 var ac=ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d;
-                //console.log('MHTools.Loot.loadBypass ac: ',ac);
                 if(Object.keys(ac).length<1) {
                   window.setTimeout(self.loadBypass, 5000, self); // check again
                   return;
                 }
-                //for(k in ac) if(this.getBypass(ac[k],this.Data)) break;
                 for(k in ac) if(self.getBypass(ac[k],self.Data)) break;
               } catch (e) {
                 console.warn("MHTools.Loot.",arguments.callee.name,': ', e);
@@ -470,13 +526,10 @@
               try {   
                 var l = {};  
                 if(!this.getBypass(city,this.Data)) return l;
-                //getBypass(city,this.Data);
                 
-                var b = this.Data.Bypass;
-                
-                l.Buildings = b.get_Buildings(city);
-                l.Defences = b.get_DefenseUnits(city);
-                l.Offences = b.get_OffenseUnits(city);
+                l.Buildings = city.get_Buildings();
+                l.Defences = city.get_DefenseUnits();
+                l.Offences = city.get_OffenseUnits();
                 
                 l.rdy = true;              
               } catch (e) {
@@ -500,7 +553,8 @@
                               
                   d.cc = ClientLib.Data.MainData.GetInstance().get_Cities();
                   
-                  d.ec = d.cc.GetCity(d.selectedBaseId);// this is very nice function          
+                  //d.ec = d.cc.GetCity(d.selectedBaseId);// this is very nice function
+                  d.ec = d.cc.get_CurrentCity();
                   if(d.ec === null) return false;
                   if(d.ec.get_CityBuildingsData() === null) return false;         
                   if(d.ec.get_CityUnitsData() === null) return false;         
@@ -510,7 +564,6 @@
                   if(d.oc.get_CityBuildingsData() === null) return false;
                   if(d.oc.get_CityUnitsData() === null) return false;
                   
-                  //console.log('loadBase 1');
                   d.ol = this.getData(d.oc);
                   d.el = this.getData(d.ec);// Buildings Defence Offence               
                   if(typeof(d.ol)=='undefined') return false;
@@ -519,8 +572,9 @@
                   if(d.el.Buildings.c === 0) return false;
                   if(d.ol.Buildings.c === 0) return false;
                   
-                  console.log('loadBase.el:',d.el);
-                  console.log('loadBase.ol:',d.ol);
+                  //TEST
+                  //console.log('loadBase.el:',d.el);
+                  //console.log('loadBase.ol:',d.ol);
                   
                   d.loaded = true;
                   return true;
@@ -566,7 +620,7 @@
                 }
               }
             },
-            getLootsR: function (ul,r) { 
+            getLoots: function (ul,r) { 
               if(typeof(r)=='undefined') r={}; 
               //console.log('r',r);
               var t={1:'T',2:'C',3:'G',6:'RP',7:'RCB',8:'RCA',9:'RCI',10:'RCV'};//translate, ClientLib.Base.EResourceType.XXX
@@ -574,15 +628,13 @@
                 var u = ul.d[j];// unit/building
                 //here are key infos about units ranges and behavior and more 
                 //console.log(u.get_UnitGameData_Obj().n,u.get_UnitGameData_Obj());// unit/building
-                var p = u.get_HitpointsPercent();// 0-1 , 1 means 100%
-                //var cl = u.get_UnitLevelRepairCost();// EA API Resources/Repair Costs                
+                var p = u.get_HitpointsPercent();// 0-1 , 1 means 100%               
                 var cl = u.get_UnitLevelRepairRequirements();// EA API Resources/Repair Costs                
                 for (var i in cl) {
-                  var c = cl[i];
-                  if(typeof(c)!='object') continue;                  
-                  var k = (typeof(t[c.Type])=='undefined')?c.Type:t[c.Type];
-                  if(typeof(r[k])=='undefined') r[k] = 0;
-                  //r[c.Type] += p * c.Count;
+                  var c = cl[i];//Requirement/Cost
+                  if(typeof(c)!='object') continue;                
+                  var k = (typeof(t[c.Type])=='undefined')?c.Type:t[c.Type];//translate if possible
+                  if(typeof(r[k])=='undefined') r[k] = 0;//add branch
                   r[k] += p * c.Count;                 
                 }
               }
@@ -595,33 +647,18 @@
                 if (!this.Data.loaded) return;
                 
                 this.Display.lootArray = [];            
-                //var loots = [0, 0, 0, 0, 0, 0, 0, 0];
                 
                 var el = this.Data.el;
                 var ec = this.Data.ec;
                 
-                //console.log('var loots');
-                var loots = {RP:0, T:0, C:0, G:0};//for getLootsR
-                //var loots = {};//for getLootsL
+                var loots = {RP:0, T:0, C:0, G:0};//for getLoots
                 
-                //console.log('buildings');
-                // enemy buildings
-                //this.getLootsL(el.Buildings,loots);
-                this.getLootsR(el.Buildings,loots);
+                this.getLoots(el.Buildings,loots);
+                this.getLoots(el.Defences,loots);
                 
-                //console.log('defences');
-                // enemy defences
-                //this.getLootsL(el.Defences,loots);
-                this.getLootsR(el.Defences,loots);
-                
-                //console.log('offences');
-                //console.log('el.Offences.length',el.Offences.length,el.Offences);
-                // TEST
-                // enemy offences               
-                //var off = this.getLootsL(el.Offences);
                 if(el.Offences.c>0) {
-                  var off = this.getLootsR(el.Offences);                  
-                  console.log('Offences',off);
+                  var off = this.getLoots(el.Offences);                  
+                  //console.log('Offences: ',off);
                 }
                 
                 this.Display.lootArray[0] = loots.RP;
@@ -629,7 +666,7 @@
                 this.Display.lootArray[2] = loots.C;
                 this.Display.lootArray[3] = loots.G;
                             
-                this.store('lootArray',this.Display.lootArray);
+                this.lootList.store('lootArray',this.Display.lootArray);
               } catch (e) {
                 console.warn("MHTools.Loot.calcResources: ", e);
                 console.dir("MHTools.Loot.~.Data:",this.Data);
@@ -670,7 +707,7 @@
                   }
                 }
                 this.Display.troopsArray = troops;
-                this.store('troopsArray',this.Display.troopsArray);
+                this.lootList.store('troopsArray',this.Display.troopsArray);
               } catch (e) {
                 console.warn("MHTools.Loot.calcTroops: ", e);
                 console.dir("MHTools.Loot.~.Data:",this.Data);
@@ -718,7 +755,7 @@
                   hp.val = t;
                   this.Display.infoArrays.push(hp);
                   // store
-                  this.store('infoArrays',this.Display.infoArrays);                           
+                  this.lootList.store('infoArrays',this.Display.infoArrays);                           
                 } catch (e) {
                   console.log("MHTools.Loot.calcInfo 1: ", e);
                 }
@@ -809,7 +846,7 @@
                   this.Display.infoArrays.push(hp);
                   //this.Display.twoLineInfoArrays.push(hp);
                   // store
-                  this.store('infoArrays',this.Display.infoArrays);                       
+                  this.lootList.store('infoArrays',this.Display.infoArrays);                       
                 } catch (e) {
                   console.log("MHTools.Loot.calcInfo 2: ", e);
                 }
@@ -828,9 +865,13 @@
                   
                   var ohp=0;
                   //CHECK
-                  for (var k in ol.Offences.d) ohp += ol.Offences.d[k].get_HitpointsPercent();//0-1 means 0-100%
-                  ohp = 100.0 * ohp / ol.Offences.c;              
-                  //console.log('ol',ol,'ol.Offences[0].get_HitpointsPercent()',ol.Offences[0].get_HitpointsPercent());
+                  //my
+                  //for (var k in ol.Offences.d) ohp += ol.Offences.d[k].get_HitpointsPercent();//0-1 means 0-100%
+                  //ohp = 100.0 * ohp / ol.Offences.c;
+                  //console.log('Health',ohp,oc.GetOffenseConditionInPercent());
+                  //ohp = this.numberFormat(ohp, 0);
+                  //ea
+                  ohp = oc.GetOffenseConditionInPercent();
                   
                   var ool = this.numberFormat(oc.get_LvlOffense(), 1);
                   //console.log('oc',oc,'oc.get_LvlOffense()',oc.get_LvlOffense());
@@ -841,13 +882,13 @@
                   t = [];
                   t.push(this.hms(m)); 
                   t.push(this.hms(am));
-                  t.push(this.numberFormat(ohp, 0));
+                  t.push(ohp);
                   t.push(ool);                 
                   hp.val = t;
                   //this.Display.infoArrays.push(hp);
                   this.Display.twoLineInfoArrays.push(hp);              
                   // store
-                  this.store('twoLineInfoArrays',this.Display.twoLineInfoArrays);                       
+                  this.lootList.store('twoLineInfoArrays',this.Display.twoLineInfoArrays);                       
                 } catch (e) {
                   console.log("MHTools.Loot.calcInfo 3: ", e);
                 }
@@ -908,9 +949,13 @@
                   var ofl;              
                   var ohp=0;
                   if(el.Offences.c>0) {
-                    for (var k in el.Offences.d) ohp += el.Offences.d[k].get_HitpointsPercent();//get_Health();//Health - hitpoints
-                    //console.log(
-                    ohp = this.numberFormat(100.0 * ohp / el.Offences.c, 0);
+                    //my
+                    //for (var k in el.Offences.d) ohp += el.Offences.d[k].get_HitpointsPercent();//get_Health();//Health - hitpoints
+                    //ohp = 100.0 * ohp / el.Offences.c;
+                    //console.log('Health',ohp,ec.GetOffenseConditionInPercent());
+                    //ohp = this.numberFormat(ohp, 0);
+                    //ea
+                    ohp = ec.GetOffenseConditionInPercent();
                     //ohp = ec.GetOffenseConditionInPercent();//GetOffenseConditionInPercent ()
                     ofl = this.numberFormat(ec.get_LvlOffense(), 1);
                     //console.log('ec',ec,'ec.get_LvlOffense()',ec.get_LvlOffense());
@@ -932,7 +977,7 @@
                   this.Display.twoLineInfoArrays.push(hp);
                 } 
                 //this.Display.twoLineInfoArrays = twoLineInfoArrays;
-                this.store('twoLineInfoArrays',this.Display.twoLineInfoArrays); 
+                this.lootList.store('twoLineInfoArrays',this.Display.twoLineInfoArrays); 
               } catch (e) {
                 console.warn("MHTools.Loot.calcFriendlyInfo: ", e);
               }
@@ -976,24 +1021,28 @@
                       //var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
                       //var pixelX = visObject.get_X();
                       //var pixelY = visObject.get_Y();
+                      var ser = ClientLib.Data.MainData.GetInstance().get_Server();
                       var ecX = visObject.get_RawX();
                       var ecY = visObject.get_RawY();
                       var ocX = oc.get_X();
-                      var ocY = oc.get_Y();                      
+                      var ocY = oc.get_Y();          
+                      var cenX = ser.get_ContinentWidth() / 2;
+                      var cenY = ser.get_ContinentHeight() / 2;                      
 
                       var dis = ClientLib.Base.Util.CalculateDistance(ocX, ocY, ecX, ecY);
+                      var cen = ClientLib.Base.Util.CalculateDistance(cenX, cenY, ecX, ecY);
                       var cdt = oc.GetCityMoveCooldownTime(ecX,ecY);//cool down time
                       var stp = dis / 20;//steps
                       this.Data.Distance = dis;
                       //console.log('Distance:',dis,'EMT:',this.dhms2(cdt),'Steps:',stp);
                       hp = {};
                       hp.name = '<b>Movement</b>';
-                      hp.lbs = ['Distance:','EMT:','Steps:','    '];
+                      hp.lbs = ['Distance:','EMT:','Steps:','To center:'];
                       t = [];
                       t.push(dis);
                       t.push(this.dhms2(cdt));
                       t.push(stp);       
-                      t.push('    ');       
+                      t.push(cen);       
                       hp.val = t;
                       this.Display.distanceArray.push(hp);
 //NOTE
@@ -1008,13 +1057,13 @@
                       break;
                   } 
                 }
-                //DISABLED this.store('distanceArray',this.Display.distanceArray);               
+                //DISABLED this.lootList.store('distanceArray',this.Display.distanceArray);               
               } catch (e) {
                 console.warn("MHTools.Loot.calcDistance: ", e);
               }
             },
-            _onSelectionChange: function(last,curr) {
-              return;
+            onSelectionChange: function(last,curr) {
+              //return;
               try {
                 //
                 //TODO I rather move this to calcDistance and call it from extended widgets.
@@ -1022,7 +1071,7 @@
                 
                 //ClientLib.Vis.SelectionChange
                 //console.clear();
-                //console.log('_onSelectionChange, curr:',curr);
+                //console.log('onSelectionChange, curr:',curr);
                 var visObject = ClientLib.Vis.VisMain.GetInstance().get_SelectedObject();
                 if (visObject != null) {
                   var t = visObject.get_VisObjectType();
@@ -1030,7 +1079,9 @@
                   var LObjectType = [];
                   for(k in ClientLib.Vis.VisObject.EObjectType) 
                     LObjectType[ClientLib.Vis.VisObject.EObjectType[k]] = k;
-                  //console.log('Vis Object Type:',t,', ',LObjectType[t]);
+                  console.log('Vis Object Type:',t,', ',LObjectType[t]);
+                  //window.MHTools.visObject = visObject;
+                  this.Data.visObject = visObject;
                   /* NOTE             
                   UnknownType
                   CityBuildingType
@@ -1080,51 +1131,52 @@
                       // this.calcDistance();
                       // break;
                     // TEST
-                    case ClientLib.Vis.VisObject.EObjectType.DefenseUnitType:
-                      console.log('Vis Object Type:',t,', ',LObjectType[t],visObject);
-                      console.log(visObject.get_BuildingName());
-                      window.visObject = visObject;                    
-                      break;
-                    // TEST
-                    case ClientLib.Vis.VisObject.EObjectType.CityBuildingType:
-                      console.log('Vis Object Type:',t,', ',LObjectType[t],visObject);
-                      console.log(visObject.get_BuildingName());
-                      window.visObject = visObject;
-                      break;
+                    case ClientLib.Vis.VisObject.EObjectType.RegionHub:
+                      //console.log('Vis Object Type:',t,', ',LObjectType[t],visObject);
+                      //console.log(visObject.get_BuildingName());
+                      //window.visObject = visObject;                    
+                      break;                      
+                    // // TEST
+                    // case ClientLib.Vis.VisObject.EObjectType.DefenseUnitType:
+                      // console.log('Vis Object Type:',t,', ',LObjectType[t],visObject);
+                      // console.log(visObject.get_BuildingName());
+                      // window.visObject = visObject;                    
+                      // break;
+                    // // TEST
+                    // case ClientLib.Vis.VisObject.EObjectType.CityBuildingType:
+                      // console.log('Vis Object Type:',t,', ',LObjectType[t],visObject);
+                      // console.log(visObject.get_BuildingName());
+                      // window.visObject = visObject;
+                      // break;
                     default:
                       break;
                   }
                 }
               } catch (e) {
-                console.warn('MHTools.Loot._onSelectionChange: ', e);
+                console.warn('MHTools.Loot.onSelectionChange: ', e);
               }
             },
             extendSelectionChange: function() {
               //return;//disabled
               //webfrontend.Util.attachNetEvent(/*instance of object which calls the event*/, /*name of the event*/, /*type of the event*/, /*context object*/, /*callback function*/);
-              webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "SelectionChange", ClientLib.Vis.SelectionChange, this, this._onSelectionChange);
+              webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "SelectionChange", ClientLib.Vis.SelectionChange, this, this.onSelectionChange);
             },
             restoreDisplay: function() {
-            //console.log('restoreDisplay');
-              var idx = this.getIndex();  
-            //console.log('getIndex',idx);
+              //var idx = this.getIndex();  
+              var idx = this.lootList.getIndex();  
               if(idx > -1) { 
-                var d = this.list[idx].Data;
-            //console.log('d',d);
-            
-            // NOTE
-            // problem because i added distance here. bad
+                var d = this.lootList.list.l[idx].Data;            
+                var da = this.Display.distanceArray;
                 this.Display={};
                 for(var k in d) this.Display[k] = d[k];
-            //console.log('true');
+                this.Display.distanceArray = da;
                 return true;
               }
-            //console.log('false');
               return false;
             },
             // DISPLAY data
             addLoadingLabel: function(widget) {
-            console.log('addLoadingLabel');
+              //console.log('addLoadingLabel');
               try {
                 widget.removeAll();
                 var r=0, c=0;
@@ -1155,7 +1207,7 @@
                   var w = this.waiting[this.waiting[0]];
                   if(++this.waiting[0] >= this.waiting.length) this.waiting[0]=1;
                   //if (this.settings.showLoot.v) widget.add(new qx.ui.basic.Label('<b>Lootable Resources</b>').set({width: 230, rich: true, allowGrowX: true}), {row: r++,column: c, colSpan: 6});
-                  widget.add(new qx.ui.basic.Label('Waiting for server response ' + w).set({rich: true}), {row: r++,column: c, colSpan: 6});//, allowGrowX: true, colSpan: 6
+                  widget.add(new qx.ui.basic.Label('Transmission ' + w).set({rich: true}), {row: r++,column: c, colSpan: 6});//, allowGrowX: true, colSpan: 6
                 // } else {
                   // c=0;
                   // widget.add(new qx.ui.basic.Label('<span style="color:yellow">Base is out of range.</span>').set({width: 230, rich: true, allowGrowX: true}), {row: r++,column: c, colSpan: 6});//, allowGrowX: true
@@ -1165,7 +1217,7 @@
               }
             }, 
             addResourcesLabel: function(widget) {
-            console.log('addResourcesLabel');
+              //console.log('addResourcesLabel');
               try {
                 widget.removeAll();
                 var r=0, c=0;                
@@ -1283,7 +1335,7 @@
               }
             },       
             addFriendlyLabel: function(widget) {
-            //console.log('addFriendlyLabel');
+              //console.log('addFriendlyLabel');
               try {              
                 widget.removeAll();
                 var a;
@@ -1326,7 +1378,7 @@
                 console.warn('MHTools.Loot.addFriendlyLabel: ', e);
               }
             },
-            // deal with information boxes
+            // EXTEND UI
             /* NOTE
             RegionCityMenu
             RegionCityFoundInfo
@@ -1345,9 +1397,8 @@
             RegionCityStatusInfoAlliance
             RegionCityMoveInfo
             RegionNPCCampStatusInfo
-             */
-            // BASE - Own
-            extendOwnBase: function() {
+            */            
+            extendOwnBase: function() {// BASE - Own
               var self = this;
               if (!webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.__mhloot_showLootOwnBase) {
                 webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.__mhloot_showLootOwnBase = webfrontend.gui.region.RegionCityStatusInfoOwn.prototype.onCitiesChange;
@@ -1375,8 +1426,7 @@
                 this.__mhloot_showLootOwnBase();// run base function
               }
             },
-            // BASE - Alliance
-            extendAllianceBase: function() {
+            extendAllianceBase: function() {// BASE - Alliance
               var self = this;
               if (!webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.__mhloot_showLootAllianceBase) {
                 webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.__mhloot_showLootAllianceBase = webfrontend.gui.region.RegionCityStatusInfoAlliance.prototype.onCitiesChange;
@@ -1406,8 +1456,7 @@
                 this.__mhloot_showLootAllianceBase();
               }  
             },
-            // CAMP - Forgotten
-            extendForgottenCamp: function() {
+            extendForgottenCamp: function() {// CAMP - Forgotten
               var self = this;          
               if (!webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.__mhloot_showLootNPCCamp) {
                 webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.__mhloot_showLootNPCCamp = webfrontend.gui.region.RegionNPCCampStatusInfo.prototype.onCitiesChange;
@@ -1442,8 +1491,7 @@
                 this.__mhloot_showLootNPCCamp();
               }
             },
-            // BASE - Forgotten
-            extendForgottenBase: function() {
+            extendForgottenBase: function() {// BASE - Forgotten
               var self = this;  
               if (!webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.__mhloot_showLootNPCBase) {
                 webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.__mhloot_showLootNPCBase = webfrontend.gui.region.RegionNPCBaseStatusInfo.prototype.onCitiesChange;
@@ -1476,9 +1524,8 @@
                 }
                 this.__mhloot_showLootNPCBase();
               }
-            },
-            // BASE - PvP
-            extendPlayerBase: function() {
+            },            
+            extendPlayerBase: function() {// BASE - PvP
               var self = this; 
               if (!webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.__mhloot_showLootPlayerBase) {
                 webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.__mhloot_showLootPlayerBase = webfrontend.gui.region.RegionCityStatusInfoEnemy.prototype.onCitiesChange;
@@ -1513,8 +1560,7 @@
                 this.__mhloot_showLootPlayerBase();
               }
             },            
-            // POI
-            extendPOI: function() {
+            extendPOI: function() {// POI
               var self = this; 
               if (!webfrontend.gui.region.RegionPointOfInterestStatusInfo.prototype.__mhloot_showLootPOI) {
                 webfrontend.gui.region.RegionPointOfInterestStatusInfo.prototype.__mhloot_showLootPOI = webfrontend.gui.region.RegionPointOfInterestStatusInfo.prototype.onCitiesChange;
@@ -1542,8 +1588,7 @@
                 this.__mhloot_showLootPOI();
               }
             },
-            // HUB
-            extendHUB: function() {
+            extendHUB: function() {// HUB
               var self = this; 
               if (!webfrontend.gui.region.RegionHubStatusInfo.prototype.__mhloot_showLootHUB) {
                 webfrontend.gui.region.RegionHubStatusInfo.prototype.__mhloot_showLootHUB = webfrontend.gui.region.RegionHubStatusInfo.prototype.onCitiesChange;
@@ -1571,14 +1616,41 @@
                 this.__mhloot_showLootHUB();
               }
             },
-            // RUIN
-            extendRUIN: function() {
+            extendHUBServer: function() {
+              var self = this; 
+              if (!webfrontend.gui.region.RegionHubServerStatusInfo.prototype.__mhloot_showLootHUB) {
+                webfrontend.gui.region.RegionHubServerStatusInfo.prototype.__mhloot_showLootHUB = webfrontend.gui.region.RegionHubServerStatusInfo.prototype.onCitiesChange;
+              }
+              webfrontend.gui.region.RegionHubServerStatusInfo.prototype.onCitiesChange = function () {
+                console.log('RegionHubServerStatusInfo:');
+                try {
+                  if (!self.lootWindowHUBServer) {
+                    self.lootWindowHUBServer = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
+                    self.lootWindowHUBServer.setTextColor('white');
+
+                    var widget = webfrontend.gui.region.RegionHubServerStatusInfo.getInstance();
+                    widget.add(self.lootWindowHUBServer);
+                  }
+                  //clear
+                  self.Display.lootArray = [];
+                  self.Display.troopsArray = [];
+                  self.Display.infoArrays = [];
+                  self.Display.twoLineInfoArrays = [];
+                  self.calcDistance();
+                  self.addResourcesLabel(self.lootWindowHUBServer);
+                } catch (e) {
+                  console.warn("MHTool.Loot.RegionHubStatusInfo: ", e);
+                }
+                this.__mhloot_showLootHUB();
+              }
+            },
+            extendRUIN: function() {// RUIN
               var self = this; 
               if (!webfrontend.gui.region.RegionRuinStatusInfo.prototype.__mhloot_showLootRUIN) {
                 webfrontend.gui.region.RegionRuinStatusInfo.prototype.__mhloot_showLootRUIN = webfrontend.gui.region.RegionRuinStatusInfo.prototype.onCitiesChange;
               }
               webfrontend.gui.region.RegionRuinStatusInfo.prototype.onCitiesChange = function () {
-                console.log('RegionRuinStatusInfo:');
+                //console.log('RegionRuinStatusInfo:');
                 try {
                   if (!self.lootWindowRUIN) {
                     self.lootWindowRUIN = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
@@ -1606,7 +1678,7 @@
             btnApply: null,
             optionsStoreName: 'MHToolLootOptions',
             addLootPage: function() {            
-              console.log('addLootPage');
+              //console.log('addLootPage');
               try {
                 if(!MHTools.OptionsPage) OptionsPage();
                 
@@ -1653,15 +1725,10 @@
               }
             },
             optionsChanged: function() {
-              //console.log('optionsChanged');
               var c = false;
               for(var k in this.settings) {
-                //c = (c || (a!=b));
-                // c ||= (this.settings[k].v != this.settings[k].cb.getValue());
                 c = c || (this.settings[k].v != this.settings[k].cb.getValue());
               }
-              console.log('checkBoxChanged:',c);
-              // this.btnApply.setEnabled(c);
               this.btnApply.setEnabled(c);
             },
             applyOptions: function(e) {
@@ -1675,9 +1742,7 @@
               for(var k in this.settings) {
                 c[k] = this.settings[k].cb.getValue();
                 this.settings[k].v = c[k];
-                //console.log(k,c[k]);
               }
-              //console.log('saveOptions c:',c);
               var S = ClientLib.Base.LocalStorage;
               if (S.get_IsSupported()) S.SetItem(this.optionsStoreName, c);
             },

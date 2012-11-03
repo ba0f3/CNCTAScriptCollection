@@ -11,7 +11,7 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 137978,
 	name : "CnC: MH Tiberium Alliances Available Loot Summary",
-	version : "1.8.0",
+	version : "1.8.2",
 	enabled : true
 }, {
 	id : 145657,
@@ -46,8 +46,8 @@ var DEFAULT_SCRIPTS = [ {
 }, {
 	id : 145717,
 	name : "Tiberium Alliances Combat Simulator (Basic)",
-	version : "2.0",
-	enabled : true
+	version : "0.3.1",
+	enabled : false
 }, {
 	id : 147335,
 	name : "C&C Combat Simulator",
@@ -73,11 +73,6 @@ var DEFAULT_SCRIPTS = [ {
 	name : "CnC Tiberium Coord Box Shortcut",
 	version : "1",
 	enabled : false
-}, {
-	id: 151059,
-	name: "C&C Tiberium Alliances: Hide Mission Panel",
-	version: "0.1.1",
-	enabled: false
 }];
 
 var CURRENT_VERSION = chrome.app.getDetails().version;

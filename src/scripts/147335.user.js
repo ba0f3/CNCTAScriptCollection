@@ -3,14 +3,13 @@
 // @namespace   http://userscripts.org/users/481406
 // @description C&C Tiberium Alliances Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.2.1
-// @author      Created by Deyhak | Contains code which was made by Duarte, PythEch & KRS_L.
+// @version     0.3.1
+// @author      Deyhak | Contains code by Duarte, PythEch & KRS_L.
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       unsafeWindow
 // @grant       GM_log
 // ==/UserScript==
-
-unsafeWindow=window
+var unsafeWindow=window;
 //Global Variables//
     var labels = {
         spoils: {
@@ -35,16 +34,15 @@ unsafeWindow=window
         },
         repairs: {
             cTotal: null,
-            cTroops: null,
+            cInfantry: null,
             cVehicles: null,
             cAir: null,
             pTotal: null,
-            pTroops: null,
+            pInfantry: null,
             pVehicles: null,
             pAir: null,
         }
     }
-
     var buttons = {
         interface: {
             tools: null,
@@ -113,12 +111,10 @@ function initOptions(){
      var tabView = new qx.ui.tabview.TabView();
      tabView.setPadding(5);
      boxes.options.add(tabView);
-
      ////////////////// Buttons ////////////////////
      var btnTab = new qx.ui.tabview.Page("Buttons");
      btnTab.setLayout(new qx.ui.layout.VBox(5));
      btnTab.setPadding(1);
-
      ////////////////// Buttons Side ////////////////////
      var eHBox = new qx.ui.container.Composite()
      eHBox.setLayout(new qx.ui.layout.HBox(5));
@@ -126,7 +122,6 @@ function initOptions(){
      eHBox.setThemedPadding(2);
      eHBox.setThemedBackgroundColor("#eef");
      eHBox.add(new qx.ui.basic.Label("Side: "));
-
      var leftBtn = new qx.ui.form.Button("L");
      var rightBtn = new qx.ui.form.Button("R");                                  
      leftBtn.set({ width: 20, 
@@ -163,8 +158,6 @@ function initOptions(){
                                     localStorage.setItem('btnSide', false);
                                 },this);
      
-
-
      rightBtn.addListener("click",function(){
                                     /////Options Button//////
                                     bas.remove(opBtn);
@@ -191,9 +184,6 @@ function initOptions(){
      eHBox.add(leftBtn);
      eHBox.add(rightBtn);    
      btnTab.add(eHBox);
-
-
-
     if (bs) {
         leftBtn.setOpacity(0.5);
     }
@@ -209,7 +199,6 @@ function initOptions(){
      clHBox.setThemedPadding(2);
      clHBox.setThemedBackgroundColor("#eef");
      clHBox.add(new qx.ui.basic.Label("Unlock: "));
-
      var cl = stob(localStorage.getItem('isCombatLocked'));
      var onBtn = new qx.ui.form.Button("On");
      var offBtn = new qx.ui.form.Button("Off");                                  
@@ -229,8 +218,6 @@ function initOptions(){
         alert("This action will only take place after restarting the game");        
     },this);
      
-
-
      offBtn.addListener("click",function(){
         localStorage.setItem('isCombatLocked', false);
         onBtn.setOpacity(0.5);
@@ -242,9 +229,6 @@ function initOptions(){
      clHBox.add(offBtn);    
      btnTab.add(clHBox);
      tabView.add(btnTab);
-
-
-
     if (cl) {
         offBtn.setOpacity(0.5);
     }
@@ -253,7 +237,6 @@ function initOptions(){
     }  
     console.log("Options Initiation Completed");
 }
-
                                         
 function initSimulateBattle(){
     console.log("Initiating Simulator");
@@ -289,7 +272,6 @@ function initSimulateBattle(){
 		ownCity.get_CityArmyFormationsManager().set_CurrentTargetBaseId(city.get_Id());
 		ClientLib.Vis.VisMain.GetInstance().get_Battleground().SimulateBattle();
 		app.getPlayArea().setView(webfrontend.gui.PlayArea.PlayArea.modes.EMode_CombatReplay, city.get_Id(), 0, 0);
-
 		lock = true;
         var cooldown = new qx.ui.form.Button("X");
         if (bs) {
@@ -310,8 +292,6 @@ function initSimulateBattle(){
         else bas.add(buttons.interface.simulate, { right: null, left: 6, bottom: 4 });
     console.log("Simulator Initiation Completed");
 }
-
-
 function initReturnSetup(){
     
         qx = unsafeWindow["qx"];
@@ -324,7 +304,6 @@ function initReturnSetup(){
                      buttonReturnSetup.addListener("click", function() {
                      // Set the scene again, just in case it didn't work the first time
                      var app = qx.core.Init.getApplication();
-                     logObject(webfrontend.gui.PlayArea);
                      var player_cities = ClientLib.Data.MainData.GetInstance().get_Cities();
                      var current_city = player_cities.get_CurrentCity();
                      try {
@@ -340,12 +319,10 @@ function initReturnSetup(){
                         left: 0
                      });
 }
-
 function initUnlockCombat()
 {
         
              var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
-
                      var buttonUnlockAttack = new qx.ui.form.Button("X");
                      buttonUnlockAttack.set({
                         width: 44,
@@ -365,16 +342,16 @@ function initUnlockCombat()
                         right: 10
                      });
 }
-
 function formatNumberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
-
         
     
 function initTools(){
     console.log("Tools Initiating");
+    qx = unsafeWindow["qx"];
+    ClientLib = unsafeWindow["ClientLib"];
+    webfrontend = unsafeWindow["webfrontend"];
     var armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
     var bs = stob(localStorage.getItem('btnSide'));
     buttons.interface.tools = new qx.ui.form.Button("T");
@@ -403,7 +380,6 @@ function initTools(){
                             return;
                          }
                          else boxes.tools.open();
-             
                          if (!unitMovedFlag) initUnitMoved();
                          var curCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();         
                          var targetHP = curCity.GetFullConditionInPercent(); 
@@ -412,15 +388,12 @@ function initTools(){
                          var CYHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(58).get_HitpointsPercent()) * 100;
                          var DFHP = (curCity.get_CityBuildingsData().GetBuildingByMDBId(74).get_HitpointsPercent()) * 100;
                          var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
-                         battleground.SimulateBattle();
+                         battleground.SimulateBattle(); 
                          setTimeout(function() {
                              var battleDuration = battleground.get_BattleDuration ()/1000;
                              labels.stats.pBattleDuration.setValue(""+ battleDuration); 
                              
                          }, 1000);
-        
-        
-             
                          labels.stats.cTotal.setValue(""+targetHP);
                          labels.stats.cDefense.setValue(""+targetDefense);
                          labels.stats.cBuildings.setValue(""+targetBuilding);
@@ -437,7 +410,6 @@ function initTools(){
      var tabView = new qx.ui.tabview.TabView();
      tabView.setPadding(5);
      boxes.tools.add(tabView);
-
      ////////////////// Stats ////////////////////
      var statsPage = new qx.ui.tabview.Page("Stats");
      statsPage.setLayout(new qx.ui.layout.VBox(5));
@@ -462,7 +434,7 @@ function initTools(){
      eHBox1.add(new qx.ui.basic.Label("Base: "));
      labels.stats.cTotal = new qx.ui.basic.Label("Undefined");
      eHBox1.add(labels.stats.cTotal);
-     labels.stats.cTotal.setTextColor("red");
+     labels.stats.cTotal.setTextColor("black");
      eVBox.add(eHBox1);
      // Units
      var eHBox4 = new qx.ui.container.Composite();
@@ -470,7 +442,7 @@ function initTools(){
      eHBox4.add(new qx.ui.basic.Label("Defences: "));
      labels.stats.cDefense = new qx.ui.basic.Label("Undefined");
      eHBox4.add(labels.stats.cDefense);
-     labels.stats.cDefense.setTextColor("green");
+     labels.stats.cDefense.setTextColor("black");
      eVBox.add(eHBox4);
      // Buildings
      var eHBox5 = new qx.ui.container.Composite();
@@ -478,7 +450,7 @@ function initTools(){
      eHBox5.add(new qx.ui.basic.Label("Buildings: "));
      labels.stats.cBuildings = new qx.ui.basic.Label("Undefined");
      eHBox5.add(labels.stats.cBuildings);
-     labels.stats.cBuildings.setTextColor("green");
+     labels.stats.cBuildings.setTextColor("black");
      eVBox.add(eHBox5);
      // Command Center
      var eHBox2 = new qx.ui.container.Composite();
@@ -486,7 +458,7 @@ function initTools(){
      eHBox2.add(new qx.ui.basic.Label("Construction Yard: "));
      labels.stats.cCY = new qx.ui.basic.Label("Undefined");
      eHBox2.add(labels.stats.cCY);
-     labels.stats.cCY.setTextColor("red");
+     labels.stats.cCY.setTextColor("black");
      eVBox.add(eHBox2);
      // Defense Facility
      var eHBox3 = new qx.ui.container.Composite();
@@ -494,10 +466,9 @@ function initTools(){
      eHBox3.add(new qx.ui.basic.Label("Defense Facility: "));
      labels.stats.cDF = new qx.ui.basic.Label("Undefined");
      eHBox3.add(labels.stats.cDF);
-     labels.stats.cDF.setTextColor("red");
+     labels.stats.cDF.setTextColor("black");
      eVBox.add(eHBox3);
     
-
         // The Enemy Vertical Box
      var pVBox = new qx.ui.container.Composite()
      pVBox.setLayout(new qx.ui.layout.VBox(5));
@@ -517,7 +488,7 @@ function initTools(){
      pHBox1.add(new qx.ui.basic.Label("Base: "));
      labels.stats.pTotal = new qx.ui.basic.Label("Undefined");
      pHBox1.add(labels.stats.pTotal);
-     labels.stats.pTotal.setTextColor("red");
+     labels.stats.pTotal.setTextColor("black");
      pVBox.add(pHBox1);
      // Units
      var pHBox4 = new qx.ui.container.Composite();
@@ -525,7 +496,7 @@ function initTools(){
      pHBox4.add(new qx.ui.basic.Label("Defences: "));
      labels.stats.pDefense = new qx.ui.basic.Label("Undefined");
      pHBox4.add(labels.stats.pDefense);
-     labels.stats.pDefense.setTextColor("green");
+     labels.stats.pDefense.setTextColor("black");
      pVBox.add(pHBox4);
      // Buildings
      var pHBox5 = new qx.ui.container.Composite();
@@ -533,7 +504,7 @@ function initTools(){
      pHBox5.add(new qx.ui.basic.Label("Buildings: "));
      labels.stats.pBuildings = new qx.ui.basic.Label("Undefined");
      pHBox5.add(labels.stats.pBuildings);
-     labels.stats.pBuildings.setTextColor("green");
+     labels.stats.pBuildings.setTextColor("black");
      pVBox.add(pHBox5);
      // Command Center
      var pHBox2 = new qx.ui.container.Composite();
@@ -541,7 +512,7 @@ function initTools(){
      pHBox2.add(new qx.ui.basic.Label("Construction Yard: "));
      labels.stats.pCY = new qx.ui.basic.Label("Undefined");
      pHBox2.add(labels.stats.pCY);
-     labels.stats.pCY.setTextColor("red");
+     labels.stats.pCY.setTextColor("black");
      pVBox.add(pHBox2);
      // Defense Facility
      var pHBox3 = new qx.ui.container.Composite();
@@ -549,7 +520,7 @@ function initTools(){
      pHBox3.add(new qx.ui.basic.Label("Defense Facility: "));
      labels.stats.pDF = new qx.ui.basic.Label("Undefined");
      pHBox3.add(labels.stats.pDF);
-     labels.stats.pDF.setTextColor("red");
+     labels.stats.pDF.setTextColor("black");
      pVBox.add(pHBox3);
     
     
@@ -568,41 +539,40 @@ function initTools(){
      tHBox1.add(new qx.ui.basic.Label("Repair Time: "));
      var simRepairTimeLabel = new qx.ui.basic.Label("Undefined");
      tHBox1.add(simRepairTimeLabel);
-     simRepairTimeLabel.setTextColor("blue");
+     simRepairTimeLabel.setTextColor("black");
      tVBox.add(tHBox1);
      // The Troop Strength Label
      var tHBox5 = new qx.ui.container.Composite();
      tHBox5.setLayout(new qx.ui.layout.HBox(5));
      tHBox5.add(new qx.ui.basic.Label("Overall: "));
-     var simTroopDamageLabel = new qx.ui.basic.Label("Undefined");
-     tHBox5.add(simTroopDamageLabel);
-     simTroopDamageLabel.setTextColor("blue");
+     labels.repairs.pTotal = new qx.ui.basic.Label("Undefined");
+     tHBox5.add(labels.repairs.pTotal);
+     labels.repairs.pTotal.setTextColor("black");
      tVBox.add(tHBox5);
      // The Infantry Troop Strength Label
      var tHBox2 = new qx.ui.container.Composite();
      tHBox2.setLayout(new qx.ui.layout.HBox(5));
      tHBox2.add(new qx.ui.basic.Label("Infantry: "));
-     var infantryTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
-     tHBox2.add(infantryTroopStrengthLabel);
-     infantryTroopStrengthLabel.setTextColor("green");
+     labels.repairs.pInfantry = new qx.ui.basic.Label("Undefined");
+     tHBox2.add(labels.repairs.pInfantry);
+     labels.repairs.pInfantry.setTextColor("black");
      tVBox.add(tHBox2);
      // The Vehicle Troop Strength Label
      var tHBox3 = new qx.ui.container.Composite();
      tHBox3.setLayout(new qx.ui.layout.HBox(5));
      tHBox3.add(new qx.ui.basic.Label("Vehicle: "));
-     var vehicleTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
-     tHBox3.add(vehicleTroopStrengthLabel);
-     vehicleTroopStrengthLabel.setTextColor("green");
+     labels.repairs.pVehicles = new qx.ui.basic.Label("Undefined");
+     tHBox3.add(labels.repairs.pVehicles);
+     labels.repairs.pVehicles.setTextColor("black");
      tVBox.add(tHBox3);
      // The Air Troop Strength Label
      var tHBox4 = new qx.ui.container.Composite();
      tHBox4.setLayout(new qx.ui.layout.HBox(5));
      tHBox4.add(new qx.ui.basic.Label("Aircraft: "));
-     var airTroopStrengthLabel = new qx.ui.basic.Label("Undefined");
-     tHBox4.add(airTroopStrengthLabel);
-     airTroopStrengthLabel.setTextColor("green");
+     labels.repairs.pAir = new qx.ui.basic.Label("Undefined");
+     tHBox4.add(labels.repairs.pAir);
+     labels.repairs.pAir.setTextColor("black");
      tVBox.add(tHBox4);
-
      // The inner Vertical Box
      var vBox = new qx.ui.container.Composite()
      vBox.setLayout(new qx.ui.layout.VBox(5));
@@ -613,9 +583,9 @@ function initTools(){
      var hBox2 = new qx.ui.container.Composite()
      hBox2.setLayout(new qx.ui.layout.HBox(5));
      hBox2.add(new qx.ui.basic.Label("Outcome: "));
-     var simVictoryLabel = new qx.ui.basic.Label("Unknown");
-     hBox2.add(simVictoryLabel);
-     simVictoryLabel.setTextColor("green");
+     labels.stats.pOutcome = new qx.ui.basic.Label("Unknown");
+     hBox2.add(labels.stats.pOutcome);
+     labels.stats.pOutcome.setTextColor("black");
      vBox.add(hBox2);
      // The Battle Time Label
      var hBox1 = new qx.ui.container.Composite()
@@ -625,14 +595,12 @@ function initTools(){
      hBox1.add(labels.stats.pBattleDuration);
      labels.stats.pBattleDuration.setTextColor("black");
      vBox.add(hBox1);
-
      statsPage.add(vBox);
   
      ////////////////// Info ////////////////////
      var infoPage = new qx.ui.tabview.Page("Info");
      infoPage.setLayout(new qx.ui.layout.VBox(5));
      tabView.add(infoPage);
-
      // The Help Vertical Box
      var pVBox = new qx.ui.container.Composite()
      pVBox.setLayout(new qx.ui.layout.VBox(5));
@@ -665,13 +633,10 @@ function initTools(){
      // Research
      labels.spoils.research = new qx.ui.basic.Atom("0", "webfrontend/ui/common/icn_res_research_mission.png");
      psVBox.add(labels.spoils.research);
-
      boxes.tools.add(tabView);
     console.log("Tools Initiation Completed");
 }
-
 function initFormationShiftKeys(){
-
     console.log("Formation Manager Initiating");  
     var application = qx.core.Init.getApplication();
 	var bas = application.getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
@@ -705,7 +670,6 @@ function initFormationShiftKeys(){
     
 	 var shiftTab = new qx.ui.tabview.Page("Shift");
      shiftTab.setLayout(new qx.ui.layout.VBox(5));
-
     
 	var arrows = {};
 	arrows.ShiftFormationLeft = new qx.ui.form.Button("←");
@@ -759,7 +723,6 @@ function initFormationShiftKeys(){
     
     console.log("Formation Manager Initiation Completed");
 }
-
 function getBuildingsList(){
     var curCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity(); 
     for (var k in curCity.get_CityBuildingsData()){
@@ -771,7 +734,6 @@ function getBuildingsList(){
     }
     return buildings.l;
 }
-
 function getEntities(){
     var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
     for (var k in battleground){
@@ -784,14 +746,12 @@ function getEntities(){
     }
     return entities.d;
 }
-
 function getCityPreArmyUnits() {
 	ClientLib = unsafeWindow["ClientLib"];
 	var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
 	var formationManager = ownCity.get_CityArmyFormationsManager();
 	return formationManager.GetFormationByTargetBaseId(formationManager.get_CurrentTargetBaseId());
 }
-
 function restoreFormation(saved_units) {
 	var sUnits = saved_units;
 	var units = getCityPreArmyUnits();
@@ -810,7 +770,6 @@ function restoreFormation(saved_units) {
 	}
 	units.UpdateFormation(true); //this works and USES the API so works for both servers
 }
-
 function shiftFormation(direction) { //left right up down
 	
 	if (!direction) var direction = window.prompt("indicate a direction to shift units: up(u), down(d), left(l) or right(r)");
@@ -856,8 +815,6 @@ function shiftFormation(direction) { //left right up down
 	restoreFormation(Army);
     onUnitMoved();
 }
-
-
 function onViewChange(oldMode, newMode) {
      if (boxes.tools.isVisible()) boxes.tools.close();
      if (boxes.options.isVisible()) boxes.options.close();
@@ -866,14 +823,9 @@ function onViewChange(oldMode, newMode) {
      unitMovedFlag = false;
      CityPreArmyUnits.remove_ArmyChanged(add_UnitMoved);
     }
-
 }
-
 function onUnitMoved(sender, e) {
-
-
         console.log("Moved Unit");
-
 }
     
     
@@ -888,7 +840,6 @@ function initViewChange(){
         console.warn(e);
     }
 }
-
 var unitMovedFlag = false;
 var add_UnitMoved = null;
 var CityPreArmyUnits = null;
@@ -906,15 +857,126 @@ function initUnitMoved(){
     }
     
 }
-
-function OnSimulateBattleFinished(data){
-    for (var i = 0; i < data.length; i++){
-       console.log(data[i]); 
+function initOnSimulateFinished(){
+    try{        
+        qx = unsafeWindow["qx"];
+        ClientLib = unsafeWindow["ClientLib"];
+        webfrontend = unsafeWindow["webfrontend"];
+        webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Battleground(), "OnSimulateBattleFinished", ClientLib.Vis.Battleground.OnSimulateBattleFinished, this, OnSimulateBattleFinished);
     }
-    
+    catch(e){
+        console.warn(e);
+    }
 }
+function OnSimulateBattleFinished(data){
+    var total_h=0, end_h=0, healthPercent=0; //Total defender's health
+    var buildingsTotal_h=0, buildingsEnd_h=0, buildingsPercent=0; //Buildings health
+    var defenseTotal_h=0, defenseEnd_h=0, defensePercent=0; //Defense health
+    var cyTotal_h=0, cyEnd_h=0, cyPercent=0; // Counstruction Yard health
+    var dfTotal_h=0, dfEnd_h=0, dfPercent=0; // Defense Facility health
+    var offenseTotal_h=0, offenseEnd_h=0; // Offense health
+    var infTotal_h=0, infEnd_h=0; // Infantry health
+    var vehiTotal_h=0, vehiEnd_h=0; // Vehicles health
+    var airTotal_h=0, airEnd_h=0; // Air health
+    var unit;
+    var uniqueName;
+    var placementType;
+    try {
+        for (var i = 0; i < data.length; i++){ 
+            var unitData = data[i].Value;
+            var unitMDBID = unitData.t;
+            unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(unitMDBID);
+            uniqueName = unit.dn;
+            placementType = unit.pt;
+            
+            switch (uniqueName) {
+                case ("Defense Facility"):
+                    dfTotal_h += unitData.sh;
+                    dfEnd_h += unitData.h;  
+                    break;
+                case ("Construction Yard"):
+                    cyTotal_h += unitData.sh;
+                    cyEnd_h += unitData.h;  
+                    break;  
+            }
+                
+            switch (placementType) {
+                case ClientLib.Base.EPlacementType.Defense:
+                total_h += unitData.sh;
+                end_h += unitData.h;
+                defenseTotal_h += unitData.sh;
+                defenseEnd_h += unitData.h;  
+                break;
+                        
+                case ClientLib.Base.EPlacementType.Offense:
+                    offenseTotal_h += unitData.sh;
+                    offenseEnd_h += unitData.h;
+                    var movementType = unit.mt;
+                    switch (movementType) {
+                        case ClientLib.Base.EUnitMovementType.Feet:
+                            infTotal_h += unitData.sh;
+                            infEnd_h += unitData.h;
+                        break;
+                            
+                        case ClientLib.Base.EUnitMovementType.Wheel:
+                        case ClientLib.Base.EUnitMovementType.Track:
+                            vehiTotal_h += unitData.sh;
+                            vehiEnd_h += unitData.h;
+                        break;
+                            
+                        case ClientLib.Base.EUnitMovementType.Air:
+                        case ClientLib.Base.EUnitMovementType.Air2:
+                            airTotal_h += unitData.sh;
+                            airEnd_h += unitData.h;
+                        break;
+                    }
+                break;
+                        
+                case ClientLib.Base.EPlacementType.Structure:
+                total_h += unitData.sh;
+                end_h += unitData.h;  
+                buildingsTotal_h += unitData.sh;
+                buildingsEnd_h += unitData.h;      
+                break;
+            }
+            
+            //logObject(unit);
+            
+        }
+        healthPercent = (end_h / total_h) * 100;
+        defensePercent = (defenseEnd_h / defenseTotal_h) *100;
+        buildingsPercent = (buildingsEnd_h / buildingsTotal_h) *100;
+        cyPercent = (cyEnd_h / cyTotal_h) *100;
+        dfPercent = (dfEnd_h / dfTotal_h) * 100;
+         
+        labels.stats.pTotal.setValue("" + healthPercent.toFixed(2));
+        labels.stats.pDefense.setValue("" + defensePercent.toFixed(2));
+        labels.stats.pBuildings.setValue("" + buildingsPercent.toFixed(2));
+        labels.stats.pCY.setValue("" + cyPercent.toFixed(2));
+        labels.stats.pDF.setValue("" + dfPercent.toFixed(2));
+        labels.repairs.pTotal.setValue(offenseEnd_h + " \\ " + offenseTotal_h);
+        labels.repairs.pInfantry.setValue(infEnd_h + " \\ " + infTotal_h);
+        labels.repairs.pVehicles.setValue(vehiEnd_h + " \\ " + vehiTotal_h);
+        labels.repairs.pAir.setValue(airEnd_h + " \\ " + airTotal_h);
+        
+        if (cyEnd_h < 0.01) {
+            labels.stats.pOutcome.setValue("Total Victory");
+            labels.stats.pOutcome.setTextColor("blue");
+        }
+        else if (offenseEnd_h < 0.01) {
+            labels.stats.pOutcome.setValue("Total Defeat");
+            labels.stats.pOutcome.setTextColor("red");
+        }
+        else {
+            labels.stats.pOutcome.setValue("Unknown");
+            labels.stats.pOutcome.setTextColor("black");
+        }
 
-
+    }
+    catch(e){
+        console.warn(e);
+    }
+}
 function stob(string){
         switch(string.toLowerCase()){
                 case "true": case "yes": case "1": return true;
@@ -922,7 +984,6 @@ function stob(string){
                 default: return Boolean(string);
         }
 }
-
 function logObject(obj){
     var output = '';
     for (property in obj) {
@@ -930,10 +991,7 @@ function logObject(obj){
     }
     console.log(obj + "\n" + output);   
 }
-
-
 //Main//
-
 function waitForClientLib(){
     
     qx = unsafeWindow["qx"];
@@ -951,18 +1009,12 @@ function waitForClientLib(){
         initTools();
         initViewChange();
         initFormationShiftKeys();
-        //webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Battlegr​ound(), "OnSimulateBattleFinished", ClientLib.Vis.Battleground.OnSimulateBattleFinished, this, OnSimulateBattleFinished);
+        initOnSimulateFinished();
         if (stob(localStorage.getItem('isCombatLocked'))) initUnlockCombat();
-
 }
-
-
-
 function startup(){
     
 	setTimeout(waitForClientLib, 1000);
 };
-
 startup();
-
 //End Of Main//
