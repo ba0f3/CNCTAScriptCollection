@@ -3,7 +3,7 @@
 // @description Supplies some wrapper functions for public use 
 // @namespace infernal_wrapper
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version 0.377320
+// @version 0.378171
 // @author ppl before me and me (KRS update)
 // ==/UserScript==
 (function () {
@@ -37,7 +37,7 @@
         },
         _prop_name: function(prop_map) {return prop_map[this.versions[this.version]];},
         _prop_index: function(prop_map) {return prop_map[this.versions[this.version]+1];},
-		versions: {'377320': 0, '376877': 2},
+		versions: {'377320': 0, '378171': 2},
         version: null,//'368132',
         init_wrap: function(wrap) {
             try {
@@ -48,7 +48,7 @@
                 if(wrap.length == 5) var opt_so_name = wrap[4];
                 var so_name = this._val_or_def(opt_so_name, to_name)
                 var sp_index = sp_map[this._index]
-                //_log('testing'+to_name+'.'+tp_name+'='+sp_name+':'+sp_index+':'+sp_map[this._name])//
+                _log('testing'+to_name+'.'+tp_name+'='+sp_name+':'+sp_index+':'+sp_map[this._name])// //remcom
                 switch (fn){
                     case 0:
                         var sp_name = gni(eval(so_name), sp_index)
@@ -68,7 +68,7 @@
                         break;
                 }
                 //hmm.push([sp_map[this._name], sp_name])//
-                //_log(eval_str)//
+                _log(eval_str)// //remcom
                 eval(eval_str)
             } catch(e) {
                 _log(e)
@@ -81,6 +81,7 @@
             [0, 'SharedLib', 'Combat', ['JPBXWF', 503, 'CGBMCM', 503]],
             [0, 'SharedLib.Combat', 'CbtSetup', ['YQVCQF', 537, 'CFNHQI', 537], 'SharedLib'],
             [0, 'SharedLib.Combat', 'CbtSimulation', ['IVRUOI', 540, 'OGJDCU', 540], 'SharedLib'],
+				[0, 'SharedLib.Combat', 'CbtSceneManager', ['THWRPW', 542, '?', 542], 'SharedLib'],
 			[2, 'ClientLib.Vis.Battleground.Battleground', 'get_Entities', ['IIRVDC', 34, 'HMPBEL', 34]],
 			[1, 'SharedLib.Combat.CbtSimulation', 'DoStep', ['HZAQGO', 26, 'OZNGIF', 26]],
 			[2, 'SharedLib.Combat.CbtSimulation', 'get_iCombatStep', ['JIDEXI', 13,  'BTMWDJ', 13]],
