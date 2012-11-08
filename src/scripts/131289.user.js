@@ -20,8 +20,8 @@
 /* 
 
 Special thanks to PythEch for fixing this up so it worked again!
-unsafeWindow=window;
 */
+unsafeWindow=window;
 var scity = null;
 var tcity = null;
 var tbase = null;
@@ -688,7 +688,7 @@ try {
         } catch (e) {
           if (typeof console != 'undefined') console.log(e);
           else if (window.opera) opera.postError(e);
-          else GM_log(e);
+          else console.log(e);
         }
       }
       if (/commandandconquer\.com/i.test(document.domain)) window.setTimeout(cnc_check_if_loaded, 1000);
@@ -703,5 +703,5 @@ try {
     if (/commandandconquer\.com/i.test(document.domain)) document.getElementsByTagName("head")[0].appendChild(script_block);
   })();
 } catch (e) {
-  GM_log(e);
+  console.log(e);
 }

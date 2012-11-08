@@ -1,6 +1,12 @@
-12.7.20:
+1.2.8.1:
+- Update setting storage, won't lost when extension updated, can be automatically synced with Chrome sync
+- Add "CnC: Tiberium Alliances Map (KSX-Mod) version: 1.5
+- Add "C&C:Tiberium Alliances Extended Chathelper AutoCoords" version 1.0.0
+- Remove "Tiberium Alliances Map and Zoom"
+- Disable "Tiberium Alliances Formation Saver" by default
+1.2.7.20:
 - Update "infernal wrapper" to version 0.378171.3
-12.7.19:
+1.2.7.19:
 - Update "infernal wrapper" to version 0.378171
 1.2.7.18:
 - Update "CnC: MH Tiberium Alliances Available Loot Summary" to version 1.8.2

@@ -1,4 +1,4 @@
-var DEFAULT_SCRIPTS = [ {
+var DEFAULT_SCRIPTS = [{
 	id : 131289,
 	name : "C&C:TA CNCOpt Link Button",
 	version : "1.7.3",
@@ -7,7 +7,7 @@ var DEFAULT_SCRIPTS = [ {
 	id : 136299,
 	name : "Tiberium Alliances Formation Saver",
 	version : "2.1.8",
-	enabled : true
+	enabled : false
 }, {
 	id : 137978,
 	name : "CnC: MH Tiberium Alliances Available Loot Summary",
@@ -59,11 +59,6 @@ var DEFAULT_SCRIPTS = [ {
 	version : "1.0",
 	enabled : true
 }, {
-	id : 147476,
-	name : "Tiberium Alliances Map and Zoom",
-	version : "1.1",
-	enabled : true
-}, {
 	id : 149809,
 	name : "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
 	version : "0.4",
@@ -73,28 +68,57 @@ var DEFAULT_SCRIPTS = [ {
 	name : "CnC Tiberium Coord Box Shortcut",
 	version : "1",
 	enabled : false
+}, {
+	id: 149093,
+	name: "CnC: Tiberium Alliances Map (KSX-Mod)",
+	version: "1.5",
+	enabled: true
+}, {
+	id: 151099,
+	name: "C&C:Tiberium Alliances Extended Chathelper AutoCoords",
+	version: "1.0.0",
+	enabled: true
 }];
 
-var CURRENT_VERSION = chrome.app.getDetails().version;
-var PREVIOUS_VERSION = localStorage.getItem('CNCTA_VERSION');
-if (CURRENT_VERSION !== PREVIOUS_VERSION) {
-	localStorage.setItem('CNCTA_VERSION', CURRENT_VERSION);
-	localStorage.setItem('CNCTA_SCRIPTS', JSON.stringify(DEFAULT_SCRIPTS));
+var storage = chrome.storage.sync;
 
-	window.open(chrome.extension.getURL('updated.html'));
+storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function(config) {
+	if (chrome.app.getDetails().version !== config.CNCTA_VERSION) {
+		window.open(chrome.extension.getURL('updated.html'));
+		if(!config.CNCTA_ENABLED) {
+			config.CNCTA_ENABLED = {};
+		}
+		var tmp = {};
 
-	var enabled = JSON.parse(localStorage.getItem('CNCTA_ENABLED'));
-	if (enabled === null || typeof enabled !== 'object') {
-		enabled = {};
+		for (var i in DEFAULT_SCRIPTS) {
+			var script = DEFAULT_SCRIPTS[i];		
+			tmp['s_' + script.id] = config.CNCTA_ENABLED['s_' + script.id] || script.enabled;
+		}
+		storage.set({
+			'CNCTA_VERSION': chrome.app.getDetails().version,
+			'CNCTA_SCRIPTS': DEFAULT_SCRIPTS,
+			'CNCTA_ENABLED': tmp
+		});
 	}
-	var tmp = {};
 
-	for (var i in DEFAULT_SCRIPTS) {
-		var script = DEFAULT_SCRIPTS[i];		
-		tmp[script.id] = enabled[script.id] || script.enabled;
+	if (!config.CNCTA_GA) {
+		storage.set({'CNCTA_GA': true});
+		config.CNCTA_GA = true;
 	}
-	localStorage.setItem('CNCTA_ENABLED', JSON.stringify(tmp));
-}
+	if(config.CNCTA_GA === true) {	
+		var _gaq = _gaq || [];
+		_gaq.push([ '_setAccount', 'UA-15252221-7' ]);
+		_gaq.push([ '_trackPageview' ]);
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = 'https://ssl.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+	}
+});
 
 function processRequest(request, sender, sendResponse) {
 	"use strict";
@@ -135,21 +159,3 @@ chrome.pageAction.onClicked.addListener(function() {
 	window.open(chrome.extension.getURL('options.html'));
 });
 /*------------------------------------------------*/
-var CNCTA_GA = localStorage.getItem('CNCTA_GA');
-if (CNCTA_GA === null) {
-	localStorage.setItem('CNCTA_GA', true);
-	CNCTA_GA = true;
-}
-if (CNCTA_GA) {
-	var _gaq = _gaq || [];
-	_gaq.push([ '_setAccount', 'UA-15252221-7' ]);
-	_gaq.push([ '_trackPageview' ]);
-	(function() {
-		var ga = document.createElement('script');
-		ga.type = 'text/javascript';
-		ga.async = true;
-		ga.src = 'https://ssl.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(ga, s);
-	})();
-}
