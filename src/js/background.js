@@ -91,8 +91,12 @@ storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function(config) {
 		var tmp = {};
 
 		for (var i in DEFAULT_SCRIPTS) {
-			var script = DEFAULT_SCRIPTS[i];		
-			tmp['s_' + script.id] = config.CNCTA_ENABLED['s_' + script.id] || script.enabled;
+			var script = DEFAULT_SCRIPTS[i];
+			if(typeof config.CNCTA_ENABLED['s_' + script.id] == 'undefined' || config.CNCTA_ENABLED['s_' + script.id] === null) {
+				tmp['s_' + script.id] = script.enabled;
+			} else {
+				tmp['s_' + script.id] = config.CNCTA_ENABLED['s_' + script.id];
+			}
 		}
 		storage.set({
 			'CNCTA_VERSION': chrome.app.getDetails().version,
