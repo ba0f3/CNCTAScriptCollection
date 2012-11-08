@@ -74,9 +74,9 @@ var DEFAULT_SCRIPTS = [{
 	version: "1.5",
 	enabled: true
 }, {
-	id: 151099,
-	name: "C&C:Tiberium Alliances Extended Chathelper AutoCoords",
-	version: "1.0.0",
+	id: 151965,
+	name: "C&C:Tiberium Alliances Extended Chathelper",
+	version: "1.0.1",
 	enabled: true
 }];
 

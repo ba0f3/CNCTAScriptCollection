@@ -1,8 +1,8 @@
 // ==UserScript==
-// @version       1.0.0
-// @name          C&C:Tiberium Alliances Extended Chathelper AutoCoords
+// @version       1.0.1
+// @name          C&C:Tiberium Alliances Extended Chathelper
 // @namespace     cncchathelp ext auto
-// @description   [EN] Automatically adding the [coords][/coords] tag to your coordinates in the chat. [RU] Автоматически добавляет тэг [coords][/coords] для ваших координат в чате. 
+// @description   Automatically adding the [coords][/coords] & [url][/url] to chat chat messaeg
 // @author        Rubbyx
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 
@@ -21,8 +21,14 @@
     					if (e.keyCode === 13) {
 						var inputField = document.querySelector('input:focus, textarea:focus');
         					var re = new RegExp("([0-9]{3}[:][0-9]{3})","g");
-						inputField.value = inputField.value.replace(re,"[coords]"+"$1"+"[/coords]");
-    					}
+							inputField.value = inputField.value.replace(re,"[coords]"+"$1"+"[/coords]");
+							// auto url
+							inputField.value = inputField.value.replace(/(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-\?\&]*)*\/?/gi, '[url]$&[/url]');
+							// shorthand for alliance
+							inputField.value = inputField.value.replace(/\[a\]([a-z0-9_-\s]+)\[\/a\]/gi, '[alliance]$1[/alliance]')
+							// shorthand for player
+							inputField.value = inputField.value.replace(/\[p\]([a-z0-9_-\s]+)\[\/p\]/gi, '[player]$1[/player]')
+    					}    					
     
     					//return false;
 				}
