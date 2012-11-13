@@ -76,7 +76,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id: 151965,
 	name: "C&C:Tiberium Alliances Extended Chathelper",
-	version: "1.0.1",
+	version: "1.0.4",
 	enabled: true
 }];
 
