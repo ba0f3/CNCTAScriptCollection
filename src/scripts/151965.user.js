@@ -3,7 +3,7 @@
 // @namespace   CNCTAChatHelper
 // @description Automatically adding the [coords][/coords] & [url][/url] to chat message
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version     1.0.4
+// @version     1.0.8
 // ==/UserScript==
 (function () {
   var CNCTAChatHelper_main = function () {
@@ -15,35 +15,38 @@
 				e = e || window.event;
 				if (e.keyCode === 13) {
 					var inputField = document.querySelector('input:focus, textarea:focus');
-					var text = inputField.value;
-					text = text.replace(/(\[coords\])*([0-9]{3})[:|.]([0-9]{3})(\[\/coords\])*/gi, function(){
-						var result = new Array();
-						result.push('[coords]');
-						result.push(arguments[2]);
-						result.push(':');
-						result.push(arguments[3]);
-						result.push('[/coords]');
-					    return result.join('');
-					});
-					// auto url
-					text = text.replace(/(\[url\])*(https?:\/\/)?([\da-z\.-]+)(\.[a-z]{2,6})([\/\w\.\-\=\?\&]*)*\/?(\[\/url\])*/gi, function(){
-					    var result = new Array();
-					    result.push('[url]');
-					    if(arguments[2] !== undefined) {        
-					        result.push(arguments[2]); // http[s]://
-					    }
-					    result.push(arguments[3]); // domain
-					    result.push(arguments[4]); // ext
-					    result.push(arguments[5]); // query string
-					    result.push('[/url]');
-					    return result.join('');
-					        
-					});
-					// shorthand for alliance
-					text = text.replace(/\[a\]([a-z0-9_\-\s]+)\[\/a\]/gi, '[alliance]$1[/alliance]');
-					// shorthand for player
-					text = text.replace(/\[p\]([a-z0-9_\-\s]+)\[\/p\]/gi, '[player]$1[/player]');
-					inputField.value = text;
+					if(inputField != null) {
+						var text = inputField.value;
+						text = text.replace(/(\[coords\])*([0-9]{3})[:|.]([0-9]{3})([:|.]\w+)?(\[\/coords\])*/gi, function(){
+							var result = new Array();
+							result.push('[coords]');
+							result.push(arguments[2]);
+							result.push(':');
+							result.push(arguments[3]);
+							result.push(arguments[4].replace('.',':'));
+							result.push('[/coords]');
+							return result.join('');
+						});
+						// auto url
+						text = text.replace(/(\[url\])*(https?:\/\/)?([\da-z\.-]+)(\.[a-z]{2,6})([\/\w\.\-\=\?\&#]*)*\/?(\[\/url\])*/gi, function(){
+						    var result = new Array();
+						    result.push('[url]');
+						    if(arguments[2] !== undefined) {        
+						        result.push(arguments[2]); // http[s]://
+						    }
+						    result.push(arguments[3]); // domain
+						    result.push(arguments[4]); // ext
+						    result.push(arguments[5]); // query string
+						    result.push('[/url]');
+						    return result.join('');
+						        
+						});
+						// shorthand for alliance
+						text = text.replace(/\[a\]([a-z0-9_\-\s]+)\[\/a\]/gi, '[alliance]$1[/alliance]');
+						// shorthand for player
+						text = text.replace(/\[p\]([a-z0-9_\-\s]+)\[\/p\]/gi, '[player]$1[/player]');
+						inputField.value = text;
+					}
 				}
 
 				//return false;

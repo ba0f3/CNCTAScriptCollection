@@ -56,7 +56,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 145168,
 	name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
-	version : "1.0",
+	version : "1.3",
 	enabled : true
 }, {
 	id : 149809,
@@ -76,7 +76,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id: 151965,
 	name: "C&C:Tiberium Alliances Extended Chathelper",
-	version: "1.0.4",
+	version: "1.0.8",
 	enabled: true
 }];
 
