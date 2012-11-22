@@ -3,7 +3,7 @@
 // @namespace   CNCTAChatHelper
 // @description Automatically adding the [coords][/coords] & [url][/url] to chat message
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version     1.0.8
+// @version     1.0.9
 // ==/UserScript==
 (function () {
   var CNCTAChatHelper_main = function () {
@@ -23,7 +23,9 @@
 							result.push(arguments[2]);
 							result.push(':');
 							result.push(arguments[3]);
-							result.push(arguments[4].replace('.',':'));
+							if(arguments[4] !== undefined) {
+								result.push(arguments[4].replace('.',':'));
+							}
 							result.push('[/coords]');
 							return result.join('');
 						});
@@ -31,9 +33,7 @@
 						text = text.replace(/(\[url\])*(https?:\/\/)?([\da-z\.-]+)(\.[a-z]{2,6})([\/\w\.\-\=\?\&#]*)*\/?(\[\/url\])*/gi, function(){
 						    var result = new Array();
 						    result.push('[url]');
-						    if(arguments[2] !== undefined) {        
-						        result.push(arguments[2]); // http[s]://
-						    }
+						    result.push(arguments[2]); // http[s]://
 						    result.push(arguments[3]); // domain
 						    result.push(arguments[4]); // ext
 						    result.push(arguments[5]); // query string
@@ -99,6 +99,61 @@
 				}
 			}
 		};
+
+		// Force open URL in new tab/window
+		qx.core.Init.getApplication().showExternal = function(link) {console.log(link);window.open(link, '_blank')}
+
+		// Make LINK for incomming messages
+		if(typeof webfrontend.gui.chat.ChatWidget.prototype._chatHelper_showMessage === 'undefined') {
+			webfrontend.gui.chat.ChatWidget.prototype._chatHelper_showMessage = webfrontend.gui.chat.ChatWidget.prototype.showMessage;
+			webfrontend.gui.chat.ChatWidget.prototype.showMessage = function(message, sender, channel)  {
+				webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links = new Array();
+				try {
+					message = message.replace(/(\<a\b[^>]*>)*([0-9]{3})[:|.]([0-9]{3})([:|.]\w+)?(\<\/a>)*/gi, function(){
+						console.log('Coords: ', arguments);
+						var result = new Array();
+						result.push('<a style="cursor: pointer; color: #1d79ff" onClick="webfrontend.gui.UtilView.centerCoordinatesOnRegionViewWindow(parseInt(\'' + arguments[2] + '\', 10), parseInt(\'' + arguments[3] + '\', 10));">');
+						if(arguments[4] !== undefined) {
+							result.push(arguments[4].replace('.|:',''));
+						} else {
+							result.push(arguments[2] + ':' + arguments[3]);
+						}
+						result.push('</a>');
+						webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links.push(result.join(''));
+						return '{{' + (webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links.length-1) + '}}';
+
+					});
+					// Compiled URL/Alliance/Player
+					message = message.replace(/(\<a\b[^>]*>)(.*?)(\<\/a>)/gi, function(){
+						console.log('Alliance/Player: ', arguments);
+					    var result = new Array();
+					    result.push(arguments[1]); // open tag
+					    result.push(arguments[2]); // text
+					    result.push(arguments[3]); // close tag
+					    webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links.push(result.join(''));
+						return '{{' + (webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links.length-1) + '}}';
+					});
+
+					// URL
+					message = message.replace(/(https?:\/\/)?([\da-z\.-]+)(\.[a-z]{2,6})([\/\w\.\-\=\?\&#]*)*\/?/gi, function(){
+					    var result = new Array();
+					    result.push('<a href=# style="cursor: pointer; color: #1d79ff" onClick="webfrontend.gui.Util.openLinkFromInnerHtml(this);">');
+					    result.push(arguments[0]); // full url
+					    result.push('</a>');
+					    webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links.push(result.join(''));
+						return '{{' + (webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links.length-1) + '}}';
+					});
+
+					for(var i in webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links) {
+						message = message.replace('{{'+i+'}}', webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links[i]);
+					}
+				}
+				catch(e) {
+					console.log(e);
+				}
+				this._chatHelper_showMessage(message, sender, channel);
+			}
+		}
       }
     } catch (e) {
       console.log("createChatHelper: ", e);
