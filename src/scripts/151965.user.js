@@ -3,7 +3,7 @@
 // @namespace   CNCTAChatHelper
 // @description Automatically adding the [coords][/coords] & [url][/url] to chat message
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version     1.0.9
+// @version     1.0.10
 // ==/UserScript==
 (function () {
   var CNCTAChatHelper_main = function () {
@@ -113,7 +113,7 @@
 						console.log('Coords: ', arguments);
 						var result = new Array();
 						result.push('<a style="cursor: pointer; color: #1d79ff" onClick="webfrontend.gui.UtilView.centerCoordinatesOnRegionViewWindow(parseInt(\'' + arguments[2] + '\', 10), parseInt(\'' + arguments[3] + '\', 10));">');
-						if(arguments[4] !== undefined) {
+						if(arguments[4] !== undefined && arguments[4] !== "") {
 							result.push(arguments[4].replace('.|:',''));
 						} else {
 							result.push(arguments[2] + ':' + arguments[3]);
