@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.2.0",
+	version : "0.1.2.2 beta",
 	enabled : true
 }, {
 	id : 135806,
@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140988,
 	name : "infernal wrapper",
-	version : "0.378171.3",
+	version : "0.382917",
 	enabled : true
 }, {
 	id : 145717,

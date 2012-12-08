@@ -2,10 +2,9 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.2.0 beta (fixes compatibility for a new server)
+// @version     0.1.2.2 beta
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @require http://sizzlemctwizzle.com/updater.php?id=140991
 // ==/UserScript==
 //var offense_units = own_city.get_CityArmyFormationsManager().GetFormationByTargetBaseId(current_city.get_Id()).get_ArmyUnits().l;
 //System.Int64 GetForumIdByType (ClientLib.Data.Forum.EForumType eForumType)
@@ -2428,7 +2427,11 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             },
 
             GetDateTimeString: function (value) {
-              return webfrontend.Util.getDateTimeString(value);
+              if (PerforceChangelist >= 382917) { //new
+                return phe.cnc.Util.getDateTimeString(value);
+              } else { //old
+                return webfrontend.Util.getDateTimeString(value);
+              }
             },
 
             FormatTimespan: function (value) {
@@ -2930,7 +2933,11 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   }
                   if (buildingID in this.BuildingList) {
                     this.upgradeInProgress = true;
-                    ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", this.BuildingList[buildingID], webfrontend.Util.createEventDelegate(ClientLib.Net.CommandResult, this, this.UpgradeCompleted), null, true);
+                    if (PerforceChangelist >= 382917) { //new
+                      ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", this.BuildingList[buildingID], phe.cnc.Util.createEventDelegate(ClientLib.Net.CommandResult, this, this.UpgradeCompleted), null, true);
+                    } else { //old
+                      ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", this.BuildingList[buildingID], webfrontend.Util.createEventDelegate(ClientLib.Net.CommandResult, this, this.UpgradeCompleted), null, true);
+                    }
                   }
                 }
               } catch (e) {
