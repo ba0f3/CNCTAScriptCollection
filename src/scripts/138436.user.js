@@ -13,9 +13,9 @@
     function initialize() {
       console.log("Zoom Loaded");
       
-      var zoomMin = 1.0;	// Larger number means able to zoom in closer.
-      var zoomMax = 0.2;	// Smaller number means able to zoom out further.
-      var zoomInc = 0.05;	// Larger number for faster zooming, Smaller number for slower zooming.
+      var zoomMin = 2.0;  // Larger number means able to zoom in closer.
+      var zoomMax = 0.1;  // Smaller number means able to zoom out further.
+      var zoomInc = 0.08; // Larger number for faster zooming, Smaller number for slower zooming.
       
       webfrontend.gui.BackgroundArea.prototype.onHotKeyPress = function(be) {
         if(!this.active || be.getTarget() != this.mapContainer)

@@ -88,6 +88,11 @@ var DEFAULT_SCRIPTS = [{
     name: "C&C:TA Compass Movable",
     version: "1.1.0",
     enabled: true
+}, {
+	id: 152177,
+	name: "C&C:Tiberium Alliances Extended Chathelper Enhanced",
+	version: "3.0.0",
+	enabled: false
 }];
 
 var storage = chrome.storage.sync;
