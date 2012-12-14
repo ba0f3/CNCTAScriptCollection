@@ -11,7 +11,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 137978,
 	name : "CnC: MH Tiberium Alliances Available Loot Summary",
-	version : "1.8.2",
+	version : "1.8.3",
 	enabled : true
 }, {
 	id : 145657,

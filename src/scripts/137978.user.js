@@ -5,8 +5,7 @@
 // @author        MrHIDEn based on Yaeger & Panavia code. Totaly recoded.
 // @grant         none
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @require       http://sizzlemctwizzle.com/updater.php?id=137978
-// @version       1.8.2
+// @version       1.8.3
 // ==/UserScript==
 
  
@@ -146,7 +145,7 @@
             console.log('MHTools: Loot+Info loaded.'); 
           },
           statics : {
-            VERSION: '1.8.2',
+            VERSION: '1.8.3',
             AUTHOR: 'MrHIDEn',
             CLASS: 'Loot',
             DATA: this.Data
@@ -1157,7 +1156,7 @@
               }
             },
             extendSelectionChange: function() {
-              //return;//disabled
+              return;//disabled
               //webfrontend.Util.attachNetEvent(/*instance of object which calls the event*/, /*name of the event*/, /*type of the event*/, /*context object*/, /*callback function*/);
               webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "SelectionChange", ClientLib.Vis.SelectionChange, this, this.onSelectionChange);
             },

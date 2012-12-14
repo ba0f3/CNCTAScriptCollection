@@ -52,12 +52,15 @@
                             rich: true
                         });
                         this.add(l);  
-                        
-                        
-                        webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Region(), "PositionChange", ClientLib.Vis.PositionChange, this, this.displayCompass);
+                        if (PerforceChangelist >= 382917) {
+                            phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Region(), "PositionChange", ClientLib.Vis.PositionChange, this, this.displayCompass);
+                        } else {
+                            webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Region(), "PositionChange", ClientLib.Vis.PositionChange, this, this.displayCompass);
+                        }
                         this.addListener("move", function (e) {
                             this.displayCompass();
                         });
+                        this.displayCompass();
                         
                     },
                     members: {
@@ -66,66 +69,64 @@
                         ctx: null,
                         halfsize: 25,
                         displayCompass: function () {
-                            try {
-                                if (this.ctx != null) {
-                                    var winpos = this.getLayoutProperties();
-                                    var ctx = this.ctx;
-                                   
-                                    var currentCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
-                                    var faction = currentCity.get_CityFaction();
-                                    var cityCoordX = currentCity.get_PosX();
-                                    var cityCoordY = currentCity.get_PosY();
-                                    var region = ClientLib.Vis.VisMain.GetInstance().get_Region();
-                                    var zoom = region.get_ZoomFactor();
-                                    var targetCoordX = winpos.left + 34;
-                                    var targetCoordY = winpos.top +  61;
-                                    var gridW = region.get_GridWidth();
-                                    var gridH = region.get_GridHeight();
-                                    var viewCoordX = (region.get_PosX() + targetCoordX / zoom - zoom * gridW / 2) / gridW;
-                                    var viewCoordY = (region.get_PosY() + targetCoordY / zoom - zoom * gridH / 2) / gridH;
-                                    var dx = viewCoordX - cityCoordX;
-                                    var dy = cityCoordY - viewCoordY;
-                                    var distance = Math.sqrt(dx * dx + dy * dy);
-                                    var dtext = Math.round(10 * distance) / 10;
-                                    var t = qx.lang.String.pad(currentCity.get_Name(),7,"")+"<br>"+dtext;
-                                    this.setCaption(t);
+                            try {                                                              
+                                if (this.ctx != null) {   
+                                        var currentCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity(); 
+                                        var faction = currentCity.get_CityFaction();
+                                        var winpos = this.getLayoutProperties();
+                                        var ctx = this.ctx; 
+                                        var cityCoordX = currentCity.get_PosX();
+                                        var cityCoordY = currentCity.get_PosY();
+                                        var region = ClientLib.Vis.VisMain.GetInstance().get_Region();
+                                        var zoom = region.get_ZoomFactor();
+                                        var targetCoordX = winpos.left + 34;
+                                        var targetCoordY = winpos.top +  61;
+                                        var gridW = region.get_GridWidth();
+                                        var gridH = region.get_GridHeight();
+                                        var viewCoordX = (region.get_PosX() + targetCoordX / zoom - zoom * gridW / 2) / gridW;
+                                        var viewCoordY = (region.get_PosY() + targetCoordY / zoom - zoom * gridH / 2) / gridH;
+                                        var dx = viewCoordX - cityCoordX;
+                                        var dy = cityCoordY - viewCoordY;
+                                        var distance = Math.sqrt(dx * dx + dy * dy);
+                                        var dtext = Math.round(10 * distance) / 10;
+                                        var t = qx.lang.String.pad(currentCity.get_Name(),7,"")+"<br>"+dtext;
+                                        this.setCaption(t);
+                                        
+                                        
+                                        ctx.clearRect(0, 0, 50, 50);
+                                        ctx.save();
+                                        ctx.globalAlpha = 0.5;
+                                        ctx.fillStyle = '#000';
+                                        ctx.fillRect(0, 0, 50, 50); // Mittelpunkt
+                                        ctx.globalAlpha = 1.0;
+                     
+                                        ctx.translate(25, 25);
+                                        ctx.rotate(dy > 0 ? Math.asin(dx / distance) : -Math.asin(dx / distance) + Math.PI); 
+                                        ctx.beginPath();			
+                                        ctx.moveTo(0, 20);			
+                                        ctx.lineTo(17, -15);
+                                        ctx.lineTo(-17, -15);
+                                        ctx.closePath();
+                                        ctx.moveTo(0, 0);			
+                                        ctx.lineTo(10, -22);
+                                        ctx.lineTo(-10, -22);
+                                        ctx.closePath();            
+                                        
+                                        ctx.lineWidth =4.0;                                    
+                                        ctx.fillStyle = faction == ClientLib.Base.EFactionType.GDIFaction ? "#00a" : "#a00"; 
+                                        ctx.strokeStyle = "#000";
                                     
-                                    
-                                    ctx.clearRect(0, 0, 50, 50);
-                                    ctx.save();
-                                    ctx.globalAlpha = 0.5;
-                                    ctx.fillStyle = '#000';
-                                    ctx.fillRect(0, 0, 50, 50); 
-                                    ctx.globalAlpha = 1.0;
-                 
-                                    ctx.translate(25, 25);
-                                    ctx.rotate(dy > 0 ? Math.asin(dx / distance) : -Math.asin(dx / distance) + Math.PI); 
-                                    ctx.beginPath();			
-                                    ctx.moveTo(0, 20);			
-                                    ctx.lineTo(17, -15);
-                                    ctx.lineTo(-17, -15);
-                                    ctx.closePath();
-                                    ctx.moveTo(0, 0);			
-                                    ctx.lineTo(10, -22);
-                                    ctx.lineTo(-10, -22);
-                                    ctx.closePath();            
-                                    
-                                    ctx.lineWidth =3.0;
-                                    ctx.fillStyle = faction == ClientLib.Base.EFactionType.GDIFaction ? "#00a" : "#a00"; 
-                                    ctx.strokeStyle = "#ddd";
-                                
-                                    ctx.fill();
-                                    ctx.stroke();
-                                    ctx.restore();
-                                    console.log(faction);
-                                    
+                                        ctx.fill();
+                                        ctx.stroke();
+                                        ctx.restore();
+                                        //console.log(faction);
+                                                                        
                                 } else {                                    
                                     this.ec = document.getElementById("compass");
                                     if (this.ec != null){
                                         this.ctx = this.ec.getContext('2d');
-                                        console.log("ok");
-                                        this.displayCompass();                                      
-                                    }                                    
+                                        console.log("Compass ok");                                                                                                          
+                                    } 
                                 } 
                             } catch (e) {
                                 console.log("displayCompass", e);
@@ -135,7 +136,7 @@
                 });
                 var win = new Compass();
                 win.moveTo(140, 30);
-                win.open();
+                win.open();               
             }
         } catch (e) {
             console.log('createCompass: ', e);
@@ -143,7 +144,8 @@
         function CompassCheckLoaded() {
             try {
                 if (typeof qx != 'undefined' && qx.core.Init.getApplication() && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION) && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION).isVisible()) {
-                    createCompass();
+                    window.setTimeout(createCompass, 5000);
+                    
                 } else {
                     window.setTimeout(CompassCheckLoaded, 1000);
                 }
