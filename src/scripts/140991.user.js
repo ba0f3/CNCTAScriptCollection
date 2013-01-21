@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.2.2 beta
+// @version     0.1.2.3 pre
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
@@ -626,15 +626,14 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             runAutoCollectTimer: function () {
               try {
                 // console.log("autocollect " + MT_Preferences.Settings.AutoCollectTimer);
-                if (CCTAWrapperIsInstalled()) {
-                  if (this.checkForPackages() && MT_Preferences.Settings.autoCollectPackages) {
-                    this.collectAllPackages();
-                  }
-                  if (this.checkRepairAllUnits() && MT_Preferences.Settings.autoRepairUnits) {
-                    this.repairAllUnits();
-                  } else if (this.checkRepairAllBuildings() && MT_Preferences.Settings.autoRepairBuildings) {
-                    this.repairAllBuildings();
-                  }
+                if (!CCTAWrapperIsInstalled()) return; // run timer only then wrapper is running
+                if (this.checkForPackages() && MT_Preferences.Settings.autoCollectPackages) {
+                  this.collectAllPackages();
+                }
+                if (this.checkRepairAllUnits() && MT_Preferences.Settings.autoRepairUnits) {
+                  this.repairAllUnits();
+                } else if (this.checkRepairAllBuildings() && MT_Preferences.Settings.autoRepairBuildings) {
+                  this.repairAllBuildings();
                 }
 
                 var self = this;
@@ -1448,12 +1447,11 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   if (RepLargest !== '') {
                     this.Cache[cname]["RepairTime"]["LargestDiv"] = this.Cache[cname]["RepairTime"][RepLargest]
                     var i = Math.ceil(this.Cache[cname]["Repaircharge"].Smallest / this.Cache[cname]["RepairTime"].LargestDiv); //fix
-                    if (offHealth !== 100) {
-                      i--;
-                      i += '*';
-                    } // Decrease number of attacks by 1 when unit unhealthy. Additional visual info: asterisk when units aren't healthy
+                    var j = this.Cache[cname]["Repaircharge"].Smallest / this.Cache[cname]["RepairTime"].LargestDiv;
+                    if (offHealth !== 100) { i--; i += '*';} // Decrease number of attacks by 1 when unit unhealthy. Additional visual info: asterisk when units aren't healthy
                     this.Cache[cname]["RepairTime"]["PossibleAttacks"] = i;
-                    this.Cache[cname]["RepairTime"]["MaxAttacks"] = Math.ceil(this.Cache[cname]["RepairTime"].Maximum / this.Cache[cname]["RepairTime"].LargestDiv); //fix
+                    var k = this.Cache[cname]["RepairTime"].Maximum / this.Cache[cname]["RepairTime"].LargestDiv;
+                    this.Cache[cname]["RepairTime"]["MaxAttacks"] = Math.ceil(k); //fix
                   } else {
                     this.Cache[cname]["RepairTime"]["LargestDiv"] = 0;
                     this.Cache[cname]["RepairTime"]["PossibleAttacks"] = 0;
@@ -1513,6 +1511,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, MaelstromTools.Statics.Aircraft, 60, 'right');
                 MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, "Repairtime", 80, 'right');
                 MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, "Attacks", 60, 'right');
+                MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, "Next at", 80, 'right');
+                MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, "Max+1 at", 80, 'right');
 
                 rowIdx++;
                 for (var cityName in this.Cache) {
@@ -1530,9 +1530,12 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, MaelstromTools.Wrapper.FormatTimespan(cityCache.RepairTime.Aircraft), 60, 'right', null, (cityCache.RepairTime.Aircraft == cityCache.RepairTime.LargestDiv ? "yellow" : "white"));
                     MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, MaelstromTools.Wrapper.FormatTimespan(cityCache.Repaircharge.Smallest), 80, 'right');
                     MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, cityCache.RepairTime.PossibleAttacks + " / " + cityCache.RepairTime.MaxAttacks, 60, 'right', null, (cityCache.Offense.HealthInPercent !== 100 ? 'red' : null)); // mark red when unhealthy
-
+                    var i = cityCache.RepairTime.LargestDiv * cityCache.RepairTime.PossibleAttacks;
+                    var j = cityCache.RepairTime.LargestDiv * cityCache.RepairTime.MaxAttacks;
+                    (i>0) ? MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, MaelstromTools.Wrapper.FormatTimespan(i), 80, 'right', null, (i > cityCache.RepairTime.Maximum ? "yellow" : "white")) : colIdx++; /// yellow if more than Maximum RT
+                    (j>0) ? MaelstromTools.Util.addLabel(this.Widget, rowIdx, colIdx++, MaelstromTools.Wrapper.FormatTimespan(j), 80, 'right') : colIdx++;
                   } else {
-                    colIdx += 5;
+                    colIdx += 7;
                   }
 
                   colIdx += 4;

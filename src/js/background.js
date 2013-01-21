@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.2.2 beta",
+	version : "0.1.2.3 pre",
 	enabled : true
 }, {
 	id : 135806,
@@ -35,8 +35,8 @@ var DEFAULT_SCRIPTS = [{
 	enabled : false
 }, {
 	id : 138212,
-	name : "Tiberium Alliances Combat Simulator",
-	version : "1.6.4",
+	name : "TACS (Tiberium Alliances Combat Simulator)",
+	version : "2.1.2",
 	enabled : true
 }, {
 	id : 140988,
@@ -51,7 +51,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 147335,
 	name : "C&C Combat Simulator",
-	version : "0.2.1",
+	version : "0.4",
 	enabled : false
 }, {
 	id : 145168,
@@ -93,6 +93,16 @@ var DEFAULT_SCRIPTS = [{
 	name: "C&C:Tiberium Alliances Extended Chathelper Enhanced",
 	version: "3.0.0",
 	enabled: false
+}, {
+	id: 153051,
+	name: "Flunik Tools",
+	version: "0.5.7",
+	enabled: true
+}, {
+	id: 154546,
+	name: "The Green Cross - Tiberium Alliances Combat Simulator",
+	version: "3.2.1",
+	enabled: false
 }];
 
 var storage = chrome.storage.sync;
@@ -107,7 +117,7 @@ storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function(config) {
 
 		for (var i in DEFAULT_SCRIPTS) {
 			var script = DEFAULT_SCRIPTS[i];
-			if(typeof config.CNCTA_ENABLED['s_' + script.id] == 'undefined' || config.CNCTA_ENABLED['s_' + script.id] === null) {
+			if(typeof config.CNCTA_ENABLED['s_' + script.id] === 'undefined' || config.CNCTA_ENABLED['s_' + script.id] === null) {
 				tmp['s_' + script.id] = script.enabled;
 			} else {
 				tmp['s_' + script.id] = config.CNCTA_ENABLED['s_' + script.id];
@@ -167,7 +177,7 @@ function processRequest(request, sender, sendResponse) {
 	}
 }
 
-if (typeof chrome.extension.sendMessage == 'undefined') {
+if (typeof chrome.extension.sendMessage === 'undefined') {
 	chrome.extension.onRequest.addListener(processRequest);
 } else {
 	chrome.extension.onMessage.addListener(processRequest);

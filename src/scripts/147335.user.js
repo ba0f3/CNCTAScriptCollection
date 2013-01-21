@@ -3,13 +3,13 @@
 // @namespace   http://userscripts.org/users/481406
 // @description C&C Tiberium Alliances Combat Simulator
 // @include     https://prodgame*.alliances.commandandconquer.com/*/index.aspx
-// @version     0.3.1
+// @version     0.4
 // @author      Deyhak | Contains code by Duarte, PythEch & KRS_L.
 // @require     http://sizzlemctwizzle.com/updater.php?id=147335
 // @grant       unsafeWindow
 // @grant       GM_log
 // ==/UserScript==
-var unsafeWindow=window;
+unsafeWindow=window;
 //Global Variables//
     var labels = {
         spoils: {
@@ -831,10 +831,7 @@ function onUnitMoved(sender, e) {
     
 function initViewChange(){
     try{
-    qx = unsafeWindow["qx"];
-    ClientLib = unsafeWindow["ClientLib"];
-    webfrontend = unsafeWindow["webfrontend"];
-    webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this ,onViewChange);
+    phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this ,onViewChange);
     }
     catch(e){
         console.warn(e);
@@ -859,10 +856,7 @@ function initUnitMoved(){
 }
 function initOnSimulateFinished(){
     try{        
-        qx = unsafeWindow["qx"];
-        ClientLib = unsafeWindow["ClientLib"];
-        webfrontend = unsafeWindow["webfrontend"];
-        webfrontend.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Battleground(), "OnSimulateBattleFinished", ClientLib.Vis.Battleground.OnSimulateBattleFinished, this, OnSimulateBattleFinished);
+        phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Battleground(), "OnSimulateBattleFinished", ClientLib.Vis.Battleground.OnSimulateBattleFinished, this, OnSimulateBattleFinished);
     }
     catch(e){
         console.warn(e);
@@ -875,9 +869,9 @@ function OnSimulateBattleFinished(data){
     var cyTotal_h=0, cyEnd_h=0, cyPercent=0; // Counstruction Yard health
     var dfTotal_h=0, dfEnd_h=0, dfPercent=0; // Defense Facility health
     var offenseTotal_h=0, offenseEnd_h=0; // Offense health
-    var infTotal_h=0, infEnd_h=0; // Infantry health
-    var vehiTotal_h=0, vehiEnd_h=0; // Vehicles health
-    var airTotal_h=0, airEnd_h=0; // Air health
+    var infTotal_h=0, infEnd_h=0, infRepair=0; // Infantry health
+    var vehiTotal_h=0, vehiEnd_h=0, vehiRepair=0; // Vehicles health
+    var airTotal_h=0, airEnd_h=0, airRepair=0; // Air health
     var unit;
     var uniqueName;
     var placementType;
@@ -885,10 +879,46 @@ function OnSimulateBattleFinished(data){
         for (var i = 0; i < data.length; i++){ 
             var unitData = data[i].Value;
             var unitMDBID = unitData.t;
+            var unitLevel = unitData.l;
             unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(unitMDBID);
             uniqueName = unit.dn;
             placementType = unit.pt;
-            
+            var unitStartHealth = unitData.sh / 16;
+            var UnitEndHealth = unitData.h / 16;
+            if (unitStartHealth != UnitEndHealth) {
+                var damageRatio = 1;
+                if (UnitEndHealth > 0)
+                {
+                    damageRatio =  (unitStartHealth - (UnitEndHealth/16)) / unitStartHealth;
+                }
+                    
+                var repairCosts = ClientLib.API.Util.GetUnitRepairCosts(unitLevel, unitMDBID, damageRatio);
+                var crystal = 0;
+                for (var j = 0; j < repairCosts.length; j++)
+                {
+                    var c = repairCosts[j];
+                    var type = parseInt(c.Type);
+                    switch (type)
+                    {
+                        case ClientLib.Base.EResourceType.Crystal:
+                            crystal += c.Count;
+                            break;
+                        case ClientLib.Base.EResourceType.RepairChargeBase:
+                            break;
+                        case ClientLib.Base.EResourceType.RepairChargeInf:
+                            infRepair += c.Count;
+                            break;
+                        case ClientLib.Base.EResourceType.RepairChargeVeh:
+                            vehiRepair += c.Count;
+                            break;
+                        case ClientLib.Base.EResourceType.RepairChargeAir:
+                            airRepair += c.Count;
+                            break;
+                    }
+                }
+            var maxRepair = Math.max(infRepair,vehiRepair,airRepair);
+            }                                
+                        
             switch (uniqueName) {
                 case ("Defense Facility"):
                     dfTotal_h += unitData.sh;
@@ -954,10 +984,10 @@ function OnSimulateBattleFinished(data){
         labels.stats.pBuildings.setValue("" + buildingsPercent.toFixed(2));
         labels.stats.pCY.setValue("" + cyPercent.toFixed(2));
         labels.stats.pDF.setValue("" + dfPercent.toFixed(2));
-        labels.repairs.pTotal.setValue(offenseEnd_h + " \\ " + offenseTotal_h);
-        labels.repairs.pInfantry.setValue(infEnd_h + " \\ " + infTotal_h);
-        labels.repairs.pVehicles.setValue(vehiEnd_h + " \\ " + vehiTotal_h);
-        labels.repairs.pAir.setValue(airEnd_h + " \\ " + airTotal_h);
+        labels.repairs.pTotal.setValue(phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(maxRepair)));
+        labels.repairs.pInfantry.setValue(phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(infRepair)));
+        labels.repairs.pVehicles.setValue(phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(vehiRepair)));
+        labels.repairs.pAir.setValue(phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(airRepair)));
         
         if (cyEnd_h < 0.01) {
             labels.stats.pOutcome.setValue("Total Victory");
@@ -971,7 +1001,6 @@ function OnSimulateBattleFinished(data){
             labels.stats.pOutcome.setValue("Unknown");
             labels.stats.pOutcome.setTextColor("black");
         }
-
     }
     catch(e){
         console.warn(e);
@@ -996,7 +1025,7 @@ function waitForClientLib(){
     
     qx = unsafeWindow["qx"];
     ClientLib = unsafeWindow["ClientLib"];
-    webfrontend = unsafeWindow["webfrontend"];
+    phe = unsafeWindow["phe"];
 	
 		if ((typeof ClientLib == 'undefined') || (typeof qx == 'undefined') || (qx.core.Init.getApplication().initDone == false))
 		{
