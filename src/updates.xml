@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='##ID##'>
-    <updatecheck codebase='http://cloud.github.com/downloads/rgv151/CNCTAScriptCollection/##NAME##-##VERSION##.crx' version='##VERSION##' />
+    <updatecheck codebase='http://dl.dropbox.com/u/1097522/CNCTAScriptCollection/##NAME##-##VERSION##.crx' version='##VERSION##' />
   </app>
 </gupdate>

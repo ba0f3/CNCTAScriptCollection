@@ -3,7 +3,7 @@
 // @namespace   CNCTAChatHelper
 // @description Automatically adding the [coords][/coords] & [url][/url] to chat message
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version     1.0.10
+// @version     1.0.11
 // ==/UserScript==
 (function () {
   var CNCTAChatHelper_main = function () {
@@ -17,7 +17,7 @@
 					var inputField = document.querySelector('input:focus, textarea:focus');
 					if(inputField != null) {
 						var text = inputField.value;
-						text = text.replace(/(\[coords\])*([0-9]{3})[:|.]([0-9]{3})([:|.]\w+)?(\[\/coords\])*/gi, function(){
+						text = text.replace(/(\[coords\])*([0-9]{3,4})[:|.]([0-9]{3,4})([:|.]\w+)?(\[\/coords\])*/gi, function(){
 							var result = new Array();
 							result.push('[coords]');
 							result.push(arguments[2]);
@@ -64,7 +64,7 @@
 					//coordstext=coordstext.substr(0,3) + "" + coordstext.substr(3,5);
 					//inputField.value += '[coords]'+coordstext+'[/coords]';
 					//}
-					var re = new RegExp("([0-9]{3}[:][0-9]{3})","g");
+					var re = new RegExp("([0-9]{3,4}[:][0-9]{3,4})","g");
 					inputField.value = inputField.value.replace(re,"[coords]"+"$1"+"[/coords]");
 				}
 			}
@@ -109,7 +109,7 @@
 			webfrontend.gui.chat.ChatWidget.prototype.showMessage = function(message, sender, channel)  {
 				webfrontend.gui.chat.ChatWidget.prototype._chatHelper_Links = new Array();
 				try {
-					message = message.replace(/(\<a\b[^>]*>)*([0-9]{3})[:|.]([0-9]{3})([:|.]\w+)?(\<\/a>)*/gi, function(){
+					message = message.replace(/(\<a\b[^>]*>)*([0-9]{3,4})[:|.]([0-9]{3,4})([:|.]\w+)?(\<\/a>)*/gi, function(){
 						console.log('Coords: ', arguments);
 						var result = new Array();
 						result.push('<a style="cursor: pointer; color: #1d79ff" onClick="webfrontend.gui.UtilView.centerCoordinatesOnRegionViewWindow(parseInt(\'' + arguments[2] + '\', 10), parseInt(\'' + arguments[3] + '\', 10));">');
