@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.2.3 pre",
+	version : "0.1.2.5 pre",
 	enabled : true
 }, {
 	id : 135806,
@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140988,
 	name : "infernal wrapper",
-	version : "0.384441 krisan pre",
+	version : "0.389314",
 	enabled : true
 }, {
 	id : 145717,
@@ -56,7 +56,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 145168,
 	name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
-	version : "1.4",
+	version : "1.7.1",
 	enabled : true
 }, {
 	id : 149809,
@@ -103,6 +103,11 @@ var DEFAULT_SCRIPTS = [{
 	name: "The Green Cross - Tiberium Alliances Combat Simulator",
 	version: "3.2.1",
 	enabled: false
+}, {
+	id: 158164,
+	name: "Tiberium Alliances Transfer All Resources",
+	version: "1.2",
+	enabled: true
 }];
 
 var storage = chrome.storage.sync;

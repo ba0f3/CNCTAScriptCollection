@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.2.3 pre
+// @version     0.1.2.5 pre
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
@@ -2308,10 +2308,11 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 var ncity = MaelstromTools.Wrapper.GetCity(visCity.get_Id());
                 /* ClientLib.Data.CityBuildings */
-                var cityBuildings = ncity.get_CityBuildingsData();
+                //var cityBuildings = ncity.get_CityBuildingsData();
                 var cityUnits = ncity.get_CityUnitsData();
 
-                var buildings = MaelstromTools.Wrapper.GetBuildings(cityBuildings);
+                //var buildings = MaelstromTools.Wrapper.GetBuildings(cityBuildings);
+                var buildings = ncity.get_Buildings().d;
                 var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits(cityUnits);
 
                 /*for(var u in buildings) {
@@ -2426,15 +2427,15 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             },
 
             FormatNumbersCompact: function (value) {
-              return webfrontend.gui.Util.formatNumbersCompact(value);
+              if (PerforceChangelist >= 387751) { //new
+                return phe.cnc.gui.util.Numbers.formatNumbersCompact(value);
+              } else { //old
+                return webfrontend.gui.Util.formatNumbersCompact(value);
+              }
             },
 
             GetDateTimeString: function (value) {
-              if (PerforceChangelist >= 382917) { //new
                 return phe.cnc.Util.getDateTimeString(value);
-              } else { //old
-                return webfrontend.Util.getDateTimeString(value);
-              }
             },
 
             FormatTimespan: function (value) {
@@ -2475,13 +2476,13 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 return false;
               }
             },
-            GetBuildings: function (cityBuildings) {
+            /*GetBuildings: function (cityBuildings) {
               if (PerforceChangelist >= 376877) { //new
                 return (cityBuildings.get_Buildings() != null ? cityBuildings.get_Buildings().d : null);
               } else { //old
                 return (cityBuildings.get_Buildings() != null ? cityBuildings.get_Buildings().l : null);
               }
-            },
+            },*/
             GetDefenseUnits: function (cityUnits) {
               if (PerforceChangelist >= 376877) { //new
                 return (cityUnits.get_DefenseUnits() != null ? cityUnits.get_DefenseUnits().d : null);
@@ -2955,7 +2956,11 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               this.UpgradeCompleted(null, null);
             },
             formatTiberiumAndPower: function (oValue) {
-              return webfrontend.gui.Util.formatNumbersCompact(oValue);
+              if (PerforceChangelist >= 387751) { //new
+                return phe.cnc.gui.util.Numbers.formatNumbersCompact(oValue);
+              } else { //old
+                return webfrontend.gui.Util.formatNumbersCompact(oValue);
+              }
             },
             updateCache: function () {
               try {
@@ -3081,7 +3086,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }
                 var resAll = new Array();
                 var prod = MaelstromTools.Production.getInstance().updateCache(city.get_Name());
-                var buildings = MaelstromTools.Wrapper.GetBuildings(city.get_CityBuildingsData());
+                //var buildings = MaelstromTools.Wrapper.GetBuildings(city.get_CityBuildingsData());
+                var buildings = city.get_Buildings().d;
 
                 // 376877 & old fixes 
                 var objbuildings = [];
@@ -3171,7 +3177,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     if (sCosts.length > 0) {
                       sCosts = sCosts + ", ";
                     }
-                    sCosts = sCosts + webfrontend.gui.Util.formatNumbersCompact(TechLevelData[costtype].Count) + " " + MaelstromTools.Statics.LootTypeName(TechLevelData[costtype].Type);
+                    sCosts = sCosts + MaelstromTools.Wrapper.FormatNumbersCompact(TechLevelData[costtype].Count) + " " + MaelstromTools.Statics.LootTypeName(TechLevelData[costtype].Type);
                     if (sRatio.length > 0) {
                       sRatio = sRatio + ", ";
                     }
@@ -3193,7 +3199,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                           break;
                       }
                     }
-                    sRatio = sRatio + webfrontend.gui.Util.formatNumbersCompact(RatioPerCostType[costtype]);
+                    sRatio = sRatio + MaelstromTools.Wrapper.FormatNumbersCompact(RatioPerCostType[costtype]);
 
                     var techlevelData = MaelstromTools.Statics.LootTypeName(TechLevelData[costtype].Type);
 

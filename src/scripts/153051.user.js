@@ -242,7 +242,7 @@
 							this.autoUpdateHandle = window.setInterval(this.autoUpgrade , 60000);
 						},
 						stopAutoUpdate : function() {
-							window.clearInterval(this.autoUpdateHandle);
+							window.clearRequestInterval(this.autoUpdateHandle);
 							this.autoUpdateHandle = null;
 						},
 
