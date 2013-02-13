@@ -251,54 +251,91 @@
 							for (var nCity in ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d)
 							{
 								var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d[nCity];
-								var buildings = city.get_CityBuildingsData().get_Buildings();
-
+								//var buildings = city.get_CityBuildingsData().get_Buildings();
+								var buildings = .get_Buildings();
+								
 								for (var nBuildings in buildings.d) {
 									var building = buildings.d[nBuildings];
+									if (!building.CanUpgrade()) continue; //KRS_L
 									var name = building.get_UnitGameData_Obj().dn;
+									var baselvl = city.get_LvlBase();
+									var buildinglvl = building.get_CurrentLevel();
+									
+									
+								
 									//if (name == "Silo" || name == "Accumulator" || name == "Command Center" || name == "Defence HQ" ) {
-									if (window.FlunikTools.Main.getInstance().buildingsToUpdate.indexOf(name) != -1 ) {
-									//if (name == "Silo") {
+									
+									if (window.FlunikTools.Main.getInstance().buildingsToUpdate.indexOf(name) != -1) {
+										//if (name == "Silo") {
 										var building_obj = {
 											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
 											posX: building.get_CoordX(),
 											posY: building.get_CoordY(),
 											isPaid: true
+										};
+ 
+										//Command Center, Defense HQ, Construction Yard, Accumulator, Power Plant, Harvester, Refinery, Airfield, Barracks, Factory, Defense Facility, Silo    
+										//if (Math.random() > 0.90) {
+										if (
+										((name == "Harvester" || name == "Power Plant") && buildinglvl < 23)|| (name == "Refinery" && buildinglvl < 20)) {
+											
+											console.log(building);
+											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true);
 										}
-
-										if (Math.random() > 0.90) {
+										if (name == "Accumulator"  || name == "Silo" ) {
+											console.log(ClientLib.Vis.VisMain.FormatTimespan(airRT));
+											console.log(building);
+											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true);
+										}
+										if ((name == "Barracks" && buildinglvl < baselvl)|| (name == "Factory" && buildinglvl < baselvl) || (name == "Airfield" && buildinglvl < baselvl) || (name == "Defense Facility" && buildinglvl < baselvl) ) {
+										console.log(ClientLib.Vis.VisMain.FormatTimespan(airRT));
+											console.log(building);
+											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true);
+										}
+										if ((name == "Command Center" && buildinglvl < 28)  || (name == "Construction Yard" && buildinglvl < 25) || (name == "Defense HQ" && buildinglvl < 28)) {
+											console.log(ClientLib.Vis.VisMain.FormatTimespan(airRT));
+											console.log(building);
+											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true);
+										}
+										if (name == "Falcon Support" || name == "Ion Cannon Support" || name == "Skystrike Support" ) {
+										console.log(ClientLib.Vis.VisMain.FormatTimespan(airRT));
 											console.log(building);
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true);
 										}
 									}
 								}
 							  
-								var units = city.get_CityUnitsData();
+							  	var units = city.get_CityUnitsData();
 								var offenceUnits = units.get_OffenseUnits();
-								for (var nUnit in offenceUnits.d) 
-								{
+								for (var nUnit in offenceUnits.d) {
 									var unit = offenceUnits.d[nUnit];
+									if (!unit.CanUpgrade()) continue; //KRS_L
+									var baselvl = city.get_LvlBase();
+									var unitlvl = unit.get_CurrentLevel();
 									var unit_obj = {
 										cityid: city.get_Id(),
 										unitId: unit.get_Id()
-									}
-								  
-									if (Math.random() > 0.95) {
+									};
+ 
+									if (baselvl > unitlvl) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										console.log(unit);
 									}
 								}
-
+ 
 								var defenceUnits = units.get_DefenseUnits();
-								for (var nUnit in defenceUnits.d) 
-								{
+								for (var nUnit in defenceUnits.d) {
 									var unit = defenceUnits.d[nUnit];
+									if (!unit.CanUpgrade()) continue; //KRS_L
+									var baselvl = city.get_LvlBase();
+									var unitlvl = unit.get_CurrentLevel();
 									var unit_obj = {
 										cityid: city.get_Id(),
 										unitId: unit.get_Id()
-									}
-								  
-									if (Math.random() > 0.95) {
+									};
+ 
+									if (baselvl > unitlvl) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										console.log(unit);
 									}
@@ -314,8 +351,29 @@
 		
 		function FlunikTools_checkIfLoaded() {
 			try {
-			if (typeof qx != 'undefined' && qx.core.Init.getApplication() && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION) && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION).isVisible()) {
+				if (typeof qx != 'undefined' && qx.core.Init.getApplication() && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION) && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION).isVisible()) {
 					createFlunikTools();
+ 
+					for (var key in ClientLib.Data.CityBuilding.prototype) { //KRS_L
+						if (ClientLib.Data.CityBuilding.prototype[key] !== null) {
+							var strFunction = ClientLib.Data.CityBuilding.prototype[key].toString();
+							if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0)){return true;}}return false") > -1) {
+								ClientLib.Data.CityBuilding.prototype.CanUpgrade = ClientLib.Data.CityBuilding.prototype[key];
+								break;
+							}
+						}
+					}
+ 
+					for (var key in ClientLib.Data.CityUnit.prototype) { //KRS_L
+						if (ClientLib.Data.CityUnit.prototype[key] !== null) {
+							var strFunction = ClientLib.Data.CityUnit.prototype[key].toString();
+							if (typeof ClientLib.Data.CityUnit.prototype[key] === 'function' & strFunction.indexOf(".l.length>0)){return false;}") > -1) {
+								ClientLib.Data.CityUnit.prototype.CanUpgrade = ClientLib.Data.CityUnit.prototype[key];
+								break;
+							}
+						}
+					}
+ 
 					window.FlunikTools.Main.getInstance().initialize();
 				} else {
 					window.setTimeout(FlunikTools_checkIfLoaded, 1000);
@@ -327,10 +385,9 @@
 		if (/commandandconquer\.com/i.test(document.domain)) {
 			window.setTimeout(FlunikTools_checkIfLoaded, 1000);
 		}
-	}
-		
-	try
-	{
+	};
+ 
+	try {
 		var FlunikScript = document.createElement("script");
 		FlunikScript.innerHTML = "(" + FlunikTools_main.toString() + ")();";
 		FlunikScript.type = "text/javascript";
