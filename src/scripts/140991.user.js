@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.2.5 pre
+// @version     0.1.2.8 pre
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
@@ -87,7 +87,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               this.Data["2nd run"] = ["2. Angriff", "2º ataque", "2° attaque", "2. saldırı"][l];
               this.Data["3rd run"] = ["3. Angriff", "3º ataque", "3° attaque", "3. saldırı"][l];
               this.Data["Calculating resources..."] = ["Berechne plünderbare Ressourcen...", "A calcular recursos...", "calcul de ressources ...", "Kaynaklar hesaplanıyor..."][l];
-              this.Data["Time to next MCV"] = ["Nächstes MBF", "Tempo restante até ao próximo MCV", "Prochain VCM :", "Sıradaki MCV"][l];
+              this.Data["Next MCV"] = ["MBF", "MCV", "VCM"][l];
               this.Data["Show time to next MCV"] = ["Zeige Zeit bis zum nächsten MBF", "Mostrar tempo restante até ao próximo MCV", "Afficher l'heure pour le prochain VCM ", "Sırdaki MCV için gereken süreyi göster"][l];
               this.Data["Show lootable resources (restart required)"] = ["Zeige plünderbare Ressourcen (Neustart nötig)", "Mostrar recursos roubáveis (é necessário reiniciar)", "Afficher les ressources fouiller (redémarrage nécessaire)", "Yağmalanabilir kaynakları göster (yeniden başlatma gerekli)"][l];
               this.Data["Use dedicated Main Menu (restart required)"] = ["Verwende extra Hauptmenü (Neustart nötig)", "Usar botão para o Menu Principal (é necessário reiniciar)", "Utiliser dédiée du menu principal (redémarrage nécessaire)", "Ana menü tuşunu kullan (yeniden başlatma gerekli)"][l];
@@ -176,6 +176,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             /* Desktop */
             timerInterval: 1500,
             mainTimerInterval: 5000,
+            lootStatusInfoInterval: null,
             images: null,
             mWindows: null,
             mainMenuWindow: null,
@@ -288,13 +289,11 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   window.MaelstromTools.BaseStatus.getInstance().openWindow("BaseStatusOverview", Lang.gt("Base status overview"));
                 }, this);
 
-                if (CCTAWrapperIsInstalled()) {
-                  desktopPositionModifier++;
-                  var openHuffyUpgradeOverview = this.createDesktopButton(Lang.gt("Upgrade priority overview"), "UpgradeBuilding", false, this.desktopPosition(desktopPositionModifier));
-                  openHuffyUpgradeOverview.addListener("execute", function () {
-                    window.HuffyTools.UpgradePriorityGUI.getInstance().openWindow("UpgradePriority", Lang.gt("Upgrade priority overview"));
-                  }, this);
-                }
+                desktopPositionModifier++;
+                var openHuffyUpgradeOverview = this.createDesktopButton(Lang.gt("Upgrade priority overview"), "UpgradeBuilding", false, this.desktopPosition(desktopPositionModifier));
+                openHuffyUpgradeOverview.addListener("execute", function () {
+                  window.HuffyTools.UpgradePriorityGUI.getInstance().openWindow("UpgradePriority", Lang.gt("Upgrade priority overview"));
+                }, this);
 
                 desktopPositionModifier++;
                 var preferencesButton = new qx.ui.form.Button(Lang.gt("Options")).set({
@@ -315,9 +314,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.addToMainMenu("ProductionMenu", openProductionWindowButton);
                 this.addToMainMenu("BaseStatusMenu", openBaseStatusOverview);
                 this.addToMainMenu("RepairTimeMenu", openRepairTimeWindowButton);
-                if (CCTAWrapperIsInstalled()) {
-                  this.addToMainMenu("UpgradeBuilding", openHuffyUpgradeOverview);
-                }
+                this.addToMainMenu("UpgradeBuilding", openHuffyUpgradeOverview);
 
                 this.addToMainMenu("PreferencesMenu", preferencesButton);
 
@@ -632,7 +629,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }
                 if (this.checkRepairAllUnits() && MT_Preferences.Settings.autoRepairUnits) {
                   this.repairAllUnits();
-                } else if (this.checkRepairAllBuildings() && MT_Preferences.Settings.autoRepairBuildings) {
+                }
+                if (this.checkRepairAllBuildings() && MT_Preferences.Settings.autoRepairBuildings) {
                   this.repairAllBuildings();
                 }
 
@@ -786,6 +784,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
             updateLoot: function (ident, visCity, widget) {
               try {
+                clearInterval(this.lootStatusInfoInterval);
                 if (!MT_Preferences.Settings.showLoot) {
                   if (this.lootWidget[ident]) {
                     this.lootWidget[ident].removeAll();
@@ -830,6 +829,9 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   default:
                     {
                       MaelstromTools.Util.addLabel(lootWidget, rowIdx, colIdx++, "Calculating resources...", null, null, 'bold', null);
+                      this.lootStatusInfoInterval = setInterval(function () {
+                        MaelstromTools.Base.getInstance().updateLoot(ident, visCity, widget);
+                      }, 100)
                       break;
                     }
                 }
@@ -864,13 +866,14 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             },
 
             mcvPopup: null,
+            mcvPopupX : 0,
+            mcvPopupY : 0,
             mcvTimerLabel: null,
-            mcvInfoLabel: null,
             calculateCostsForNextMCV: function () {
               try {
                 if (!MT_Preferences.Settings.showCostsForNextMCV) {
                   if (this.mcvPopup) {
-                    this.mcvPopup.hide();
+                    this.mcvPopup.close();
                   }
                   return;
                 }
@@ -881,25 +884,32 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 var cd = cr.GetResearchItemFomMdbId(cj);
                 if (cd == null) {
                   if (this.mcvPopup) {
-                    this.mcvPopup.hide();
+                    this.mcvPopup.close();
                   }
                   return;
                 }
 
                 if (!this.mcvPopup) {
-                  this.mcvPopup = new qx.ui.popup.Popup(new qx.ui.layout.VBox()).set({
-                    padding: 5
+                  this.mcvPopup = new qx.ui.window.Window("").set({
+                    contentPadding : 0,
+                    showMinimize : false,
+                    showMaximize : false,
+                    showClose : false,
+                    resizable : false
                   });
-                  this.mcvPopup.setPlaceMethod("widget");
-                  this.mcvPopup.setPosition("left-bottom");
-                  this.mcvPopup.setAutoHide(false);
-                  this.mcvPopup.setBackgroundColor("black");
-                  this.mcvPopup.setShadow(null);
-                  this.mcvPopup.setDecorator(new qx.ui.decoration.Background());
-
-                  var target = qx.core.Init.getApplication().getServerBar();
-                  this.mcvPopup.placeToWidget(target, true);
-                  this.mcvInfoLabel = new qx.ui.basic.Label();
+                  this.mcvPopup.setLayout(new qx.ui.layout.VBox());
+                  this.mcvPopup.addListener("move", function (e) {
+                    var base = MaelstromTools.Base.getInstance();
+                    var size = qx.core.Init.getApplication().getRoot().getBounds();
+                    var value = size.width - e.getData().left;
+                    base.mcvPopupX = value < 0 ? 150 : value;
+                    value = size.height - e.getData().top;
+                    base.mcvPopupY = value < 0 ? 70 : value;
+                    MaelstromTools.LocalStorage.set("mcvPopup", {
+                      x : base.mcvPopupX,
+                      y : base.mcvPopupY
+                    });
+                  });
                   var font = qx.bom.Font.fromString('bold').set({
                     size: 20
                   });
@@ -907,12 +917,22 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.mcvTimerLabel = new qx.ui.basic.Label().set({
                     font: font,
                     textColor: 'red',
-                    width: 140,
-                    textAlign: 'center'
+                    width: 155,
+                    textAlign: 'center',
+                    marginBottom : 5
                   });
-                  this.mcvPopup.add(this.mcvInfoLabel);
                   this.mcvPopup.add(this.mcvTimerLabel);
+                  var serverBar = qx.core.Init.getApplication().getServerBar().getBounds();
+                  var pos = MaelstromTools.LocalStorage.get("mcvPopup", {
+                      x : serverBar.width + 150,
+                      y : 70
+                    });
+                  this.mcvPopupX = pos.x;
+                  this.mcvPopupY = pos.y;
+                  this.mcvPopup.open();
                 }
+                var size = qx.core.Init.getApplication().getRoot().getBounds();
+                this.mcvPopup.moveTo(size.width - this.mcvPopupX, size.height - this.mcvPopupY);
 
                 var nextLevelInfo = cd.get_NextLevelInfo_Obj();
                 var resourcesNeeded = new Array();
@@ -931,16 +951,16 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 if (creditGrowthPerHour == 0 || creditTimeLeftInHours <= 0) {
                   if (this.mcvPopup) {
-                    this.mcvPopup.hide();
+                    this.mcvPopup.close();
                   }
                   return;
                 }
 
-                this.mcvInfoLabel.setValue(Lang.gt("Time to next MCV") + " ($ " + MaelstromTools.Wrapper.FormatNumbersCompact(creditsNeeded) + ")");
+                this.mcvPopup.setCaption(Lang.gt("Next MCV") + " ($ " + MaelstromTools.Wrapper.FormatNumbersCompact(creditsNeeded) + ")");
                 this.mcvTimerLabel.setValue(MaelstromTools.Wrapper.FormatTimespan(creditTimeLeftInHours * 60 * 60));
 
                 if (!this.mcvPopup.isVisible()) {
-                  this.mcvPopup.show();
+                  this.mcvPopup.open();
                 }
               } catch (e) {
                 console.log("calculateCostsForNextMCV", e);
@@ -999,7 +1019,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 if (!CCTAWrapperIsInstalled()) {
                   this.Settings[MaelstromTools.Preferences.AUTOREPAIRUNITS] = false;
                   this.Settings[MaelstromTools.Preferences.AUTOREPAIRBUILDINGS] = false;
-                  this.Settings[MaelstromTools.Preferences.SHOWLOOT] = false;
+                  //this.Settings[MaelstromTools.Preferences.SHOWLOOT] = false;
                 }
                 //console.log(this.Settings);
 
@@ -1068,8 +1088,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   value: this.Settings[MaelstromTools.Preferences.USEDEDICATEDMAINMENU] == 1
                 });
                 var chkShowLoot = new qx.ui.form.CheckBox(Lang.gt("Show lootable resources (restart required)")).set({
-                  value: this.Settings[MaelstromTools.Preferences.SHOWLOOT] == 1,
-                  enabled: CCTAWrapperIsInstalled()
+                  value: this.Settings[MaelstromTools.Preferences.SHOWLOOT] == 1/*,
+                  enabled: CCTAWrapperIsInstalled()*/
                 });
                 var chkCostsNextMCV = new qx.ui.form.CheckBox(Lang.gt("Show time to next MCV")).set({
                   value: this.Settings[MaelstromTools.Preferences.SHOWCOSTSFORNEXTMCV] == 1
@@ -2309,11 +2329,12 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 var ncity = MaelstromTools.Wrapper.GetCity(visCity.get_Id());
                 /* ClientLib.Data.CityBuildings */
                 //var cityBuildings = ncity.get_CityBuildingsData();
-                var cityUnits = ncity.get_CityUnitsData();
+                //var cityUnits = ncity.get_CityUnitsData();
 
                 //var buildings = MaelstromTools.Wrapper.GetBuildings(cityBuildings);
                 var buildings = ncity.get_Buildings().d;
-                var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits(cityUnits);
+                //var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits(cityUnits);
+                var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits();
 
                 /*for(var u in buildings) {
               console.log(buildings[u].get_MdbBuildingId());
@@ -2483,12 +2504,23 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 return (cityBuildings.get_Buildings() != null ? cityBuildings.get_Buildings().l : null);
               }
             },*/
-            GetDefenseUnits: function (cityUnits) {
-              if (PerforceChangelist >= 376877) { //new
+            //GetDefenseUnits: function (cityUnits) {
+            GetDefenseUnits: function () {
+              /*if (PerforceChangelist >= 376877) { //new
                 return (cityUnits.get_DefenseUnits() != null ? cityUnits.get_DefenseUnits().d : null);
               } else { //old
                 return (cityUnits.get_DefenseUnits() != null ? cityUnits.get_DefenseUnits().l : null);
+              }*/
+              var defenseObjects = [];
+              for (var x = 0; x < 9; x++) {
+                for (var y = 0; y < 8; y++) {
+                  var defenseObject = ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().GetDefenseObjectFromPosition((x * ClientLib.Vis.VisMain.GetInstance().get_City().get_GridWidth()),(y * ClientLib.Vis.VisMain.GetInstance().get_City().get_GridHeight()));
+                  if (defenseObject !== null && defenseObject.get_CityEntity() !== null) {
+                    defenseObjects.push(defenseObject.get_UnitDetails());
+                  }
+                }
               }
+              return defenseObjects;
             },
             GetUnitLevelRequirements: function (cityEntity) {
               if (PerforceChangelist >= 376877) { //new

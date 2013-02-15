@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.2.5 pre",
+	version : "0.1.2.8 pre",
 	enabled : true
 }, {
 	id : 135806,
@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140988,
 	name : "infernal wrapper",
-	version : "0.389314",
+	version : "0.390737.2",
 	enabled : true
 }, {
 	id : 145717,
@@ -96,7 +96,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id: 153051,
 	name: "Flunik Tools",
-	version: "0.5.7",
+	version: "0.5.7.01",
 	enabled: true
 }, {
 	id: 154546,
@@ -107,6 +107,16 @@ var DEFAULT_SCRIPTS = [{
 	id: 158164,
 	name: "Tiberium Alliances Transfer All Resources",
 	version: "1.2",
+	enabled: true
+}, {
+	id: 158919,
+	name: "The Green Cross - Tiberium Alliances Tools",
+	version: "0.4",
+	enabled: true
+}, {
+	id: 159150,
+	name: "Tiberium Alliances PvP/PvE Player Info Mod",
+	version: "1.1",
 	enabled: true
 }];
 
