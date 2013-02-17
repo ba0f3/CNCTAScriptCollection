@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.2.8 pre
+// @version     0.1.3.0
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
@@ -590,8 +590,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.checkRepairAllBuildings();
                 }
 
+                var missionTracker = typeof (qx.core.Init.getApplication().getMissionsBar) === 'function' ? qx.core.Init.getApplication().getMissionsBar() : qx.core.Init.getApplication().getMissionTracker(); //fix for PerforceChangelist>=376877
                 if (MT_Preferences.Settings.autoHideMissionTracker) {
-                  var missionTracker = typeof (qx.core.Init.getApplication().getMissionsBar) === 'function' ? qx.core.Init.getApplication().getMissionsBar() : qx.core.Init.getApplication().getMissionTracker(); //fix for PerforceChangelist>=376877
                   if (missionTracker.isVisible()) {
                     missionTracker.hide();
                   }
@@ -602,7 +602,6 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     }
                   }
                 } else {
-                  var missionTracker = typeof (qx.core.Init.getApplication().getMissionsBar) === 'function' ? qx.core.Init.getApplication().getMissionsBar() : qx.core.Init.getApplication().getMissionTracker(); //fix for PerforceChangelist>=376877
                   if (!missionTracker.isVisible()) {
                     missionTracker.show();
                     if (typeof (qx.core.Init.getApplication().getMissionsBar) === 'function') {
@@ -611,6 +610,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     }
                   }
                 }
+                
                 var self = this;
                 window.setTimeout(function () {
                   self.runMainTimer();
@@ -622,7 +622,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
             runAutoCollectTimer: function () {
               try {
-                // console.log("autocollect " + MT_Preferences.Settings.AutoCollectTimer);
+                //console.log("runAutoCollectTimer ", MT_Preferences.Settings.AutoCollectTimer);
                 if (!CCTAWrapperIsInstalled()) return; // run timer only then wrapper is running
                 if (this.checkForPackages() && MT_Preferences.Settings.autoCollectPackages) {
                   this.collectAllPackages();
@@ -683,9 +683,6 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             checkForPackages: function () {
               try {
                 MT_Cache.updateCityCache();
-                if (MT_Cache.CityCount <= 1) {
-                  return false;
-                }
 
                 for (var cname in MT_Cache.Cities) {
                   var ncity = MT_Cache.Cities[cname].Object;
@@ -705,13 +702,20 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             collectAllPackages: function () {
               try {
                 MT_Cache.updateCityCache();
-                if (MT_Cache.CityCount <= 1) {
-                  return;
-                }
                 for (var cname in MT_Cache.Cities) {
                   var ncity = MT_Cache.Cities[cname].Object;
                   if (ncity.get_CityBuildingsData().get_HasCollectableBuildings()) {
-                    ncity.CollectAllResources();
+                    if (MT_Cache.CityCount <= 1) {
+                      var buildings = ncity.get_Buildings().d;
+                      for (var x in buildings) {
+                        var building = buildings[x];
+                        if (building.get_ProducesPackages() && building.get_ReadyToCollect()) {
+                          ClientLib.Net.CommunicationManager.GetInstance().SendCommand("CollectResource",{cityid:ncity.get_Id(), posX:building.get_CoordX(),posY:building.get_CoordY()}, null, null, true);
+                        }
+                      }
+                    } else {
+                      ncity.CollectAllResources();
+                    }
                   }
                 }
                 this.removeFromMainMenu("CollectAllResources");
@@ -743,6 +747,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             checkRepairAllUnits: function () {
               return this.checkRepairAll(ClientLib.Vis.Mode.ArmySetup, "RepairAllUnits", this.buttonRepairAllUnits);
             },
+
             checkRepairAllBuildings: function () {
               return this.checkRepairAll(ClientLib.Vis.Mode.City, "RepairAllBuildings", this.buttonRepairAllBuildings);
             },
@@ -774,6 +779,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 console.log("MaelstromTools.repairAllUnits: ", e);
               }
             },
+
             repairAllBuildings: function () {
               try {
                 this.repairAll(ClientLib.Vis.Mode.City, "RepairAllBuildings");
@@ -831,7 +837,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                       MaelstromTools.Util.addLabel(lootWidget, rowIdx, colIdx++, "Calculating resources...", null, null, 'bold', null);
                       this.lootStatusInfoInterval = setInterval(function () {
                         MaelstromTools.Base.getInstance().updateLoot(ident, visCity, widget);
-                      }, 100)
+                      }, 100);
                       break;
                     }
                 }
@@ -1450,22 +1456,22 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   }
 
                   if (this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Infantry] > this.Cache[cname]["RepairTime"]["Largest"]) {
-                    this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Infantry]
-                    RepLargest = "Infantry"
+                    this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Infantry];
+                    RepLargest = "Infantry";
                   }
                   if (this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Vehicle] > this.Cache[cname]["RepairTime"]["Largest"]) {
-                    this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Vehicle]
-                    RepLargest = "Vehicle"
+                    this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Vehicle];
+                    RepLargest = "Vehicle";
                   }
                   if (this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Aircraft] > this.Cache[cname]["RepairTime"]["Largest"]) {
-                    this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Aircraft]
-                    RepLargest = "Aircraft"
+                    this.Cache[cname]["RepairTime"]["Largest"] = this.Cache[cname]["RepairTime"][MaelstromTools.Statics.Aircraft];
+                    RepLargest = "Aircraft";
                   }
 
                   //PossibleAttacks and MaxAttacks fixes
                   var offHealth = ncity.GetOffenseConditionInPercent();
                   if (RepLargest !== '') {
-                    this.Cache[cname]["RepairTime"]["LargestDiv"] = this.Cache[cname]["RepairTime"][RepLargest]
+                    this.Cache[cname]["RepairTime"]["LargestDiv"] = this.Cache[cname]["RepairTime"][RepLargest];
                     var i = Math.ceil(this.Cache[cname]["Repaircharge"].Smallest / this.Cache[cname]["RepairTime"].LargestDiv); //fix
                     var j = this.Cache[cname]["Repaircharge"].Smallest / this.Cache[cname]["RepairTime"].LargestDiv;
                     if (offHealth !== 100) { i--; i += '*';} // Decrease number of attacks by 1 when unit unhealthy. Additional visual info: asterisk when units aren't healthy
@@ -1667,7 +1673,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 console.log("MaelstromTools.ResourceOverview.updateCache: ", e);
               }
             },
-
+/*
             setWidgetLabelsTable: function () {
               try {
                 if (!this.Table) {
@@ -1729,6 +1735,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               }
             },
 
+            */
             setWidgetLabels: function () {
               try {
                 this.Widget.removeAll();
@@ -2353,7 +2360,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 loot["Factor"] = loot[MaelstromTools.Statics.Tiberium] + loot[MaelstromTools.Statics.Crystal] + loot[MaelstromTools.Statics.Dollar] + loot[MaelstromTools.Statics.Research];
                 loot["CPNeeded"] = currentOwnCity.CalculateAttackCommandPointCostToCoord(ncity.get_X(), ncity.get_Y());
                 loot["LoadState"] = (loot["Factor"] > 0 ? 1 : 0);
-                loot["Total"] = loot[MaelstromTools.Statics.Research] + loot[MaelstromTools.Statics.Tiberium] + loot[MaelstromTools.Statics.Crystal] + loot[MaelstromTools.Statics.Dollar]
+                loot["Total"] = loot[MaelstromTools.Statics.Research] + loot[MaelstromTools.Statics.Tiberium] + loot[MaelstromTools.Statics.Crystal] + loot[MaelstromTools.Statics.Dollar];
 
                 /*console.log("Building loot");
                 console.log( buildingLoot[ClientLib.Base.EResourceType.Tiberium] + " vs " +  buildingLoot2[ClientLib.Base.EResourceType.Tiberium]);
@@ -2797,26 +2804,26 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.createTabPage(ClientLib.Base.EResourceType.Tiberium);
                 this.createTable(ClientLib.Base.EResourceType.Tiberium);
                 this.HT_Tables[ClientLib.Base.EResourceType.Tiberium].addListener("cellClick", function (e) {
-                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Tiberium)
+                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Tiberium);
                 }, this);
 
 
                 this.createTabPage(ClientLib.Base.EResourceType.Crystal);
                 this.createTable(ClientLib.Base.EResourceType.Crystal);
                 this.HT_Tables[ClientLib.Base.EResourceType.Crystal].addListener("cellClick", function (e) {
-                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Crystal)
+                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Crystal);
                 }, this);
 
                 this.createTabPage(ClientLib.Base.EResourceType.Power);
                 this.createTable(ClientLib.Base.EResourceType.Power);
                 this.HT_Tables[ClientLib.Base.EResourceType.Power].addListener("cellClick", function (e) {
-                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Power)
+                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Power);
                 }, this);
 
                 this.createTabPage(ClientLib.Base.EResourceType.Gold);
                 this.createTable(ClientLib.Base.EResourceType.Gold);
                 this.HT_Tables[ClientLib.Base.EResourceType.Gold].addListener("cellClick", function (e) {
-                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Gold)
+                  this.upgradeBuilding(e, ClientLib.Base.EResourceType.Gold);
                 }, this);
 
 
@@ -2838,7 +2845,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.HT_TabView.setSelection([this.HT_TabView.getChildren()[2]]);
                 this.HT_SelectedResourceType = ClientLib.Base.EResourceType.Gold;
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.init: ", e)
+                console.log("HuffyTools.UpgradePriority.init: ", e);
               }
             },
             createOptions: function (eType) {
@@ -2920,7 +2927,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }));
                 tcm.setDataCellRenderer(11, new HuffyTools.ImageRender(40, 20));
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.createTable: ", e)
+                console.log("HuffyTools.UpgradePriority.createTable: ", e);
               }
             },
             createTabPage: function (resource_type) {
@@ -2942,7 +2949,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.HT_Pages[resource_type] = oRes;
                 return oRes;
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.createTabPage: ", e)
+                console.log("HuffyTools.UpgradePriority.createTabPage: ", e);
               }
             },
 
@@ -2951,7 +2958,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this[0].HT_SelectedResourceType = this[1];
                 this[0].UpgradeCompleted(null, null);
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.TabChanged: ", e)
+                console.log("HuffyTools.UpgradePriority.TabChanged: ", e);
               }
             },
 
@@ -2977,7 +2984,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   }
                 }
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.upgradeBuilding: ", e)
+                console.log("HuffyTools.UpgradePriority.upgradeBuilding: ", e);
               }
             },
             UpgradeCompleted: function (context, result) {
@@ -3013,7 +3020,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }
                 window.HuffyTools.UpgradePriority.getInstance().collectData(bTop, bAffordable, oCityFilter, eType);
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.updateCache: ", e)
+                console.log("HuffyTools.UpgradePriority.updateCache: ", e);
               }
             },
             setWidgetLabels: function () {
@@ -3083,7 +3090,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.HT_Models[eResourceType].setData(rowData);
                 }
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.setWidgetLabels: ", e)
+                console.log("HuffyTools.UpgradePriority.setWidgetLabels: ", e);
               }
             }
           }
@@ -3300,7 +3307,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 res2 = res2.sort(this.comparePrio);
                 return res2;
               } catch (e) {
-                console.log("HuffyTools.getPrioList: ", e)
+                console.log("HuffyTools.getPrioList: ", e);
               }
             },
             TechTypeName: function (iTechType) {
@@ -3373,7 +3380,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   }
                 }
               } catch (e) {
-                console.log("HuffyTools.UpgradePriority.collectData: ", e)
+                console.log("HuffyTools.UpgradePriority.collectData: ", e);
               }
             }
           }
@@ -3399,16 +3406,19 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             //console.log(selectedBase.get_Name());
             __MTCity_initialized = true;
             baseStatusOverview.CityMenuButtons = new Array();
-            for (var i in this) {
-              try {
-                if (this[i] && this[i].basename == "Composite") {
-                  var button = new qx.ui.form.Button(Lang.gt("Calibrate support"));
-                  button.addListener("execute", function (e) {
-                    MaelstromTools.Util.calibrateWholeSupportOnSelectedBase();
-                  }, this);
 
-                  this[i].add(button);
-                  baseStatusOverview.CityMenuButtons.push(button)
+            for (var k in this) {
+              try {
+                if (this.hasOwnProperty(k)) {
+                  if (this[k] && this[k].basename == "Composite") {
+                    var button = new qx.ui.form.Button(Lang.gt("Calibrate support"));
+                    button.addListener("execute", function (e) {
+                      MaelstromTools.Util.calibrateWholeSupportOnSelectedBase();
+                    }, this);
+
+                    this[k].add(button);
+                    baseStatusOverview.CityMenuButtons.push(button);
+                  }
                 }
               } catch (e) {
                 console.log("webfrontend.gui.region.RegionCityMenu.prototype.showMenu: ", e);
@@ -3422,7 +3432,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             baseStatusOverview.CityMenuButtons[x].setVisibility(isAllowed ? 'visible' : 'excluded');
           }
           this.__MTCity_showMenu(selectedVisObject);
-        }
+        };
 
         if (MT_Preferences.Settings.showLoot) {
           // Wrap onCitiesChange method
@@ -3474,7 +3484,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
     if (/commandandconquer\.com/i.test(document.domain)) {
       window.setTimeout(MaelstromTools_checkIfLoaded, 1000);
     }
-  }
+  };
 
   try {
     var MaelstromScript = document.createElement("script");

@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.2.8 pre",
+	version : "0.1.3.0",
 	enabled : true
 }, {
 	id : 135806,
@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140988,
 	name : "infernal wrapper",
-	version : "0.390737.2",
+	version : "0.390737.5",
 	enabled : true
 }, {
 	id : 145717,
@@ -94,9 +94,9 @@ var DEFAULT_SCRIPTS = [{
 	version: "3.0.0",
 	enabled: false
 }, {
-	id: 153051,
-	name: "Flunik Tools",
-	version: "0.5.7.01",
+	id: 159314,
+	name: "Infernal Flunik Tools",
+	version: "0.5.8.infernal",
 	enabled: true
 }, {
 	id: 154546,
@@ -111,7 +111,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id: 158919,
 	name: "The Green Cross - Tiberium Alliances Tools",
-	version: "0.4",
+	version: "0.5",
 	enabled: true
 }, {
 	id: 159150,

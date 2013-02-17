@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name 		The Green Cross - Tiberium Alliances Tools
+// @name 			The Green Cross - Tiberium Alliances Tools
 // @description 	Tools to help the player manage their gameplay more efficiently and effectively. A non-wrapper take of Maelstrom tools with some original touch.
 // @namespace      	http*://*.alliances.commandandconquer.com/*
 // @include        	http*://*.alliances.commandandconquer.com/*
-// @version 		0.4
-// @author 		Peluski17
-// @grant 		none
+// @version 		0.5
+// @author 			Peluski17
+// @grant 			none
 // ==/UserScript==
 
 (function () 
@@ -79,6 +79,18 @@
 						});
 						poiBtn.addListener("click", this._openPOIWindow, this);
 						
+						var upgradeBtn = new qx.ui.form.Button("", "FactionUI/icons/icon_mode_upgrade.png").set
+						({
+							center: true,
+							show: "icon",
+							alignY: "middle",
+							width: 40,
+							height: 40,
+							toolTipText: "Opens Upgrade Management Tool",
+							appearance: "button-text-small"
+						});
+						upgradeBtn.addListener("click", this._openUpgradeWindow, this);
+						
 						this.managerPopup = new qx.ui.popup.Popup(new qx.ui.layout.Grid(5)).set({
 							width: 150,
 							height: 150,
@@ -87,8 +99,9 @@
 							padding: 5,
 							position: "top-right"
 						});
-						this.managerPopup.add(poiBtn, {row: 0, column: 1});
 						this.managerPopup.add(scanBtn, {row: 0, column: 0});
+						this.managerPopup.add(poiBtn, {row: 0, column: 1});
+						this.managerPopup.add(upgradeBtn, {row: 0, column: 2});
 						this.managerPopup.setAutoHide(false);
 						//this.add(this.managerPopup);
 					}
@@ -181,6 +194,19 @@
 						}
 					},
 					
+					_openUpgradeWindow: function()
+					{
+						if (TGCTools.UpgradeWindow.getInstance().isVisible())
+						{
+							TGCTools.UpgradeWindow.getInstance().close();
+						}
+						else
+						{
+							TGCTools.UpgradeWindow.getInstance().open();
+							this.managerPopup.hide();
+						}
+					},
+					
 					_popupManager: function()
 					{
 						if (this.managerPopup.isVisible())
@@ -230,8 +256,22 @@
 						scanBtn.addListener("click", function()
 						{
 							var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
+							var object = ClientLib.Vis.VisMain.GetInstance().get_SelectedObject();
+							ClientLib.Vis.VisMain.GetInstance().set_SelectedObject(object);
 							TGCTools.BaseScanner.getInstance()._waitForPlayerCity(ownCity);
 						}, this);
+						
+						stopBtn = new qx.ui.form.Button("Stop").set({
+							allowGrowY: false,
+							width: 60, 
+							height: 20,
+							toolTipText: "Stops scan",
+							appearance: "button-text-small"
+						});
+						this.stopScan = false;
+						
+						stopBtn.addListener("click", this.setStopScan, this);
+						stopBtn.setEnabled(false);
 						
 						//var cityTypeLabel = new qx.ui.basic.Label("City Type:").set({marginLeft: 15, marginRight: 5});
 						//cityTypeLabel.setTextColor("white");
@@ -282,6 +322,7 @@
 						this.layoutSelectBox.add(moreCry);
 
 						scanBox.add(scanBtn);
+						scanBox.add(stopBtn);
 						scanBox.add(layoutBtn);
 						scanBox.add(this.cityTypeSelectBox);
 						scanBox.add(this.distanceSelectBox);
@@ -291,7 +332,7 @@
 						this.add(scanBox);
 						
 						this.scanTableModel = new qx.ui.table.model.Simple();
-						this.scanTableModel.setColumns(["ID", "Level", "Name", "Owner", "Coords", "Distance", "CP Cost", "Total Loot", "Tiberium", "Crystals", "Credits", "RP"]);
+						this.scanTableModel.setColumns(["ID", "Level", "Name", "Owner", "Coords", "Distance", "CP Cost", "Loot/CP", "Total Loot", "Tiberium", "Crystals", "Credits", "RP"]);
 						this.scanTable = new qx.ui.table.Table(this.scanTableModel);
 						this.scanTable.setColumnWidth(1, 45);
 						this.scanTable.setColumnWidth(4, 60);
@@ -305,11 +346,10 @@
 							//var city = ClientLib.Data.MainData.GetInstance().get_Cities().GetCity(id);
 
 							ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(id);
-							
 							 
 							//Set it to the right army layout
 							setTimeout(function(){
-								webfrontend.gui.UtilView.openVisModeInMainWindow(4, id, false);
+								webfrontend.gui.UtilView.openVisModeInMainWindow(ClientLib.Data.PlayerAreaViewMode.pavmCombatSetupDefense, id, false);
 								var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
 								var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
 								var formationManager = ownCity.get_CityArmyFormationsManager();
@@ -370,6 +410,7 @@
 					
 					_waitForPlayerCity: function(ownCity)
 					{
+						stopBtn.setEnabled(true);
 						if (ownCity.m_Level <= 0)
 						{
 							(function(ownCity)
@@ -388,6 +429,13 @@
 				
 					_scanBases: function(ownCity)
 					{
+						if(this.stopScan == true)
+						{
+							this.stopScan = false;
+							this._getNextScannedCity("stop");
+							return;
+						}
+							
 						var count = 0;
 						if (this.scannedCities.length > 0)
 						{
@@ -414,6 +462,12 @@
 						
 						for (var x = -maxDist; x <= maxDist; x++)
 						{
+							if(this.stopScan == true)
+							{
+								this.stopScan = false;
+								this._getNextScannedCity("stop");
+								return;
+							}
 							for (var y = -maxDist; y <= maxDist; y++)
 							{
 								if (x == 0 && y == 0) continue;
@@ -495,6 +549,13 @@
 					{
 						if (this.scannedCities.length == 0)
 							return;
+							
+						if(this.stopScan == true)
+						{
+							this.stopScan = false;
+							this._getNextScannedCity("stop");
+							return;
+						}	
 
 						this.scanStatus.setValue("Retrieving City Information: (" + (this.scanIdx + 1) + " of " + this.scannedCities.length + ")");						
 						var cityID = this.scannedCities[this.scanIdx].id;
@@ -510,6 +571,13 @@
 					
 					_waitForCity: function(city, visCity)
 					{
+						if(this.stopScan == true)
+						{
+							this.stopScan = false;
+							this._getNextScannedCity("stop");
+							return;
+						}
+						
 						if ((visCity.get_CurrentCityId() <= 0 || city.m_Level <= 0) && this.loopCount <= 10)
 						{
 							this.loopCount++;
@@ -535,6 +603,13 @@
 					
 					_waitForResources: function(city, visCity)
 					{
+						if(this.stopScan == true)
+						{
+							this.stopScan = false;
+							this._getNextScannedCity("stop");
+							return;
+						}
+						
 						if (this.gotResources == false)
 						{
 							(function(city, visCity) 
@@ -554,6 +629,13 @@
 					
 					_scannedCityInfo: function(city, visCity)
 					{
+						if(this.stopScan == true)
+						{
+							this.stopScan = false;
+							this._getNextScannedCity("stop");
+							return;
+						}
+						
 						var cityObj = this.scannedCities;
 						idx = this.scanIdx;
 						var info = this.resourceInfo;
@@ -581,20 +663,22 @@
 						cityData.layout = info.layout;
 						
 						var totalLoot = info.loot[1] + info.loot[2] + info.loot[3] + info.loot[6];
+						var lootPerCP = totalLoot / cityObj[idx].cp;
 			
 						this.tableData.push(cityData); //Important
-						this.scanTableModel.addRows([[cityObj[idx].id.toString(), cityObj[idx].level, cityObj[idx].name, cityObj[idx].owner, cityObj[idx].coords, cityObj[idx].distance, cityObj[idx].cp, totalLoot, info.loot[1], info.loot[2], info.loot[3], info.loot[6]]]);
+						this.scanTableModel.addRows([[cityObj[idx].id.toString(), cityObj[idx].level, cityObj[idx].name, cityObj[idx].owner, cityObj[idx].coords, cityObj[idx].distance, cityObj[idx].cp, lootPerCP, totalLoot, info.loot[1], info.loot[2], info.loot[3], info.loot[6]]]);
 						this._getNextScannedCity();
 					},
 					
-					_getNextScannedCity: function()
+					_getNextScannedCity: function(status)
 					{
 						this.scanIdx++;
-						if (this.scanIdx != this.scannedCities.length)
+						if (this.scanIdx != this.scannedCities.length && typeof status == 'undefined')
 							this._getScannedCityData();
 						else
 						{
-							this.scanStatus.setValue("Scan Complete: Showing " + this.tableData.length + " results.");					
+							this.scanStatus.setValue("Scan Complete: Showing " + this.tableData.length + " results.");	
+							stopBtn.setEnabled(false);
 						}
 					},
 					
@@ -611,6 +695,12 @@
                             var mod = 0;
                             for (var x = 0; x < 9; x++)
 							{
+								if(this.stopScan == true)
+								{
+									this.stopScan = false;
+									this._getNextScannedCity("stop");
+									return;
+								}
                                 for (var y = 0; y < 8; y++)
                                 {
 									
@@ -683,6 +773,11 @@
 					getTableData: function()
 					{
 						return this.tableData;
+					},
+					
+					setStopScan: function()
+					{
+						this.stopScan = true;
 					}
 					
 					//_getTableSelection: function()
@@ -1833,6 +1928,423 @@
 					getMsgList: function()
 					{
 						return this.msgList;
+					}
+				}
+			});
+			
+			qx.Class.define("TGCTools.UpgradeWindow", 
+			{
+				type: "singleton",
+				extend:	qx.ui.window.Window,
+            
+				construct: function()
+				{
+					this.base(arguments);
+					this.setLayout(new qx.ui.layout.VBox(5));
+				
+					this.set({
+						width: 600,
+						caption: "Upgrade Management Tool",
+						padding: 5,
+						allowMaximize: false,
+						showMaximize: false,
+						allowMinimize: false,
+						showMinimize: false,	
+					});
+					
+					var upgradeLevelBox = new qx.ui.container.Composite(new qx.ui.layout.VBox(5)).set({decorator: "pane-light-opaque", padding: 10});
+					var upgradeBaseBox = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
+					var baseLabel = new qx.ui.basic.Label("Base Level: ").set({allowGrowX: false, allowGrowY: false, font: "font_size_14_bold"});
+					this.baseTextField = new qx.ui.form.TextField();
+					this.baseTextField.setToolTipText("Enter desired level to upgrade to");
+					var baseUpgradeBtn = new qx.ui.form.Button("","FactionUI/icons/icon_building_detail_upgrade.png");
+					baseUpgradeBtn.setShow("icon");
+					baseUpgradeBtn.setToolTipText("Upgrades all buildings to desired level if resources exist.");
+					baseUpgradeBtn.addListener("click", this.baseUpgradeAllLevel, this);
+					var baseUpgradeOneBtn = new qx.ui.form.Button("+1").set({allowGrowX: false, allowGrowY: false, height: 35, font: "font_size_14_bold"});
+					baseUpgradeOneBtn.addListener("click", this.baseUpgradeOneLevel, this);
+					baseUpgradeOneBtn.setToolTipText("Upgrades all buildings by one level if resources exist.");
+					this.baseUpgradeMaximizeBtn = new qx.ui.form.Button("Maximize").set({allowGrowX: false, allowGrowY: false, height: 35});
+					this.baseUpgradeMaximizeBtn.setToolTipText("Upgrades production buildings that maximize gain/costs based on selected resource type.");
+					this.baseUpgradeMaximizeBtn.addListener("click", this.baseUpgradeMaximizeLevel, this);
+					
+					this.baseUpgradeMaximizeSelect = new qx.ui.form.SelectBox().set({allowGrowX: false, allowGrowY: false, height: 35});
+					this.baseUpgradeMaximizeSelect.add(new qx.ui.form.ListItem("Tiberium", "webfrontend/ui/common/icn_res_tiberium.png", "1"));
+					this.baseUpgradeMaximizeSelect.add(new qx.ui.form.ListItem("Crystal", "webfrontend/ui/common/icn_res_chrystal.png", "2"));
+					this.baseUpgradeMaximizeSelect.add(new qx.ui.form.ListItem("Power", "webfrontend/ui/common/icn_res_power.png", "5"));
+					this.baseUpgradeMaximizeSelect.add(new qx.ui.form.ListItem("Credits", "webfrontend/ui/common/icn_res_dollar.png", "3"));
+					this.baseUpgradeMaximizeSelect.setToolTipText("Select desired resource to maximize by gain/cost.");
+					upgradeBaseBox.add(baseLabel);
+					upgradeBaseBox.add(this.baseTextField);
+					upgradeBaseBox.add(baseUpgradeBtn);
+					upgradeBaseBox.add(baseUpgradeOneBtn);
+					upgradeBaseBox.add(this.baseUpgradeMaximizeBtn);
+					upgradeBaseBox.add(this.baseUpgradeMaximizeSelect);
+					upgradeLevelBox.add(upgradeBaseBox);
+					
+					
+					this.add(upgradeLevelBox);
+					
+					this.numMaximizeSteps = 0;
+				},
+				
+				destruct: function()
+				{
+				},
+				
+				members:
+				{
+					numMaximizeSteps: null,
+					
+					baseUpgradeAllLevel: function()
+					{
+						var newLevel = parseInt(this.baseTextField.getValue());
+						
+						if (isNaN(newLevel))
+							return;
+							
+						if (newLevel > 51)
+							newLevel = 51;
+							
+						if (newLevel < 0)
+							newLevel = 0;
+
+						//Based on Topper's Example
+						if (PerforceChangelist <= 384441)
+							newLevel--;
+							
+						ClientLib.API.City.GetInstance().UpgradeAllBuildingsToLevel(newLevel);
+						this.baseTextField.setValue("");
+					},
+					
+					baseUpgradeOneLevel: function()
+					{
+						var currOwnCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
+						ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(currOwnCity.get_Id());
+						var visCity =  ClientLib.Vis.VisMain.GetInstance().get_City();
+						var width =  visCity.get_GridWidth();
+						var height =  visCity.get_GridHeight();
+
+						for (var x = 0; x < 9; x++)
+						{
+							for (var y = 0; y < 8; y++)
+							{
+								var cityEntity = visCity.GetCityObjectFromPosition(x * width, y * height);
+								if (cityEntity != null)
+								{
+									if (cityEntity.get_VisObjectType() == ClientLib.Vis.VisObject.EObjectType.CityBuildingType)
+									{
+										ClientLib.API.City.GetInstance().UpgradeBuildingToLevel(cityEntity.get_BuildingDetails(), (cityEntity.get_BuildingLevel() + 1));
+									}
+								}
+							}
+						}
+					},
+					
+					baseUpgradeMaximizeLevel: function()
+					{
+						this.baseUpgradeMaximizeBtn.setEnabled(false);
+						this.baseUpgradeMaximizeSelect.setEnabled(false);
+						var currOwnCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
+						ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(currOwnCity.get_Id());
+						var visCity =  ClientLib.Vis.VisMain.GetInstance().get_City();
+						var width =  visCity.get_GridWidth();
+						var height =  visCity.get_GridHeight();
+						
+						var buildingsData = currOwnCity.get_Buildings().d;
+						var buildings = [];
+						for (var idx in buildingsData)
+						{
+							var tName = buildingsData[idx].get_TechName();
+							//If not a production type then skip
+							switch(parseInt(tName))
+							{
+								case 1: 
+								case 2: 
+								case 10: 
+								case 11: 
+								case 15:
+								case 16: 
+									break;
+								default: continue; break;
+							}
+
+							var objData = buildingsData[idx].get_TechGameData_Obj();
+							var detailView = currOwnCity.GetBuildingDetailViewInfo(buildingsData[idx]);
+							
+							if (detailView == null)
+								continue;
+							
+							var level = buildingsData[idx].get_CurrentLevel();
+							if (level == 51)
+								continue;
+							
+							var upgradeReqs = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(level + 1, objData);
+							
+							//Gain per hour if upgraded from Maelstrom tools
+							var upgradeGPH = {1: 0, 2: 0, 3: 0, 5: 0};
+							var totalGPH = 0;
+							for (var type in detailView.OwnProdModifiers.d)
+							{
+								switch (parseInt(type)) 
+								{
+									case ClientLib.Base.EModifierType.TiberiumPackageSize:
+									case ClientLib.Base.EModifierType.CrystalPackageSize:
+									case ClientLib.Base.EModifierType.PowerPackageSize:
+									case ClientLib.Base.EModifierType.CreditsPackageSize:
+										var ModOj = detailView.OwnProdModifiers.d[buildingsData[idx].get_MainModifierTypeId()];
+										var Mod = (ModOj.TotalValue + ModOj.NewLvlDelta) / ClientLib.Data.MainData.GetInstance().get_Time().get_StepsPerHour();
+										totalGPH += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+										switch(parseInt(type))
+										{
+											case ClientLib.Base.EModifierType.TiberiumPackageSize:
+												upgradeGPH[1] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+												break;
+											case ClientLib.Base.EModifierType.CrystalPackageSize:
+												upgradeGPH[2] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+												break;
+											case ClientLib.Base.EModifierType.PowerPackageSize:
+												upgradeGPH[5] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+												break;
+											case ClientLib.Base.EModifierType.CreditsPackageSize:
+												upgradeGPH[3] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+												break;
+										}
+										break;
+									case ClientLib.Base.EModifierType.TiberiumProduction:
+									case ClientLib.Base.EModifierType.CrystalProduction:
+									case ClientLib.Base.EModifierType.PowerProduction:
+									case ClientLib.Base.EModifierType.CreditsProduction:
+										totalGPH += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+										switch(parseInt(type))
+										{
+											case ClientLib.Base.EModifierType.TiberiumProduction:
+												upgradeGPH[1] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+												break;
+											case ClientLib.Base.EModifierType.CrystalProduction:
+												upgradeGPH[2] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+												break;
+											case ClientLib.Base.EModifierType.PowerProduction:
+												upgradeGPH[5] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+												break;
+											case ClientLib.Base.EModifierType.CreditsProduction:
+												upgradeGPH[3] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+												break;
+										}
+										break;
+								}
+							}
+							
+							//Check if building produces any gain for selecte resource. If not, continue
+							var selection = parseInt(this.baseUpgradeMaximizeSelect.getSelection()[0].getModel());
+							if (upgradeGPH[selection] == 0)
+								continue;
+							
+							//Determine upgrade 
+							var totalCosts = 0;
+							
+							for (var costs in upgradeReqs)
+							{
+								//don't need functions
+								if (typeof upgradeReqs[costs] == 'function')
+									continue;
+									
+								//don't need 0 costs
+								if (upgradeReqs[costs].Type == 0)
+									continue;
+									
+								totalCosts += upgradeReqs[costs].Count;	
+							}
+							var hasResources = currOwnCity.HasEnoughResources(upgradeReqs);
+
+							if (!hasResources)
+								continue;
+								
+							var gainPerCostRatio = (upgradeGPH[selection] / totalCosts) * 100;	
+							
+							var visBuilding = visCity.GetCityObjectFromPosition(buildingsData[idx].get_CoordX() * width, buildingsData[idx].get_CoordY() * height);
+							
+							var upgradeInfo = 
+							{
+								"nLevel": level + 1,
+								"gpcr": gainPerCostRatio,
+								"x": buildingsData[idx].get_CoordX(),
+								"y": buildingsData[idx].get_CoordY(),
+								"data": buildingsData[idx],
+								"detail": visBuilding.get_BuildingDetails(),
+								"tech": objData
+							};
+							
+							buildings.push(upgradeInfo);
+						}
+						
+						if (buildings.length == 0)
+						{
+							this.baseUpgradeMaximizeBtn.setEnabled(true);
+							this.baseUpgradeMaximizeSelect.setEnabled(true);
+							return;
+						}
+							
+						//Sort by GCPR
+						buildings = this.sortBuildingList(buildings);
+						
+						//Have list now time to maximize
+						this.doMaximizeUpgrading(buildings, currOwnCity);
+					},
+					
+					doMaximizeUpgrading: function(buildings, currOwnCity)
+					{			
+						if (buildings.length == 0)
+						{
+							this.baseUpgradeMaximizeBtn.setEnabled(true);
+							this.baseUpgradeMaximizeSelect.setEnabled(true);
+							return;
+						}
+							
+						//Upgrade the first one
+						ClientLib.API.City.GetInstance().UpgradeBuildingToLevel(buildings[0].detail, buildings[0].nLevel);
+						
+						//Now we need to recalculate the next gpcr
+						if (buildings[0].nLevel == 51)
+						{
+							buildings = this.removeItemFromArray(buildings, 0, 1);
+							this.waitToMaximizeAgain(buildings, currOwnCity);
+							return;
+						}
+						else
+						{
+							buildings[0].nLevel = buildings[0].nLevel + 1;
+						}
+
+						var upgradeReqs =  ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(buildings[0].nLevel, buildings[0].tech);
+						
+						//Check to make sure player has enough to purchase upgrade
+						if (!currOwnCity.HasEnoughResources(upgradeReqs))
+						{
+							buildings = this.removeItemFromArray(buildings, 0, 1);
+							this.waitToMaximizeAgain(buildings, currOwnCity);
+							return;
+						}
+						
+						//Get Total Costs
+						var totalCosts = 0;
+						for (var costs in upgradeReqs)
+						{
+							//don't need functions
+							if (typeof upgradeReqs[costs] == 'function')
+								continue;
+								
+							//don't need 0 costs
+							if (upgradeReqs[costs].Type == 0)
+								continue;
+								
+							totalCosts += upgradeReqs[costs].Count;	
+						}
+						
+						//Get GainsPerHour
+						var upgradeGPH = {1: 0, 2: 0, 3: 0, 5: 0};
+						var detailView = currOwnCity.GetBuildingDetailViewInfo(buildings[0].data);
+							
+						for (var type in detailView.OwnProdModifiers.d)
+						{
+							switch (parseInt(type)) 
+							{
+								case ClientLib.Base.EModifierType.TiberiumPackageSize:
+								case ClientLib.Base.EModifierType.CrystalPackageSize:
+								case ClientLib.Base.EModifierType.PowerPackageSize:
+								case ClientLib.Base.EModifierType.CreditsPackageSize:
+									var ModOj = detailView.OwnProdModifiers.d[buildings[0].data.get_MainModifierTypeId()];
+									var Mod = (ModOj.TotalValue + ModOj.NewLvlDelta) / ClientLib.Data.MainData.GetInstance().get_Time().get_StepsPerHour();
+									//totalGPH += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+									switch(parseInt(type))
+									{
+										case ClientLib.Base.EModifierType.TiberiumPackageSize:
+											upgradeGPH[1] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+											break;
+										case ClientLib.Base.EModifierType.CrystalPackageSize:
+											upgradeGPH[2] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+											break;
+										case ClientLib.Base.EModifierType.PowerPackageSize:
+											upgradeGPH[5] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+											break;
+										case ClientLib.Base.EModifierType.CreditsPackageSize:
+											upgradeGPH[3] += (detailView.OwnProdModifiers.d[type].NewLvlDelta / Mod);
+											break;
+									}
+									break;
+								case ClientLib.Base.EModifierType.TiberiumProduction:
+								case ClientLib.Base.EModifierType.CrystalProduction:
+								case ClientLib.Base.EModifierType.PowerProduction:
+								case ClientLib.Base.EModifierType.CreditsProduction:
+									//totalGPH += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+									switch(parseInt(type))
+									{
+										case ClientLib.Base.EModifierType.TiberiumProduction:
+											upgradeGPH[1] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+											break;
+										case ClientLib.Base.EModifierType.CrystalProduction:
+											upgradeGPH[2] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+											break;
+										case ClientLib.Base.EModifierType.PowerProduction:
+											upgradeGPH[5] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+											break;
+										case ClientLib.Base.EModifierType.CreditsProduction:
+											upgradeGPH[3] += detailView.OwnProdModifiers.d[type].NewLvlDelta;
+											break;
+									}
+									break;
+							}
+						}
+						
+						//Make sure gains are present
+						var selection = parseInt(this.baseUpgradeMaximizeSelect.getSelection()[0].getModel());
+						if (upgradeGPH[selection] == 0)
+						{
+							buildings = this.removeItemFromArray(buildings, 0, 1);
+							this.waitToMaximizeAgain(buildings, currOwnCity);
+							return;
+						}
+						var gainPerCostRatio = (upgradeGPH[selection] / totalCosts) * 100;
+						buildings[0].gpcr = gainPerCostRatio;
+
+						//Sort again
+						buildings = this.sortBuildingList(buildings);
+						this.waitToMaximizeAgain(buildings, currOwnCity);
+					},
+					
+					waitToMaximizeAgain: function(buildings, currOwnCity)
+					{
+						(function(buildings, currOwnCity)
+						{
+							setTimeout(function()
+							{
+								TGCTools.UpgradeWindow.getInstance().doMaximizeUpgrading(buildings, currOwnCity);
+							}, 500);
+						}(buildings, currOwnCity));
+					},
+					
+					removeItemFromArray: function(array, index, howMany)
+					{
+						array.splice(index, howMany);
+						return array;
+					},
+					
+					sortBuildingList: function(obj)
+					{
+						var arr = [];
+						for (var idx in obj) {
+							arr.push({
+								'nLevel': obj[idx].nLevel,
+								'gpcr': obj[idx].gpcr,
+								'x': obj[idx].x,
+								'y': obj[idx].y,
+								"data": obj[idx].data,
+								"detail": obj[idx].detail,
+								"tech": obj[idx].tech
+							});
+						}
+						arr.sort(function(a, b) { return b.gpcr - a.gpcr; });
+						return arr; // returns array
 					}
 				}
 			});

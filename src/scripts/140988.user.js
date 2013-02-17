@@ -3,8 +3,8 @@
 // @description Supplies some wrapper functions for public use 
 // @namespace infernal_wrapper
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version 0.390737.2
-// @author ppl before me and me (KRS update)
+// @version 0.390737.5
+// @author infernal_me, KRS_L, krisan
 // ==/UserScript==
 (function () {
     var CCTAWrapper_main = function () {
@@ -18,18 +18,18 @@
             function createCCTAWrapper() {
                 console.log('CCTAWrapper loaded');
                 _log('wrapper loading' + PerforceChangelist);
-				System = $I;
+                System = $I;
                 SharedLib = $I;
-                var strFunction = null;
-
+                var strFunction;
+                
                 // SharedLib.Combat.CbtSimulation.prototype.DoStep
                 for (var x in $I) {
                     for (var key in $I[x].prototype) {
-                        if ($I[x].prototype[key] !== null) {
+                        if ($I[x].prototype.hasOwnProperty(key) && typeof($I[x].prototype[key]) === 'function') {  // reduced iterations from 20K to 12K
                             strFunction = $I[x].prototype[key].toString();
-                            if (typeof $I[x].prototype[key] === 'function' & strFunction.indexOf("().l;var b;for (var d = 0 ; d < c.length ; d++){b = c[d];if((b.") > -1) {
+                            if (strFunction.indexOf("().l;var b;for (var d = 0 ; d < c.length ; d++){b = c[d];if((b.") > -1) {
                                 $I[x].prototype.DoStep = $I[x].prototype[key];
-                                    console.log("SharedLib.Combat.CbtSimulation.prototype.DoStep = $I." + x + ".prototype." + key);
+                                console.log("SharedLib.Combat.CbtSimulation.prototype.DoStep = $I." + x + ".prototype." + key);
                                 break;
                             }
                         }
@@ -38,9 +38,9 @@
 
                 // ClientLib.Data.CityRepair.prototype.CanRepair
                 for (var key in ClientLib.Data.CityRepair.prototype) {
-                    if (ClientLib.Data.CityRepair.prototype[key] !== null) {
+                    if (typeof ClientLib.Data.CityRepair.prototype[key] === 'function') {
                         strFunction = ClientLib.Data.CityRepair.prototype[key].toString();
-                        if (typeof ClientLib.Data.CityRepair.prototype[key] === 'function' & strFunction.indexOf("DamagedEntity") > -1 & strFunction.indexOf("DefenseSetup") > -1) {
+                        if (strFunction.indexOf("DefenseSetup") > -1 && strFunction.indexOf("DamagedEntity") > -1) {  // order important to reduce iterations
                             ClientLib.Data.CityRepair.prototype.CanRepair = ClientLib.Data.CityRepair.prototype[key];
                             console.log("ClientLib.Data.CityRepair.prototype.CanRepair = ClientLib.Data.CityRepair.prototype." + key);
                             break;
@@ -50,9 +50,9 @@
 
                 // ClientLib.Data.CityRepair.prototype.UpdateCachedFullRepairAllCost
                 for (var key in ClientLib.Data.CityRepair.prototype) {
-                    if (ClientLib.Data.CityRepair.prototype[key] !== null) {
+                    if (typeof ClientLib.Data.CityRepair.prototype[key] === 'function') {
                         strFunction = ClientLib.Data.CityRepair.prototype[key].toString();
-                        if (typeof ClientLib.Data.CityRepair.prototype[key] === 'function' & strFunction.indexOf("Type==7") > -1 & strFunction.indexOf("var a=0;if") > -1) {
+                        if (strFunction.indexOf("Type==7") > -1 && strFunction.indexOf("var a=0;if") > -1) {  // order important to reduce iterations
                             ClientLib.Data.CityRepair.prototype.UpdateCachedFullRepairAllCost = ClientLib.Data.CityRepair.prototype[key];
                             console.log("ClientLib.Data.CityRepair.prototype.UpdateCachedFullRepairAllCost = ClientLib.Data.CityRepair.prototype." + key);
                             break;
@@ -65,9 +65,8 @@
                 var searchString = "for (var b in {d:this.";
                 var startPos = strFunction.indexOf(searchString) + searchString.length;
                 var fn_name = strFunction.slice(startPos, startPos + 6);
-                strFunction = "var $createHelper;return this." + fn_name + ";"
+                strFunction = "var $createHelper;return this." + fn_name + ";";
                 var fn = Function('', strFunction);
-                fn();
                 ClientLib.Data.CityUnits.prototype.get_OffenseUnits = fn;
                 console.log("ClientLib.Data.CityUnits.prototype.get_OffenseUnits = function(){var $createHelper;return this." + fn_name + ";}");
 
@@ -76,9 +75,8 @@
                 searchString = "for (var c in {d:this.";
                 startPos = strFunction.indexOf(searchString) + searchString.length;
                 fn_name = strFunction.slice(startPos, startPos + 6);
-                strFunction = "var $createHelper;return this." + fn_name + ";"
+                strFunction = "var $createHelper;return this." + fn_name + ";";
                 fn = Function('', strFunction);
-                fn();
                 ClientLib.Data.CityUnits.prototype.get_DefenseUnits = fn;
                 console.log("ClientLib.Data.CityUnits.prototype.get_DefenseUnits = function(){var $createHelper;return this." + fn_name + ";}");
 
@@ -87,9 +85,8 @@
                 searchString = "=0;for(var a=0; (a<9); a++){this.";
                 startPos = strFunction.indexOf(searchString) + searchString.length;
                 fn_name = strFunction.slice(startPos, startPos + 6);
-                strFunction = "return this." + fn_name + ";"
+                strFunction = "return this." + fn_name + ";";
                 fn = Function('', strFunction);
-                fn();
                 ClientLib.Vis.Battleground.Battleground.prototype.get_Simulation = fn;
                 console.log("ClientLib.Vis.Battleground.Battleground.prototype.get_Simulation = function(){return this." + fn_name + ";}");
 
