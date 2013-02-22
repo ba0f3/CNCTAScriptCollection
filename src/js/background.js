@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id : 140991,
 	name : "MaelstromTools Dev",
-	version : "0.1.3.0",
+	version : "0.1.3.1",
 	enabled : true
 }, {
 	id : 135806,
@@ -106,7 +106,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
 	id: 158164,
 	name: "Tiberium Alliances Transfer All Resources",
-	version: "1.2",
+	version: "1.5.1",
 	enabled: true
 }, {
 	id: 158919,
@@ -118,6 +118,16 @@ var DEFAULT_SCRIPTS = [{
 	name: "Tiberium Alliances PvP/PvE Player Info Mod",
 	version: "1.1",
 	enabled: true
+}, {
+	id: 149251,
+	name: "CnC: Tiberium Alliances Info",
+	version: "1.0.3",
+	enabled: false
+}, {
+	id: 159773,
+	name: "Tiberium Alliances Info Sticker repair time",
+	version: "1.13",
+	enabled: false
 }];
 
 var storage = chrome.storage.sync;

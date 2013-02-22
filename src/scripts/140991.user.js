@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.3.0
+// @version     0.1.3.1
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
@@ -2336,12 +2336,12 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 var ncity = MaelstromTools.Wrapper.GetCity(visCity.get_Id());
                 /* ClientLib.Data.CityBuildings */
                 //var cityBuildings = ncity.get_CityBuildingsData();
-                //var cityUnits = ncity.get_CityUnitsData();
+                var cityUnits = ncity.get_CityUnitsData();
 
                 //var buildings = MaelstromTools.Wrapper.GetBuildings(cityBuildings);
                 var buildings = ncity.get_Buildings().d;
-                //var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits(cityUnits);
-                var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits();
+                var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits(cityUnits);
+                //var defenseUnits = MaelstromTools.Wrapper.GetDefenseUnits();
 
                 /*for(var u in buildings) {
               console.log(buildings[u].get_MdbBuildingId());
@@ -2511,23 +2511,22 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 return (cityBuildings.get_Buildings() != null ? cityBuildings.get_Buildings().l : null);
               }
             },*/
-            //GetDefenseUnits: function (cityUnits) {
-            GetDefenseUnits: function () {
-              /*if (PerforceChangelist >= 376877) { //new
+            GetDefenseUnits: function (cityUnits) {
+            //GetDefenseUnits: function () {
+              if (PerforceChangelist >= 392583) { //endgame patch
                 return (cityUnits.get_DefenseUnits() != null ? cityUnits.get_DefenseUnits().d : null);
               } else { //old
-                return (cityUnits.get_DefenseUnits() != null ? cityUnits.get_DefenseUnits().l : null);
-              }*/
-              var defenseObjects = [];
-              for (var x = 0; x < 9; x++) {
-                for (var y = 0; y < 8; y++) {
-                  var defenseObject = ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().GetDefenseObjectFromPosition((x * ClientLib.Vis.VisMain.GetInstance().get_City().get_GridWidth()),(y * ClientLib.Vis.VisMain.GetInstance().get_City().get_GridHeight()));
-                  if (defenseObject !== null && defenseObject.get_CityEntity() !== null) {
-                    defenseObjects.push(defenseObject.get_UnitDetails());
+                var defenseObjects = [];
+                for (var x = 0; x < 9; x++) {
+                  for (var y = 0; y < 8; y++) {
+                    var defenseObject = ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().GetDefenseObjectFromPosition((x * ClientLib.Vis.VisMain.GetInstance().get_City().get_GridWidth()),(y * ClientLib.Vis.VisMain.GetInstance().get_City().get_GridHeight()));
+                    if (defenseObject !== null && defenseObject.get_CityEntity() !== null) {
+                      defenseObjects.push(defenseObject.get_UnitDetails());
+                    }
                   }
                 }
+                return defenseObjects;
               }
-              return defenseObjects;
             },
             GetUnitLevelRequirements: function (cityEntity) {
               if (PerforceChangelist >= 376877) { //new
