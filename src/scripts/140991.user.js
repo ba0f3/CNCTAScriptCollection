@@ -49,7 +49,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
           type: "singleton",
           extend: qx.core.Object,
           construct: function (language) {
-            this.Languages = ['de', 'pt', 'fr', 'tr','sp']; // en is default, not needed in here!
+            this.Languages = ['de', 'pt', 'fr', 'tr','es']; // en is default, not needed in here!
             if (language != null) {
               this.MyLanguage = language;
             }
