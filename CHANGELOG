@@ -1,4 +1,7 @@
-- Replace "Flunik Tools" with "CustomFlunik Tools" version 20130301a
+1.2.8.23:
+- Fix Map KSX-mod (suggested by barius https://github.com/barius)
+- Add Spanish translation for  "MaelstromTools Dev" (by rubenlagus https://github.com/rubenlagus)
+- Replace "Flunik Tools" with "CustomFlunik Tools" version 20130301a (by towster https://github.com/towster)
 1.2.8.22:
 - Update "MaelstromTools Dev" to version 0.1.3.1
 - Update "Tiberium Alliances Transfer All Resources" to version 1.5.1

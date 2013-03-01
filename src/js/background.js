@@ -94,9 +94,9 @@ var DEFAULT_SCRIPTS = [{
 	version: "3.0.0",
 	enabled: false
 }, {
-	id: 159314,
-	name: "Infernal Flunik Tools",
-	version: "0.5.8.infernal",
+	id: 158565,
+	name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
+	version: "20130301a",
 	enabled: true
 }, {
 	id: 154546,
