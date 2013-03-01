@@ -92,8 +92,8 @@
 						this.mapBox.setBackgroundColor("black");
                         this.mapWidget = new qx.html.Element("canvas", null, {
                             id : "map",
-                            width : 3000,
-                            height : 3000
+                            width : 4800,
+                            height : 4800
                         });
 
                         this.mapWidget.addListener("appear", function() {
@@ -157,10 +157,10 @@
                         this.mapBox.add(this.scroll);
 
                         var p = new qx.ui.core.Widget();
-                        p.setMinHeight(3000);
-                        p.setMinWidth(3000);
-                        p.setHeight(3000);
-                        p.setWidth(3000);
+                        p.setMinHeight(4800);
+                        p.setMinWidth(4800);
+                        p.setHeight(4800);
+                        p.setWidth(4800);
                         this.scroll.add(p);
                         p.getContentElement().add(this.mapWidget);
 
@@ -562,7 +562,7 @@
 						//console.log(this.dump(this.showAlliancePois,"chkbox",1,true));
 						
 						//ctx.fillStyle="#000000";
-						//ctx.fillRect(0,0,3000,3000);
+						//ctx.fillRect(0,0,4800,4800);
 						
                         for (var i in sectors) {// m_Sectors = RBJXOL
                             var s = sectors[i];
