@@ -124,9 +124,9 @@ var DEFAULT_SCRIPTS = [{
 	version: "1.0.3",
 	enabled: false
 }, {
-	id: 159773,
-	name: "Tiberium Alliances Info Sticker repair time",
-	version: "1.13",
+	id: 155157,
+	name: "Tiberium Alliances Info Sticker",
+	version: "1.7.1",
 	enabled: false
 }];
 
