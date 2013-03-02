@@ -1,9 +1,9 @@
 var storage = chrome.storage.sync;
 var backgroundWindow = chrome.extension.getBackgroundPage();
-$(document).ready(function() {
-    storage.get(['CNCTA_SCRIPTS', 'CNCTA_ENABLED', 'CNCTA_GA'], function(config) {
+$(document).ready(function () {
+    storage.get(['CNCTA_SCRIPTS', 'CNCTA_ENABLED', 'CNCTA_GA'], function (config) {
         for (var i in config.CNCTA_SCRIPTS) {
-            if(config.CNCTA_SCRIPTS.hasOwnProperty(i)) {
+            if (config.CNCTA_SCRIPTS.hasOwnProperty(i)) {
                 var script = config.CNCTA_SCRIPTS[i];
 
                 var li = $('<div>');
@@ -23,14 +23,14 @@ $(document).ready(function() {
             backgroundWindow._gaq.push(['_trackPageview', '/options.html']);
         }
 
-        $("#close").click(function() {
+        $("#close").click(function () {
             window.close();
         });
 
-        $("#save").click(function() {
+        $("#save").click(function () {
             var enabled = {};
             for (var i in config.CNCTA_SCRIPTS) {
-                if(config.CNCTA_SCRIPTS.hasOwnProperty(i)) {
+                if (config.CNCTA_SCRIPTS.hasOwnProperty(i)) {
                     var script = config.CNCTA_SCRIPTS[i];
                     enabled['s_' + config.CNCTA_SCRIPTS[i].id] = $('input[name="cb-' + script.id + '"]').is(':checked');
 
@@ -45,7 +45,7 @@ $(document).ready(function() {
 
             $('#message').animate({
                 opacity: 1
-            }, 300, function() {
+            }, 300, function () {
                 $('#message').animate({
                     opacity: 0
                 }, 3000);

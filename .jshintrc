@@ -3,6 +3,6 @@
   "unused": false,
   "jquery": true,
   "browser": true,
-  "strict": true,
+  "strict": false,
   "indent": 4
 }
