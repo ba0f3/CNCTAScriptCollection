@@ -35,7 +35,7 @@
 	</target>
 	
 	
-	<target name="dist" depends="build">
+	<target name="dist-zip" depends="build">
 		<echo message="Updating updates.xml" />
 		<replace file="${build.dir}/updates.xml" token="##VERSION##" value="${version}"/>
 		<replace file="${build.dir}/updates.xml" token="##ID##" value="${ext.id}"/>
@@ -48,7 +48,9 @@
 		
 		<echo message="Packaging a non-crx for the chrome web store" />
 		<zip destfile="${dist.dir}/${ext.name}-${version}.zip" basedir="${build.dir}"/>
-		
+	</target>
+
+	<target name="dist" depends="dist-zip">
 		<copy todir="${build.dir}" overwrite="true">
 			<fileset dir="${source.dir}">
 				<include name="manifest.json"/>

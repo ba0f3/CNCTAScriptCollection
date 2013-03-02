@@ -1,1 +1,1 @@
-script: ant dist
+script: ant dist-zip
