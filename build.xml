@@ -3,6 +3,8 @@
 <project name="CNCTAScriptCollection" default="build">
 	<property file="build.properties" />
 
+	<taskdef name="jshint" classname="com.philmander.jshint.JsHintAntTask"  classpath="${tools.dir}/ant-jshint-0.3.4-deps.jar" />
+
 	<condition property="nextMinorVersion">
     	<equals arg1="${ext.version.build}" arg2="99"/>
 	</condition>
@@ -85,5 +87,9 @@
 			</fileset>
 		</copy>
 		<!-- TODO: jshint / compile javascripts -->				
+	</target>
+
+	<target name="lint">
+  		<jshint dir="${basedir}/src/js" includes="**/*.js" />
 	</target>
 </project>

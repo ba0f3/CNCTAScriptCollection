@@ -141,11 +141,13 @@ storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function(config) {
 		var tmp = {};
 
 		for (var i in DEFAULT_SCRIPTS) {
-			var script = DEFAULT_SCRIPTS[i];
-			if(typeof config.CNCTA_ENABLED['s_' + script.id] === 'undefined' || config.CNCTA_ENABLED['s_' + script.id] === null) {
-				tmp['s_' + script.id] = script.enabled;
-			} else {
-				tmp['s_' + script.id] = config.CNCTA_ENABLED['s_' + script.id];
+			if(DEFAULT_SCRIPTS.hasOwnProperty(i)) {
+				var script = DEFAULT_SCRIPTS[i];
+				if(typeof config.CNCTA_ENABLED['s_' + script.id] === 'undefined' || config.CNCTA_ENABLED['s_' + script.id] === null) {
+					tmp['s_' + script.id] = script.enabled;
+				} else {
+					tmp['s_' + script.id] = config.CNCTA_ENABLED['s_' + script.id];
+				}
 			}
 		}
 		storage.set({
@@ -175,11 +177,10 @@ storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function(config) {
 });
 
 function processRequest(request, sender, sendResponse) {
-	"use strict";
 	switch (request.type) {
 	case "get":
 		var data = {};
-		if (request.name.constructor == Array) {
+		if (request.name.constructor === Array) {
 			for ( var i = 0; i < request.name.length; i++) {
 				data[request.name[i]] = localStorage[request.name[i]];
 			}
