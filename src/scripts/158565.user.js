@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      Flunik dbendure RobertT KRS_L
-// @version     20130301a
+// @version     20130301d
 // ==/UserScript==
 
 /*
@@ -27,47 +27,22 @@ Script does this (in this order):
 15. if lowest building is 6 levels below base level and we have at least 20% tiberium upgrade lowest building
 16. Priority calculations are made depending upon buildings existing. Lowest cost of those calculations is built if tiberium > 20%.
 	A. If harvesters exist priority calculations are done for Crystal and Tiberium
-	B. If #PP>#REF then base is power base and priority calculation is done for power
-	C. If #PP<#REF then base is cash base and priority calculation is done for cash
+	B. If #PP > #REF then base is power base and priority calculation is done for power
+	C. If #PP < #REF then base is cash base and priority calculation is done for cash
 17. if tiberium is > 95% and nothing was upgraded above then upgrade lowest level Silo/Harvester/Refinery/Power Plant/Accumulator
+
+NOTE: If conditions match for items 6-14 then script will wait until there is enough resources to perform the upgrade 
+	unless tiberium exceeds 80%. When tiberium exceeds 80% it will check the conditions in order until an upgrade is found.
 
 NOTE: Calculations in #16 can be overridden by changing city name. 
 	If name contains a dash "-" priority is cash.
 	If name contains a period "." priority is power. 
 
-
-
 NEW feature - upgrade based on maelstrom tools upgrade priority overview 
 Auto detection of base build for power (attack) or cash to determine which overview to use. 
- 
-  
+   
 Original Flunik tools would upgrade buildings randomly. I have tried to make the upgrading more
-intelligent. Note some of the logic in script is different but here were the original goals.
-
-Currently there is no real logic for unit upgrades other than those are done lowest level offence
-unit first followed by lowest level defence unit. Unit upgrades will spend crystals as soon as
-available at the moment but I would like to get those to wait until crystals is full as well. 
-
-As far as buildings go, first off I try to keep the base at maximum capacity since that gives us the 
-opportunity to use the resources in ways we see fit. This script will kick in when Tiberium
-is full to upgrade the best building it can. It will also try to upgrade the CC or DHQ any time
-the offence or defence units have maxed out.
-
-Need to come up with rules for harvester/silo/power ideally..
-
-Here is the basic logic for building upgrades:  
-If CY is less than level 25 upgrade CY (max build sites in base)
-If CC < Base level upgrade CC
-If Offence Level = CC level upgrade CC
-If DHQ < Base level upgrade DHQ
-If DHQ < CC upgrade DHQ
-If DF < DHQ upgrade DF
-If support < DHQ upgrade support
-If Airport/Barracks/Vehicles < CC level upgrade repair building
-(Version A) If cost of upgrade of any of the main buildings exceeds silo capacity upgrade silos 
-(Version B) If rate of production would cause silos full in less than 24 hours upgrade silos
-(Version A) Upgrade lowest level normal building 
-(Version B) Try and determine what building will give greatest benefit to resource production and upgrade it
+intelligent. 
 */
 
 
@@ -295,6 +270,8 @@ If Airport/Barracks/Vehicles < CC level upgrade repair building
 								for (var nBuildings in buildings.d) {
 									var building = buildings.d[nBuildings];
 									var name = building.get_UnitGameData_Obj().dn;
+//									var tech = parseInt(building.get_TechName(), 10);
+									var tech = building.get_TechName();
 									var buildinglvl = building.get_CurrentLevel();
 									var building_obj = {
 											cityid: city.get_Id(),
@@ -304,49 +281,52 @@ If Airport/Barracks/Vehicles < CC level upgrade repair building
 											isPaid: true
 									};
 
-									if 	(name == "Construction Yard") {
+									
+									if (tech == ClientLib.Base.ETechName.Harvester_Crystal) {
+										console.debug(infolineHeader+"Not sure what it is but Found a Harvester_Crystal!");
+									} 		
+									if 	(tech == ClientLib.Base.ETechName.Construction_Yard) {
 										var CY=building;
 										continue;
 									};            
-									if 	(name == "Barracks" || name == "Hand of Nod") {
+									if 	(tech == ClientLib.Base.ETechName.Barracks) {
 										var INF=building;
 										var infRT = city.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry, false);
 										continue;
 									};            
-									if 	(name == "Factory" || name == "War Factory") {
+									if 	(tech == ClientLib.Base.ETechName.Factory) {
 										var VEH=building;
 										var vehRT = city.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Vehicle, false);
 										continue;
 									};            
-									if 	(name == "Airfield" || name == "Airport") {
+									if 	(tech == ClientLib.Base.ETechName.Airport) {
 										var AIR=building;
 										var airRT = city.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Aircraft, false);
 										continue;
 									}; 
-									if 	(name == "Command Center") {
+									if 	(tech == ClientLib.Base.ETechName.Command_Center) {
 										var CC=building;
 										continue;
 									};            
-									if 	(name == "Defense HQ") {
+									if 	(tech == ClientLib.Base.ETechName.Defense_HQ) {
 										var DHQ=building;
 										continue;
 									};            
-									if 	(name == "Defense Facility") {
+									if 	(tech == ClientLib.Base.ETechName.Defense_Facility) {
 										var DF=building;
 										continue;
 									};            
-									if 	(name == "Falcon Support" || name == "Ion Cannon Support" || name == "Skystrike Support" ||
-											name == "Blade of Kane" || name == "Eye of Kane" || name == "Fist of Kane" ) {
+									if (tech == ClientLib.Base.ETechName.Support_Air || tech == ClientLib.Base.ETechName.Support_Ion || tech == ClientLib.Base.ETechName.Support_Art) {
 										var SUPPORT=building;
 										continue;
 									};       
 									if (currentpowpct>80) {
 										// skip these on default upgrade if power is full
-										if 	(name == "Power Plant") {
+										if (tech == ClientLib.Base.ETechName.PowerPlant) {
 											var numPOW=numPOW+1;
 											continue;
 										}; 
-										if 	(name == "Accumulator") {
+										if (tech == ClientLib.Base.ETechName.Accumulator) {
 											continue;
 										}; 
 									}
@@ -357,22 +337,22 @@ If Airport/Barracks/Vehicles < CC level upgrade repair building
 										var lowestbuilding=building;
 										var lowestbuildingname=name;
 									};
-									if 	(name == "Refinery") {
+									if (tech == ClientLib.Base.ETechName.Refinery) {
 										var numREF=numREF+1;
 										continue;
 									}; 
-									if 	(name == "Silo") {
+									if (tech == ClientLib.Base.ETechName.Silo) {
 										continue;
 									}; 
-									if 	(name == "Harvester") {
+									if (tech == ClientLib.Base.ETechName.Harvester) {
 										var numHAR=numHAR+1;
 										continue;
 									}; 
-									if 	(name == "Power Plant") {
+									if (tech == ClientLib.Base.ETechName.PowerPlant) {
 										var numPOW=numPOW+1;
 										continue;
 									}; 
-									if 	(name == "Accumulator") {
+									if (tech == ClientLib.Base.ETechName.Accumulator) {
 										continue;
 									}; 
 									
