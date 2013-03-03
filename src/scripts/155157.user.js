@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       Tiberium Alliances Info Sticker
 // @namespace  TAInfoSticker
-// @version    1.7.1
+// @version    1.9
 // @description  Based on Maelstrom Dev Tools. Modified MCV timer, repair time label, resource labels.
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author unicode
@@ -27,6 +27,7 @@
                         cryIcon: null,
                         powIcon: null,
                         creditIcon: null,
+                        repairIcon: null,
                         hasStorage: false,
 
                         initialize: function () {
@@ -39,11 +40,12 @@
                                 this.cryIcon = fileManager.GetPhysicalPath("ui/common/icn_res_chrystal.png");
                                 this.powIcon = fileManager.GetPhysicalPath("ui/common/icn_res_power.png");
                                 this.creditIcon = fileManager.GetPhysicalPath("ui/common/icn_res_dollar.png");
-
+                                var factionText = ClientLib.Base.Util.GetFactionGuiPatchText();
+this.repairIcon = fileManager.GetPhysicalPath("ui/icons/icn_repair_off_points.png");
 
                                 this.runMainTimer();
                             } catch (e) {
-                                console.log("InfoSticker.initialize: ", e);
+                                console.log("InfoSticker.initialize: ", e.toString());
                             }
                         },
                         runMainTimer: function () {
@@ -54,7 +56,7 @@
                                     self.runMainTimer();
                                 }, this.masterTimerInterval);
                             } catch (e) {
-                                console.log("InfoSticker.runMainTimer: ", e);
+                                console.log("InfoSticker.runMainTimer: ", e.toString());
                             }
                         },
                         runPositionTimer: function () {
@@ -65,7 +67,7 @@
                                     self.runPositionTimer();
                                 }, this.positionInterval);
                             } catch (e) {
-                                console.log("InfoSticker.runPositionTimer: ", e);
+                                console.log("InfoSticker.runPositionTimer: ", e.toString());
                             }
                         },
                         infoSticker: null,
@@ -110,15 +112,28 @@
 
                         pinIconFix: false,
                         
+                        lockButton: null,
+                        locked: false,
+
+                        lockButtonDecoration: null,
+                        lockPane: null,
+
+                        lockIconFix: false,
+                        
                         mcvHide: false,
                         repairHide: false,
                         resourceHide: false,
                         productionHide: false,
-
+                        stickerBackground: null,
+                        
+                        mcvPane: null,
+                        
+                        pinLockPos: 0,
+                        
                         repositionSticker: function () {
                             var i;
                             try {
-                                if (this.infoSticker) {
+                                if (this.infoSticker && !this.mcvInfoLabel.isDisposed() && !this.mcvPopup.isDisposed()) {
                                     var dele;
                                     try {
                                         if (!this.pinIconFix) {
@@ -151,51 +166,110 @@
                                         }
                                         for (i = this.toFlipH.length - 1; i >= 0; i--) {
                                             var e = this.toFlipH[i];
-                                            dele = e.getDecoratorElement().getDomElement();
-                                            if (dele != null) {
-                                                dele.style["-moz-transform"] = "scaleX(-1)";
-                                                dele.style["-o-transform"] = "scaleX(-1)";
-                                                dele.style["-webkit-transform"] = "scaleX(-1)";
-                                                dele.style.transform = "scaleX(-1)";
-                                                dele.style.filter = "FlipH";
-                                                dele.style["-ms-filter"] = "FlipH";
-                                                this.toFlipH.splice(i, 1);
+                                            if(e.isDisposed()) this.toFlipH.splice(i, 1);
+                                            else {
+                                                dele = e.getDecoratorElement().getDomElement();
+                                                if (dele != null) {
+                                                    dele.style["-moz-transform"] = "scaleX(-1)";
+                                                    dele.style["-o-transform"] = "scaleX(-1)";
+                                                    dele.style["-webkit-transform"] = "scaleX(-1)";
+                                                    dele.style.transform = "scaleX(-1)";
+                                                    dele.style.filter = "FlipH";
+                                                    dele.style["-ms-filter"] = "FlipH";
+                                                    this.toFlipH.splice(i, 1);
+                                                }
                                             }
                                         }
                                     } catch (e2) {
-                                        console.log("Error flipping images.");
+                                        console.log("Error flipping images.", e2.toString());
                                     }
-                                    try {
-                                        var baseCont = qx.core.Init.getApplication().getBaseNavigationBar().getChildren()[0].getChildren()[0].getChildren();
+                                    
+                                        var app = qx.core.Init.getApplication();
+                                        var b = app.getBaseNavigationBar();
+                                        var b2 = b.getChildren()[0];
+                                        var b3 = b2.getChildren()[0];
+                                        var baseCont = b3.getChildren();
                                         for (i = 0; i < baseCont.length; i++) {
                                             var baseButton = baseCont[i];
-                                            if (baseButton.getDecorator() == null) continue;
-                                            if (baseButton.getDecorator().indexOf("focused") >= 0 || baseButton.getDecorator().indexOf("pressed") >= 0) {
-                                                if (!this.pinned) {
-                                                    var top = baseButton.getBounds().top;
-                                                    var infoTop;
-                                                    try {
-                                                        var stickerHeight = this.infoSticker.getContentElement().getDomElement().style.height;
-                                                        stickerHeight = stickerHeight.substring(0, stickerHeight.indexOf("px"));
-                                                        infoTop = Math.min(130 + top, Math.max(660, window.innerHeight) - parseInt(stickerHeight, 10) - 130);
-                                                    } catch (heighterror) {
-                                                        infoTop = 130 + top;
+                                            if (baseButton!=this.mcvPopup && baseButton.getDecorator() != null && baseButton.getBounds().top!=null) {
+                                                if (baseButton.getDecorator().indexOf("focused") >= 0 || baseButton.getDecorator().indexOf("pressed") >= 0) {
+                                                    if(this.locked) {
+                                                        if(!this.pinned) {
+                                                            if(b3.indexOf(this.mcvPopup)>=0) {
+                                                                b3.remove(this.mcvPopup);
+                                                            }
+                                                            //var ind = b3.indexOf(baseButton);
+                                                            //console.log(ind);
+                                                            this.pinLockPos = b3.indexOf(baseButton)+1;
+                                                            b3.addAt(this.mcvPopup, this.pinLockPos);
+                                                            //b3.addAfter(this.mcvPopup, baseButton);
+                                                        } else if(b3.indexOf(this.mcvPopup)<0) {
+                                                            //b3.addAt(this.mcvPopup, this.pinLockPos);
+                                                            b3.addAt(this.mcvPopup, Math.max(0, Math.min(this.pinLockPos, baseCont.length)));
+                                                        }
+                                                        //b3.addAt(this.mcvPopup, ind);
+                                                    } else {
+                                                        if(b3.indexOf(this.mcvPopup)>=0) {
+                                                            b3.remove(this.mcvPopup);
+                                                            //this.infoSticker.show();
+                                                        }
+                                                        if (!this.pinned) {
+                                                            try {
+                                                                var top = baseButton.getBounds().top;
+                                                                var infoTop;
+                                                                try {
+                                                                    var stickerHeight = this.infoSticker.getContentElement().getDomElement().style.height;
+                                                                    stickerHeight = stickerHeight.substring(0, stickerHeight.indexOf("px"));
+                                                                    infoTop = Math.min(130 + top, Math.max(660, window.innerHeight) - parseInt(stickerHeight, 10) - 130);
+                                                                } catch (heighterror) {
+                                                                    infoTop = 130 + top;
+                                                                }
+                                                                this.infoSticker.setDomTop(infoTop);
+                                                                
+                                                                this.pinTop = infoTop;
+                                                            } catch (typeError) {
+                                                                //baseButton.getBounds().top sometimes doesn't exist
+                                                                if (!(typeError instanceof TypeError)) throw typeError;
+                                                            }
+                                                        }
                                                     }
-                                                    this.infoSticker.setDomTop(infoTop);
-
-                                                    this.pinTop = infoTop;
+                                                    break;
                                                 }
-                                                break;
                                             }
                                         }
-                                    } catch (typeError) {
-                                        //baseButton.getBounds().top sometimes doesn't exist
-                                        if (!(typeError instanceof TypeError)) throw typeError;
-                                    }
+                                    
                                 }
                             } catch (ex) {
-                                console.log("InfoSticker.repositionSticker: ", ex);
+                                console.log("InfoSticker.repositionSticker: ", ex.toString());
                             }
+                        },
+                        toLock: function (e) {
+                            this.locked = !this.locked;
+                            if(!this.locked) {
+                                this.infoSticker.show();
+                                this.stickerBackground.add(this.mcvPopup);
+                            }
+                            else this.infoSticker.hide();
+                            this.lockButton.setIcon(this.locked ? "FactionUI/icons/icn_thread_locked_active.png" : "FactionUI/icons/icn_thread_locked_inactive.png");
+                            this.updateLockButtonDecoration();
+                            if (this.hasStorage) {
+                                if (this.locked) {
+                                    localStorage["infoSticker-locked"] = "true";
+                                    if(this.pinned) localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                                } else {
+                                    localStorage["infoSticker-locked"] = "false";
+                                }
+                                
+                            }
+                        },
+                        updateLockButtonDecoration: function () {
+                            var light = "#CDD9DF";
+                            var mid = "#9CA4A8";
+                            var dark = "#8C9499";
+                            this.lockPane.setDecorator(null);
+                            this.lockButtonDecoration = new qx.ui.decoration.Background();
+                            this.lockButtonDecoration.setBackgroundColor(this.locked ? dark : light);
+                            this.lockPane.setDecorator(this.lockButtonDecoration);
                         },
                         toPin: function (e) {
                             this.pinned = !this.pinned;
@@ -205,6 +279,7 @@
                                 if (this.pinned) {
                                     localStorage["infoSticker-pinned"] = "true";
                                     localStorage["infoSticker-top"] = this.pinTop.toString();
+                                    if(this.locked) localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
                                 } else {
                                     localStorage["infoSticker-pinned"] = "false";
                                 }
@@ -215,11 +290,11 @@
                             var mid = "#9CA4A8";
                             var dark = "#8C9499";
                             this.pinPane.setDecorator(null);
-                            this.pinButtonDecoration = new qx.ui.decoration.Beveled().set({
-                                innerOpacity: 0.5
+                            this.pinButtonDecoration = new qx.ui.decoration.Background().set({
+                                //innerOpacity: 0.5
                             });
-                            this.pinButtonDecoration.setInnerColor(this.pinned ? mid : light);
-                            this.pinButtonDecoration.setOuterColor(this.pinned ? light : mid);
+                            //this.pinButtonDecoration.setInnerColor(this.pinned ? mid : light);
+                            //this.pinButtonDecoration.setOuterColor(this.pinned ? light : mid);
                             this.pinButtonDecoration.setBackgroundColor(this.pinned ? dark : light);
                             this.pinPane.setDecorator(this.pinButtonDecoration);
                         },
@@ -234,6 +309,7 @@
                                 this.resourceHideButton.setLabel("-");
                             }
                         },
+                        lastPane: null,
                         createSection: function (parent, titleLabel, visible, visibilityStorageName) {
 							try {
 								var pane = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({
@@ -289,11 +365,12 @@
                                 
 								this.toFlipH.push(pane);
 
+                                this.lastPane = pane;
 								parent.add(pane);
 								
 								return hidePane;
 							} catch(e) {
-								console.log("InfoSticker.createSection: ", e);
+								console.log("InfoSticker.createSection: ", e.toString());
 								throw e;
 							}
                         },
@@ -316,7 +393,224 @@
 
 							return cnt;
 						},
+                        
+                        formatCompactTime: function (time) {
+                            var comps = time.split(":");
+                            
+                            var i = 0;
+                            var value = Math.round(parseInt(comps[i], 10)).toString();
+                            var len = comps.length;
+                            while(value==0) {
+                                value = Math.round(parseInt(comps[++i], 10)).toString();
+                                len--;
+                            }
+                            var unit;
+                            switch(len) {
+                                case 1: unit = "s"; break;
+                                case 2: unit = "m"; break;
+                                case 3: unit = "h"; break;
+                                case 4: unit = "d"; break;
+                            }
+                            return value+unit;
+                        },
+                        createImage: function(icon) {
+                            var image = new qx.ui.basic.Image(icon);
+                            image.setScale(true);
+                            image.setWidth(20);
+                            image.setHeight(20);
+                            return image;
+                        },
+                        createMCVPane: function() {
+                            try {
+                            this.mcvInfoLabel = new qx.ui.basic.Label();
+                            this.mcvTimerLabel = new qx.ui.basic.Label().set({
+                                font: qx.bom.Font.fromString('bold').set({
+                                        size: 18
+                                    }),
+                                textColor: '#282828',
+                                height: 20,
+                                width: 114,
+                                textAlign: 'center'
+                            });
+                            this.mcvTimerCreditProdLabel = new qx.ui.basic.Label().set({
+                                font: qx.bom.Font.fromString('normal').set({
+                                    size: 12
+                                }),
+                                textColor: '#282828',
+                                height: 20,
+                                width: 114,
+                                textAlign: 'center',
+                                marginTop: 4,
+                                marginBottom: -4
+                            });
+                            var app = qx.core.Init.getApplication();
+                            var b3 = app.getBaseNavigationBar().getChildren()[0].getChildren()[0];
+                            var pane = this.createSection(b3, this.mcvInfoLabel, !this.mcvHide, "mcvHide");
+                            pane.add(this.mcvTimerLabel);
+                            pane.add(this.mcvTimerCreditProdLabel);
+                            this.lastPane.setMarginLeft(7);
+                            } catch(e) {
+                                console.log("createMCVPopup", e.toString());
+                            }
+                        },
+                        createMCVPopup: function() {
+                            try {
+                            this.mcvPopup = new qx.ui.container.Composite(new qx.ui.layout.VBox().set({
+                                        spacing: 3,
+                                    })).set({
+                                        paddingLeft: 5,
+                                        width: 105,
+                                        decorator: new qx.ui.decoration.Background()
+                                    });
+                            if(!this.locked) {
+                                this.stickerBackground.add(this.mcvPopup);
+                            }
 
+////////////////////////////----------------------------------------------------------
+                            this.pinButton = new webfrontend.ui.SoundButton().set({
+                                decorator: "button-forum-light",
+                                icon: this.pinned ? "FactionUI/icons/icn_thread_pin_active.png" : "FactionUI/icons/icn_thread_pin_inactive.png",
+                                iconPosition: "top",
+                                show: "icon",
+                                cursor: "pointer",
+                                height: 23,
+                                width: 50,
+                                //maxHeight: 25,
+                                maxWidth: 33,
+                                maxHeight: 19,
+                                alignX: "center"
+                            });
+                            this.pinButton.addListener("execute", this.toPin, this);
+                            
+                            this.pinPane = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({
+                                //width: 50,
+                                maxWidth: 37,
+                            });
+                            
+                            this.updatePinButtonDecoration();
+                            
+                            this.pinPane.setDecorator(this.pinButtonDecoration);
+                            this.pinPane.add(this.pinButton);
+                            //this.mcvPopup.add(this.pinPane);
+                            //this.toFlipH.push(this.pinPane);
+                            
+                            var icon = this.pinButton.getChildControl("icon");
+                            icon.setWidth(15);
+                            icon.setHeight(15);
+                            icon.setScale(true);
+////////////////////////////----------------------------------------------------------
+                            this.lockButton = new webfrontend.ui.SoundButton().set({
+                                decorator: "button-forum-light",
+                                icon: this.pinned ? "FactionUI/icons/icn_thread_locked_active.png" : "FactionUI/icons/icn_thread_locked_inactive.png",
+                                iconPosition: "top",
+                                show: "icon",
+                                cursor: "pointer",
+                                height: 23,
+                                width: 50,
+                                //maxHeight: 25,
+                                maxWidth: 33,
+                                maxHeight: 19,
+                                alignX: "center"
+                            });
+                            this.lockButton.addListener("execute", this.toLock, this);
+                            
+                            this.lockPane = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({
+                                //width: 50,
+                                maxWidth: 37,
+                            });
+                            
+                            this.updateLockButtonDecoration();
+                            
+                            this.lockPane.setDecorator(this.lockButtonDecoration);
+                            this.lockPane.add(this.lockButton);
+                            //this.mcvPopup.add(this.pinPane);
+                            //this.toFlipH.push(this.pinPane);
+                            
+                            icon = this.lockButton.getChildControl("icon");
+                            icon.setWidth(15);
+                            icon.setHeight(15);
+                            icon.setScale(true);
+////////////////////////////----------------------------------------------------------
+                            this.resourceTitleLabel = new qx.ui.basic.Label();
+                            this.resourceTitleLabel.setValue("Base");
+                            var resStyle = {
+                                font: qx.bom.Font.fromString('bold').set({
+                                        size: 14
+                                    }),
+                                textColor: '#282828',
+                                height: 20,
+                                width: 65,
+                                marginLeft: -10,
+                                textAlign: 'right'
+                            };
+                            
+                            this.resourceLabel1 = new qx.ui.basic.Label().set(resStyle);
+                            this.resourceLabel2 = new qx.ui.basic.Label().set(resStyle);
+                            this.resourceLabel3 = new qx.ui.basic.Label().set(resStyle);
+                            
+                            var perStyle = {
+                                font: qx.bom.Font.fromString('bold').set({
+                                    size: 9
+                                }),
+                                textColor: '#282828',
+                                height: 18,
+                                width: 33,
+                                textAlign: 'right'
+                            };
+                            this.resourceLabel1per = new qx.ui.basic.Label().set(perStyle);
+                            this.resourceLabel2per = new qx.ui.basic.Label().set(perStyle);
+                            this.resourceLabel3per = new qx.ui.basic.Label().set(perStyle);
+                            
+                            
+                            var pane3 = this.createSection(this.mcvPopup, this.resourceTitleLabel, !this.resourceHide, "resourceHide");
+                            
+                            
+                            this.repairTimerLabel = new qx.ui.basic.Label().set({
+                                font: qx.bom.Font.fromString('bold').set({
+                                    size: 16
+                                }),
+                                textColor: '#282828',
+                                height: 20,
+                                width: 85,
+                                marginLeft: 0,
+                                textAlign: 'center'
+                            });
+                            pane3.add(this.createHBox(this.createImage(this.repairIcon), this.repairTimerLabel));
+                            
+                            pane3.add(this.createHBox(this.createImage(this.tibIcon), this.resourceLabel1, this.resourceLabel1per));
+                            pane3.add(this.createHBox(this.createImage(this.cryIcon), this.resourceLabel2, this.resourceLabel2per));
+                            pane3.add(this.createHBox(this.createImage(this.powIcon), this.resourceLabel3, this.resourceLabel3per));
+                            
+                            var mcvC = this.mcvPopup.getChildren();
+                            mcvC[mcvC.length-1].getChildren()[0].add(this.pinPane);
+                            mcvC[mcvC.length-1].getChildren()[0].add(this.lockPane);
+////////////////////////////----------------------------------------------------------
+
+                            this.productionTitleLabel = new qx.ui.basic.Label();
+                            this.productionTitleLabel.setValue("Productions");
+                            
+                            var productionStyle = {
+                                font: qx.bom.Font.fromString('bold').set({
+                                    size: 13
+                                }),
+                                textColor: '#282828',
+                                height: 20,
+                                width: 60,
+                                textAlign: 'right',
+                                marginTop: 2,
+                                marginBottom: -2
+                            };
+                            this.productionLabelPower = new qx.ui.basic.Label().set(productionStyle);
+                            this.productionLabelCredit = new qx.ui.basic.Label().set(productionStyle);
+                            
+                            var pane4 = this.createSection(this.mcvPopup, this.productionTitleLabel, !this.productionHide, "productionHide");
+                            pane4.add(this.createHBox(this.createImage(this.powIcon), this.productionLabelPower));
+                            pane4.add(this.createHBox(this.createImage(this.creditIcon), this.productionLabelCredit));
+////////////////////////////----------------------------------------------------------
+                            } catch(e) {
+                                console.log("createMCVPopup", e.toString());
+                            }
+                        },
                         calculateCostsForNextMCV: function () {
                             try {
                                 var self = this;
@@ -325,16 +619,30 @@
                                 var cj = ClientLib.Base.Tech.GetTechIdFromTechNameAndFaction(ClientLib.Base.ETechName.Research_BaseFound, cw);
                                 var cr = player.get_PlayerResearch();
                                 var cd = cr.GetResearchItemFomMdbId(cj);
+                                
+                                var app = qx.core.Init.getApplication();
+                                var b3 = app.getBaseNavigationBar().getChildren()[0].getChildren()[0];
+                                if(b3.getChildren().length==0) return;
                                 if (!this.infoSticker) {
                                     this.infoSticker = new qx.ui.container.Composite(new qx.ui.layout.VBox().set({
                                         alignX: "right"
                                     })).set({
-                                        width: 124,
+                                        width: 105,
                                     });
-                                    var app = qx.core.Init.getApplication();
 
                                     var top = 130;
                                     if (this.hasStorage) {
+                                        var l = localStorage["infoSticker-locked"] == "true";
+                                        if (l != null) {
+                                            this.locked = l;
+                                            var pl = localStorage["infoSticker-pinLock"];
+                                            if(pl!=null) {
+                                                try {
+                                                	this.pinLockPos = parseInt(pl, 10);
+                                                } catch(etm) {}
+                                            }
+                                        }
+                                        
                                         var p = localStorage["infoSticker-pinned"];
                                         var t = localStorage["infoSticker-top"];
                                         if (p != null && t != null) {
@@ -352,167 +660,45 @@
                                         this.resourceHide = localStorage["infoSticker-resourceHide"] == "true";
                                         this.productionHide = localStorage["infoSticker-productionHide"] == "true";
                                     }
+                                    
                                     app.getDesktop().add(this.infoSticker, {
                                         right: 124,
                                         top: top
                                     });
+                                    if(this.locked) {
+                                        this.infoSticker.hide();
+                                    }
 
-                                    this.mcvPopup = new qx.ui.container.Composite(new qx.ui.layout.VBox().set({
-                                        spacing: 3
-                                    })).set({
-                                        paddingLeft: 5,
-                                        width: 120,
+                                    this.stickerBackground = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({
+                                        //paddingLeft: 5,
+                                        width: 105,
                                         decorator: new qx.ui.decoration.Background().set({
                                             backgroundImage: "webfrontend/ui/common/bgr_region_world_select_scaler.png",
                                             backgroundRepeat: "scale",
                                         })
                                     });
-
-                                    var font = qx.bom.Font.fromString('bold').set({
-                                        size: 18
-                                    });
-                                    var font2 = qx.bom.Font.fromString('bold').set({
-                                        size: 14
-                                    });
-                                    var font3 = qx.bom.Font.fromString('bold').set({
-                                        size: 11
-                                    });
-////////////////////////////----------------------------------------------------------
-                                    this.pinButton = new webfrontend.ui.SoundButton().set({
-                                        decorator: "button-forum-light",
-                                        icon: this.pinned ? "FactionUI/icons/icn_thread_pin_active.png" : "FactionUI/icons/icn_thread_pin_inactive.png",
-                                        iconPosition: "top",
-                                        show: "icon",
-                                        cursor: "pointer",
-                                        height: 30,
-                                        maxHeight: 25,
-                                    });
-                                    this.pinButton.addListener("execute", this.toPin, this);
+                                    
+                                    this.createMCVPane();
+                                    this.createMCVPopup();
 									
-                                    this.pinPane = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({
-                                        width: 100,
-                                    });
-									
-                                    this.updatePinButtonDecoration();
-
-                                    this.pinPane.setDecorator(this.pinButtonDecoration);
-                                    this.pinPane.add(this.pinButton);
-                                    this.mcvPopup.add(this.pinPane);
-                                    this.toFlipH.push(this.pinPane);
-////////////////////////////----------------------------------------------------------
-
-                                    this.mcvInfoLabel = new qx.ui.basic.Label();
-                                    this.mcvTimerLabel = new qx.ui.basic.Label().set({
-                                        font: font,
-                                        textColor: '#282828',
-                                        height: 20,
-                                        width: 114,
-                                        textAlign: 'center'
-                                    });
-                                    this.mcvTimerCreditProdLabel = new qx.ui.basic.Label().set({
-                                        font: qx.bom.Font.fromString('normal').set({
-                                            size: 12
-                                        }),
-                                        textColor: '#282828',
-                                        height: 20,
-                                        width: 114,
-                                        textAlign: 'center',
-                                        marginTop: 4,
-                                        marginBottom: -4
-                                    });
-									var pane = this.createSection(this.mcvPopup, this.mcvInfoLabel, !this.mcvHide, "mcvHide");
-                                    pane.add(this.mcvTimerLabel);
-                                    pane.add(this.mcvTimerCreditProdLabel);
-////////////////////////////----------------------------------------------------------
-
-                                    this.repairInfoLabel = new qx.ui.basic.Label();
-                                    this.repairInfoLabel.setValue("Repair time");
-                                    this.repairTimerLabel = new qx.ui.basic.Label().set({
-                                        font: font,
-                                        textColor: '#282828',
-                                        height: 20,
-                                        width: 114,
-                                        textAlign: 'center'
-                                    });
-									var pane2 = this.createSection(this.mcvPopup, this.repairInfoLabel, !this.repairHide, "repairHide");
-                                    pane2.add(this.repairTimerLabel);
-////////////////////////////----------------------------------------------------------
-
-                                    this.resourceTitleLabel = new qx.ui.basic.Label();
-                                    this.resourceTitleLabel.setValue("Resources");
-                                    var resStyle = {
-                                        font: font2,
-                                        textColor: '#282828',
-                                        height: 20,
-                                        width: 55,
-                                        textAlign: 'right'
-                                    };
-
-                                    this.resourceLabel1 = new qx.ui.basic.Label().set(resStyle);
-                                    this.resourceLabel2 = new qx.ui.basic.Label().set(resStyle);
-                                    this.resourceLabel3 = new qx.ui.basic.Label().set(resStyle);
-
-                                    var perStyle = {
-                                        font: font3,
-                                        textColor: '#282828',
-                                        height: 18,
-                                        width: 35,
-                                        textAlign: 'right'
-                                    };
-                                    this.resourceLabel1per = new qx.ui.basic.Label().set(perStyle);
-                                    this.resourceLabel2per = new qx.ui.basic.Label().set(perStyle);
-                                    this.resourceLabel3per = new qx.ui.basic.Label().set(perStyle);
-
-                                    function createImage(icon) {
-                                        var image = new qx.ui.basic.Image(icon);
-                                        image.setScale(true);
-                                        image.setWidth(20);
-                                        image.setHeight(20);
-                                        return image;
-                                    }
-
-                                    var pane3 = this.createSection(this.mcvPopup, this.resourceTitleLabel, !this.resourceHide, "resourceHide");
-
-                                    pane3.add(this.createHBox(createImage(this.tibIcon), this.resourceLabel1, this.resourceLabel1per));
-                                    pane3.add(this.createHBox(createImage(this.cryIcon), this.resourceLabel2, this.resourceLabel2per));
-                                    pane3.add(this.createHBox(createImage(this.powIcon), this.resourceLabel3, this.resourceLabel3per));
-////////////////////////////----------------------------------------------------------
-
-                                    this.productionTitleLabel = new qx.ui.basic.Label();
-                                    this.productionTitleLabel.setValue("Productions");
-
-                                    var productionStyle = {
-                                        font: qx.bom.Font.fromString('bold').set({
-                                            size: 13
-                                        }),
-                                        textColor: '#282828',
-                                        height: 20,
-                                        width: 70,
-                                        textAlign: 'right',
-                                        marginTop: 2,
-                                        marginBottom: -2
-                                    };
-                                    this.productionLabelPower = new qx.ui.basic.Label().set(productionStyle);
-                                    this.productionLabelCredit = new qx.ui.basic.Label().set(productionStyle);
-
-                                    var pane4 = this.createSection(this.mcvPopup, this.productionTitleLabel, !this.productionHide, "productionHide");
-                                    pane4.add(this.createHBox(createImage(this.powIcon), this.productionLabelPower));
-                                    pane4.add(this.createHBox(createImage(this.creditIcon), this.productionLabelCredit));
-////////////////////////////----------------------------------------------------------
-
                                     this.top_image = new qx.ui.basic.Image("webfrontend/ui/common/bgr_region_world_select_end.png");
                                     this.infoSticker.add(this.top_image);
 
-                                    this.infoSticker.add(this.mcvPopup);
+                                    this.infoSticker.add(this.stickerBackground);
+                                    //this.infoSticker.add(this.mcvPopup);
 
                                     this.bot_image = new qx.ui.basic.Image("webfrontend/ui/common/bgr_region_world_select_end.png");
                                     this.infoSticker.add(this.bot_image);
 
                                     this.runPositionTimer();
                                 }
+                                if(this.mcvInfoLabel.isDisposed()) this.createMCVPane();
+                                if(this.mcvPopup.isDisposed()) this.createMCVPopup();
+                                
                                 if (cd == null) {
                                     if (this.mcvPopup) {
-                                        this.mcvInfoLabel.setValue("MCV ($???)");
+                                        //this.mcvInfoLabel.setValue("MCV ($???)");
+                                        this.mcvInfoLabel.setValue("MCV<br>$???");
                                         this.mcvTimerLabel.setValue("Loading");
                                     }
                                 } else {
@@ -529,15 +715,19 @@
                                     var creditsResourceData = player.get_Credits();
                                     var creditGrowthPerHour = (creditsResourceData.Delta + creditsResourceData.ExtraBonusDelta) * ClientLib.Data.MainData.GetInstance().get_Time().get_StepsPerHour();
                                     var creditTimeLeftInHours = (creditsNeeded - player.GetCreditsCount()) / creditGrowthPerHour;
-
                                     this.mcvInfoLabel.setValue("MCV ($ " + this.formatNumbersCompact(creditsNeeded) + ")");
+                                    //this.mcvInfoLabel.setValue("MCV<br>$" + this.formatNumbersCompact(creditsNeeded));
                                     this.mcvTimerCreditProdLabel.setValue("at " + this.formatNumbersCompact(creditGrowthPerHour) + "/h");
                                     if (creditTimeLeftInHours <= 0) {
                                         this.mcvTimerLabel.setValue("Ready");
                                     } else if (creditGrowthPerHour == 0) {
                                         this.mcvTimerLabel.setValue("Never");
                                     } else {
-                                        this.mcvTimerLabel.setValue(this.FormatTimespan(creditTimeLeftInHours * 60 * 60));
+                                        if(creditTimeLeftInHours >= 24 * 100) {
+                                            this.mcvTimerLabel.setValue("> 99 days");
+                                        } else {
+                                            this.mcvTimerLabel.setValue(this.FormatTimespan(creditTimeLeftInHours * 60 * 60));
+                                        }
                                     }
                                 }
 
@@ -596,7 +786,7 @@
                                     this.productionLabelCredit.setValue(this.formatNumbersCompact(creditProd) + "/h");
                                 }
                             } catch (e) {
-                                console.log("calculateCostsForNextMCV", e);
+                                console.log("calculateCostsForNextMCV", e.toString());
                             }
                         },
                         formatPercent: function (value) {
@@ -680,7 +870,7 @@
                 });
             }
         } catch (e) {
-            console.log("createInfoSticker: ", e);
+            console.log("createInfoSticker: ", e.toString());
         }
 
         function InfoSticker_checkIfLoaded() {
@@ -692,7 +882,7 @@
                     window.setTimeout(InfoSticker_checkIfLoaded, 1000);
                 }
             } catch (e) {
-                console.log("InfoSticker_checkIfLoaded: ", e);
+                console.log("InfoSticker_checkIfLoaded: ", e.toString());
             }
         }
         if (/commandandconquer\.com/i.test(document.domain)) {
@@ -707,6 +897,6 @@
             document.getElementsByTagName("head")[0].appendChild(InfoStickerScript);
         }
     } catch (e) {
-        console.log("InfoSticker: init error: ", e);
+        console.log("InfoSticker: init error: ", e.toString());
     }
 })();

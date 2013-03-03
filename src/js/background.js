@@ -54,11 +54,6 @@ var DEFAULT_SCRIPTS = [{
     version : "0.4",
     enabled : false
 }, {
-    id : 145168,
-    name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
-    version : "1.7.1",
-    enabled : true
-}, {
     id : 149809,
     name : "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
     version : "0.4",
@@ -96,7 +91,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158565,
     name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version: "20130301a",
+    version: "20130301d",
     enabled: true
 }, {
     id: 154546,
@@ -126,7 +121,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 155157,
     name: "Tiberium Alliances Info Sticker",
-    version: "1.7.1",
+    version: "1.9",
     enabled: false
 }];
 
