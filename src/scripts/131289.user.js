@@ -1,5 +1,7 @@
 // ==UserScript==
-// @version       1.7.3
+// @version       1.7.5
+// @updateURL     https://userscripts.org/scripts/source/131289.meta.js
+// @downloadURL   https://userscripts.org/scripts/source/131289.user.js
 // @name          C&C:TA CNCOpt Link Button
 // @namespace     http://cncopt.com/
 // @icon          http://cncopt.com/favicon.ico
@@ -7,7 +9,6 @@
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include       http*://*.cncopt.com/*
 // @include       http*://cncopt.com/*
-// @require       http://sizzlemctwizzle.com/updater.php?id=131289&days=1
 // @grant         GM_log
 // @grant         GM_setValue
 // @grant         GM_getValue
@@ -16,17 +17,19 @@
 // @grant         GM_updatingEnabled
 // @grant         unsafeWindow
 // @contributor   PythEch (http://http://userscripts.org/users/220246)
+// @contributor   jerbri (http://userscripts.org/users/507954)
 // ==/UserScript==
 /* 
 
-Special thanks to PythEch for fixing this up so it worked again!
+2013-03-03: Special thanks to jerbri for fixing this up so it worked again!
+2012-11-25: Special thanks to PythEch for fixing this up so it worked again!
+
 */
-unsafeWindow=window;
 var scity = null;
 var tcity = null;
 var tbase = null;
 try {
-  unsafeWindow.__cncopt_version = "1.7.3";
+  unsafeWindow.__cncopt_version = "1.7.5";
   (function () {
     var cncopt_main = function () {
 
@@ -134,7 +137,7 @@ try {
         var cityBuildings = city.get_CityBuildingsData();
         for (var k in cityBuildings) {
           if (PerforceChangelist >= 376877) {
-            if ((typeof (cityBuildings[k]) === "object") && cityBuildings[k] && "d" in cityBuildings[k]) {
+            if ((typeof (cityBuildings[k]) === "object") && cityBuildings[k] && "d" in cityBuildings[k] && "c" in cityBuildings[k] && cityBuildings[k].c > 0) {
               return cityBuildings[k].d;
             }
           } else {
@@ -688,7 +691,7 @@ try {
         } catch (e) {
           if (typeof console != 'undefined') console.log(e);
           else if (window.opera) opera.postError(e);
-          else console.log(e);
+          else GM_log(e);
         }
       }
       if (/commandandconquer\.com/i.test(document.domain)) window.setTimeout(cnc_check_if_loaded, 1000);
@@ -703,5 +706,5 @@ try {
     if (/commandandconquer\.com/i.test(document.domain)) document.getElementsByTagName("head")[0].appendChild(script_block);
   })();
 } catch (e) {
-  console.log(e);
+  GM_log(e);
 }
