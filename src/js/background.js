@@ -128,6 +128,11 @@ var DEFAULT_SCRIPTS = [{
     name: "Tiberium Alliances Info Sticker",
     version: "1.10",
     enabled: false
+}, {
+    id: 159496,
+    name: "CnC:Tiberium Aliances Navigator - Compass",
+    version: "1.1.0",
+    enabled: false
 }];
 
 var storage = chrome.storage.sync;
