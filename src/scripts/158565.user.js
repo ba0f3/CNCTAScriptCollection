@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      Flunik dbendure RobertT KRS_L
-// @version     20130301d
+// @version     20130305a
 // ==/UserScript==
 
 /*
@@ -16,7 +16,7 @@ Script does this (in this order):
 4. if crystal is more than 80% full and your offence is maxed out try to upgrade CC 
 5. if #4 is true but you cant upgrade your CC (or you dont have one) and defence is maxed out try to upgrade DHQ 
 6. if your CY < level 25 upgrade CY 
-7. if your CC < base level upgrade CC 
+7. (removed for testing) if your CC < base level upgrade CC 
 8. if your offence is maxed out upgrade CC 
 9. if your DHQ is two levels below CC and defence is maxed upgrade DHQ 
 10. if you have no CC and defence is maxed upgrade DHQ 
@@ -24,7 +24,7 @@ Script does this (in this order):
 12. if Defensive support building < DHQ then upgrade support 
 13. if repair time > 6 hours upgrade repair structure 
 14. if repair time > 4 hours and repair structure level < CC upgrade repair structure 
-15. if lowest building is 6 levels below base level and we have at least 20% tiberium upgrade lowest building
+15. if lowest building level is below 0.66*base level and we have at least 20% tiberium upgrade lowest building
 16. Priority calculations are made depending upon buildings existing. Lowest cost of those calculations is built if tiberium > 20%.
 	A. If harvesters exist priority calculations are done for Crystal and Tiberium
 	B. If #PP > #REF then base is power base and priority calculation is done for power
@@ -68,13 +68,14 @@ intelligent.
 							console.log('Custom FLUNIKTOLS initialize');
 							AutoUpdateButton = new qx.ui.form.Button("Flunik", null).set({
 								toolTipText: "Flunik",
-								width: 100,
-								height: 40,
-								maxWidth: 100,
-								maxHeight: 40,
-								appearance: ("button-playarea-mode-frame"), //"button-standard-"+factionText), button-playarea-mode-red-frame
+								appearance: ("button-text-small"), //"button-standard-"+factionText), button-playarea-mode-red-frame
 								center: true
 							});
+//							width: 100,
+//							height: 40,
+//							maxWidth: 100,
+//							maxHeight: 40,
+//							appearance: ("button-playarea-mode-frame"), //"button-standard-"+factionText), button-playarea-mode-red-frame
 
 							AutoUpdateButton.addListener("click", function (e) {
 								if (window.FlunikTools.Main.getInstance().autoUpdateHandle != null) {
@@ -91,9 +92,11 @@ intelligent.
 
 							var app = qx.core.Init.getApplication();
 
+//							right: 120,
+//							bottom: 80
 							app.getDesktop().add(AutoUpdateButton, {
-								right: 120,
-								bottom: 80
+								right: 0,
+								bottom: 55
 							});
 
 						},
@@ -183,8 +186,10 @@ intelligent.
 //								var crystalisfull = FlunikTools.Main.prototype.get_IsFull(city, ClientLib.Base.EResourceType.Crystal);
 								
   	  
-								
-				                      
+											                     
+								if (cityname.indexOf('_') !== -1) {
+									continue;
+								}
 				                      
 								
 //								console.debug("FLUNIK: Tiberium current %d max %d",city.GetResourceCount(ClientLib.Base.EResourceType.Tiberium),city.GetResourceMaxStorage(ClientLib.Base.EResourceType.Tiberium));
@@ -439,6 +444,7 @@ intelligent.
 									}
 								};
 
+								/* Dont think this is necessary..
 								if (CC != null) { 
 									if (CC.get_CurrentLevel() < baselvl) {
 										if (CC.CanUpgrade()) {
@@ -456,6 +462,7 @@ intelligent.
 										};
 									}
 								};
+								*/
 
 								if (CC != null) { 
 									if (CC.get_CurrentLevel() == lowestoffencelevel) {
@@ -577,9 +584,9 @@ intelligent.
 								};
 
 								if (lowestbuilding != null) { 
-									if (lowestbuildinglevel+6<baselvl && currenttibpct>20) {
+									if (lowestbuildinglevel<0.66*baselvl && currenttibpct>2) {
 										//console.debug("FLUNIK: %d Default upgrade - lowest building is %d level %d",cityname, lowestbuildingname, lowestbuildinglevel);
-										console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: lowest+6<baselvl "+lowestbuildingname+" lvl: "+lowestbuildinglevel)
+										console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: lowest<0.66*baselvl "+lowestbuildingname+" lvl: "+lowestbuildinglevel)
 										lowestbuilding.Upgrade();
 										return;
 									}
