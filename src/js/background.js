@@ -1,7 +1,7 @@
 var DEFAULT_SCRIPTS = [{
     id : 131289,
     name : "C&C:TA CNCOpt Link Button",
-    version : "1.7.3",
+    version : "1.7.5",
     enabled : true
 }, {
     id : 136299,
@@ -53,6 +53,11 @@ var DEFAULT_SCRIPTS = [{
     name : "C&C Combat Simulator",
     version : "0.4",
     enabled : false
+}, {
+    id : 145168,
+    name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
+    version : "1.7.1",
+    enabled : true
 }, {
     id : 149809,
     name : "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
@@ -121,7 +126,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 155157,
     name: "Tiberium Alliances Info Sticker",
-    version: "1.9",
+    version: "1.10",
     enabled: false
 }];
 
