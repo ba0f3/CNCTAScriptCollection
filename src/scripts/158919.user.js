@@ -720,7 +720,7 @@
                                 	var width =  visCity.get_GridWidth();
                                 	var height =  visCity.get_GridHeight();
                                 
-                               		var cityEntity = visCity.GetCityObjectFromPosition(x * width, y * height);
+                               		var cityEntity = visCity.GetObjectFromPosition(x * width, y * height);
                                     
                                     if (cityEntity != null && cityEntity.get_CityEntity() !== null)
                                     {
@@ -2029,7 +2029,7 @@
 						{
 							for (var y = 0; y < 8; y++)
 							{
-								var cityEntity = visCity.GetCityObjectFromPosition(x * width, y * height);
+								var cityEntity = visCity.GetObjectFromPosition(x * width, y * height);
 								if (cityEntity != null)
 								{
 									if (cityEntity.get_VisObjectType() == ClientLib.Vis.VisObject.EObjectType.CityBuildingType)
@@ -2162,7 +2162,7 @@
 								
 							var gainPerCostRatio = (upgradeGPH[selection] / totalCosts) * 100;	
 							
-							var visBuilding = visCity.GetCityObjectFromPosition(buildingsData[idx].get_CoordX() * width, buildingsData[idx].get_CoordY() * height);
+							var visBuilding = visCity.GetObjectFromPosition(buildingsData[idx].get_CoordX() * width, buildingsData[idx].get_CoordY() * height);
 							
 							var upgradeInfo = 
 							{

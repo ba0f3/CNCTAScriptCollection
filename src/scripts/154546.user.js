@@ -3,7 +3,7 @@
 // @description 	Combat Simulator used to plan and strategize attack before going into battle. This script layout is based off of Topper42's EA API example script.
 // @namespace      	http*://*.alliances.commandandconquer.com/*
 // @include        	http*://*.alliances.commandandconquer.com/*
-// @version 		3.2.1
+// @version 		3.2.2
 // @downloadURL    	http://userscripts.org/scripts/source/154546.user.js
 // @author 		Peluski17
 // @grant 		none
@@ -12,8 +12,8 @@
 /**
  *	Although I am the author of this script, I want to also give credit to other authors who's methods and ideas are or might appear in this script. 
  * 	Credits: Topper42, Eferz98, KRS_L, PythEch, MrHIDEn, Panavia2, Deyhak, CodeEcho, 
- *		 Matthias Fuchs, Enceladus, TheLuminary, Da Xue, Quor, WildKatana
- */ 
+ *	Matthias Fuchs, Enceladus, TheLuminary, Da Xue, Quor, WildKatana
+*/ 
 
 (function(){
 	var injectFunction = function() 
@@ -50,6 +50,7 @@
 					try 
 					{						
 						armyBar = qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_ATTACKSETUP);
+						
 						//Simulator Button//
 						simBtn = new qx.ui.form.Button("Simulate");
 						simBtn.set
@@ -1249,9 +1250,9 @@
 							{
 								dmgRatio = (sHealth / 16) / mHealth;
 							}
-							
+							//var currOwnCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
 							var costs = ClientLib.API.Util.GetUnitRepairCosts(level, id, dmgRatio);
-							
+
 							for (var idx = 0; idx < costs.length; idx++)
 							{
 								var uCosts = costs[idx];
@@ -1290,7 +1291,7 @@
 							var dfSH = 0, dfEH = 0, dfMH = 0, dfHP = 0;
 							var costs = {};
 							var entities = []; //for calculating loot 
-							var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
+							var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
 							var defBonus = city.get_AllianceDefenseBonus();
 							for (var idx = 0; idx < data.length; idx++)
 							{
@@ -1300,21 +1301,21 @@
 								var level = unitData.l;
 								var sHealth = unitData.sh;
 								var eHealth = unitData.h;
-								var mHealth = Simulator.getInstance().GetUnitMaxHealth(level, unit);
-								
+								var mHealth = Simulator.getInstance().GetUnitMaxHealth(level, unit, false);
+
 								//for factoring in Player's durability boost from POI's
-								if (city != null && unit.pt != ClientLib.Base.EPlacementType.Offense)
+								/*if (city != null && unit.pt != ClientLib.Base.EPlacementType.Offense)
 								{
 									var cityType = city.get_CityFaction();
 									switch(cityType)
 									{
 										case ClientLib.Base.EFactionType.GDIFaction:
 										case ClientLib.Base.EFactionType.NODFaction:
-											var mod = ClientLib.Vis.VisMain.GetInstance().get_Battleground().GetNerfAndBoostModifier(level, defBonus);			
-											mHealth = Math.round(mHealth * (mod / 100));
+											//var mod = ClientLib.Vis.VisMain.GetInstance().get_Battleground().GetNerfAndBoostModifier(level, defBonus);	
+											var mod = ClientLib.Base.Util.GetNerfAndBoostModifier(level, defBonus);
 											break;
 									}
-								}
+								}*/
 								
 								var pType = unit.pt;
 								var mType = unit.mt;
@@ -1371,6 +1372,7 @@
 											case 151:
 											case 112:
 											case 177: //Construction Yard
+												cySH = sHealth;
 												cyMH = mHealth;
 												cyEH = eHealth;
 												break;
@@ -1394,8 +1396,7 @@
 							var allOffRT = phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(Math.max(infRT, vehiRT, airRT)));
 							infRT = phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(infRT));
 							vehiRT = phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(vehiRT));
-							airRT = phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(airRT));				
-							
+							airRT = phe.cnc.Util.getTimespanString(ClientLib.Data.MainData.GetInstance().get_Time().GetTimeSpan(airRT));		
 							allHP = (allMH == 0) ? 100 : (allEH / (allMH * 16)) * 100;
 							baseHP = (baseMH == 0) ? 100 : (baseEH / (baseMH * 16)) * 100;	
 							defHP = (defMH == 0) ? 100 : (defEH / (defMH * 16)) * 100;
@@ -1552,7 +1553,7 @@
                                 
                                 	//Per the forums we should multiply x by the width and y by the height
                                     //Well GetObjectFromPosition doesn't work which is in the ClientLib.js.txt, but KRS_L has found the new function
-                               		var cityEntity =  ClientLib.Vis.VisMain.GetInstance().get_City().GetCityObjectFromPosition(x * width, y * height);
+                               		var cityEntity =  ClientLib.Vis.VisMain.GetInstance().GetObjectFromPosition(x * width, y * height);
                                     
                                     //Ok we have the city object or at least we hope we do. 
                                     //Forums says this can return empty fields so we need to check for that
@@ -1568,7 +1569,7 @@
 
                                                 //We've got a match!
                                                 if (unit.dn == cityEntity.get_BuildingName())
-                                                {         											
+                                                {         	
 													mHealth = Simulator.getInstance().GetUnitMaxHealth(entity.l, unit);
 													mod = ((entity.sh  - entity.h) / 16) / mHealth;
 													if (unit.dn == "Harvester") 
@@ -1614,10 +1615,25 @@
                                         //reset mod
                                         mod = -1;
                                     }
-                                    
+								}
+							}
+                            
+							for (var x = 0; x < 9; x++)
+                            {
+								
+                                //Inner loop will be Y should be 8 slots or 0-7
+								for (var y = 8; y < 16; y++)
+								{
+									var width =  ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().get_GridWidth();
+									var height =  ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().get_GridHeight(); 
+									if (y == 8)
+									{
+										width += 1;
+										height += 1;
+									}
                                     //Now do the same for defense units
-                                    var defEntity = ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().GetDefenseObjectFromPosition(x * width, y * height);
-                                    if (defEntity !== null && defEntity.get_CityEntity() !== null) 
+                                    var defEntity = ClientLib.Vis.VisMain.GetInstance().GetObjectFromPosition(x * width, y * height);
+                                    if (defEntity !== null && defEntity.get_CityEntity() !== null && defEntity.get_VisObjectType() != ClientLib.Vis.VisObject.EObjectType.CityBuildingType) 
                                     {
                                         if (typeof entities != 'undefined')
                                         {
@@ -2874,19 +2890,40 @@
 							if (typeof ClientLib.API.Util.GetUnitMaxHealth == 'undefined')
 								for (var key in ClientLib.Base.Util)
 								{
-									console.log("LOOPING");
 									var strFunction = ClientLib.Base.Util[key].toString();
-									console.log(strFunction + " HELLO");
-
 									if ( strFunction.indexOf("*=1.1") > -1 || strFunction.indexOf("*= 1.1") > -1)
 									{
-										console.log("IN HERE!");
-											Simulator.getInstance().GetUnitMaxHealth = ClientLib.Base.Util[key];
-											break;
+										Simulator.getInstance().GetUnitMaxHealth = ClientLib.Base.Util[key];
+										break;
 									}
 								}
 							else
 								Simulator.getInstance().GetUnitMaxHealth = ClientLib.API.Util.GetUnitMaxHealth;    
+								
+							//Thanks to KRS_L for this next section solving the repair calculations until the new patch is on every server
+							if (PerforceChangelist >= 392583) {
+                            var u = "" + ClientLib.Data.Cities.prototype.get_CurrentCity;
+                            for (var a in ClientLib.Data.Cities.prototype) if (ClientLib.Data.Cities.prototype.hasOwnProperty(a) && "function" == typeof ClientLib.Data.Cities.prototype[a]) {
+                                var l = "" + ClientLib.Data.Cities.prototype[a];
+                                if (l.indexOf(u) > -1 && 6 == a.length) {
+                                    u = a;
+                                    break
+                                }
+                            }
+                            var c = "" + ClientLib.Data.Cities.prototype.get_CurrentOwnCity;
+                            for (var h in ClientLib.Data.Cities.prototype) if (ClientLib.Data.Cities.prototype.hasOwnProperty(h) && "function" == typeof ClientLib.Data.Cities.prototype[h]) {
+                                var p = "" + ClientLib.Data.Cities.prototype[h];
+                                if (p.indexOf(c) > -1 && 6 == h.length) {
+                                    c = h;
+                                    break
+                                }
+                            }
+                            var s = "" + ClientLib.API.Util.GetUnitRepairCosts;
+                            s = s.replace(u, c);
+                            var d = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}")),
+                                v = Function("a,b,c", d);
+                            ClientLib.API.Util.GetUnitRepairCosts = v
+							}
 								
 							Simulator.getInstance();
 							Simulator.StatWindow.getInstance();

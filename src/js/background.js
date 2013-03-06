@@ -95,13 +95,13 @@ var DEFAULT_SCRIPTS = [{
     enabled: false
 }, {
     id: 158565,
-    name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version: "20130301d",
+    name: "CustomFlunik Tools",
+    version: "20130305a",
     enabled: true
 }, {
     id: 154546,
     name: "The Green Cross - Tiberium Alliances Combat Simulator",
-    version: "3.2.1",
+    version: "3.2.2",
     enabled: false
 }, {
     id: 158164,
@@ -126,12 +126,17 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 155157,
     name: "Tiberium Alliances Info Sticker",
-    version: "1.10",
+    version: "1.11.1",
     enabled: false
 }, {
     id: 159496,
     name: "CnC:Tiberium Aliances Navigator - Compass",
     version: "1.1.0",
+    enabled: false
+}, {
+    id: 158869,
+    name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
+    version:  "0.5.7.02",
     enabled: false
 }];
 

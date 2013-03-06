@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       Tiberium Alliances Info Sticker
 // @namespace  TAInfoSticker
-// @version    1.10
+// @version    1.11.1
 // @description  Based on Maelstrom Dev Tools. Modified MCV timer, repair time label, resource labels.
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author unicode
@@ -74,7 +74,8 @@
                         mcvPopup: null,
                         mcvTimerLabel: null,
                         mcvInfoLabel: null,
-
+                        mcvPane: null,
+                        
                         repairPopup: null,
                         repairTimerLabel: null,
 
@@ -159,8 +160,8 @@
                         },
                         
                         repositionSticker: function () {
-                            var i;
                             try {
+                            	var i;
                                 
                                 if (this.infoSticker && !this.mcvInfoLabel.isDisposed() && !this.mcvPopup.isDisposed()) {
                                     var dele;
@@ -250,30 +251,34 @@
                             }
                         },
                         toLock: function (e) {
-                            this.locked = !this.locked;
-                            if(!this.locked) {
-                                this.infoSticker.show();
-                                this.stickerBackground.add(this.mcvPopup);
-                            }
-                            else this.infoSticker.hide();
-                            this.lockButton.setIcon(this.locked ? "FactionUI/icons/icn_thread_locked_active.png" : "FactionUI/icons/icn_thread_locked_inactive.png");
-                            this.updateLockButtonDecoration();
-                            if (this.hasStorage) {
-                                if (this.locked) {
-                                    localStorage["infoSticker-locked"] = "true";
-                                    if(this.pinned) localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
-                                } else {
-                                    localStorage["infoSticker-locked"] = "false";
+                            try {
+                                this.locked = !this.locked;
+                                if(!this.locked) {
+                                    this.infoSticker.show();
+                                    this.stickerBackground.add(this.mcvPopup);
                                 }
+                                else this.infoSticker.hide();
+                                this.lockButton.setIcon(this.locked ? "FactionUI/icons/icn_thread_locked_active.png" : "FactionUI/icons/icn_thread_locked_inactive.png");
+                                this.updateLockButtonDecoration();
+                                if (this.hasStorage) {
+                                    if (this.locked) {
+                                        localStorage["infoSticker-locked"] = "true";
+                                        if(this.pinned) localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                                    } else {
+                                        localStorage["infoSticker-locked"] = "false";
+                                    }
+                                }
+                                if(this.locked && this.pinned) {
+                                    this.menuUpButton.setEnabled(true);
+                                    this.menuDownButton.setEnabled(true);
+                                } else {
+                                    this.menuUpButton.setEnabled(false);
+                                    this.menuDownButton.setEnabled(false);
+                                }
+                                this.repositionSticker();
+                            } catch(e) {
+                                console.log("InfoSticker.toLock: ", e.toString());
                             }
-                            if(this.locked && this.pinned) {
-                                this.menuUpButton.setEnabled(true);
-                                this.menuDownButton.setEnabled(true);
-                            } else {
-                                this.menuUpButton.setEnabled(false);
-                                this.menuDownButton.setEnabled(false);
-                            }
-                            this.repositionSticker();
                         },
                         updateLockButtonDecoration: function () {
                             var light = "#CDD9DF";
@@ -285,26 +290,30 @@
                             this.lockPane.setDecorator(this.lockButtonDecoration);
                         },
                         toPin: function (e) {
-                            this.pinned = !this.pinned;
-                            this.pinButton.setIcon(this.pinned ? "FactionUI/icons/icn_thread_pin_active.png" : "FactionUI/icons/icn_thread_pin_inactive.png");
-                            this.updatePinButtonDecoration();
-                            if (this.hasStorage) {
-                                if (this.pinned) {
-                                    localStorage["infoSticker-pinned"] = "true";
-                                    localStorage["infoSticker-top"] = this.pinTop.toString();
-                                    if(this.locked) {
-                                        localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                            try {
+                                this.pinned = !this.pinned;
+                                this.pinButton.setIcon(this.pinned ? "FactionUI/icons/icn_thread_pin_active.png" : "FactionUI/icons/icn_thread_pin_inactive.png");
+                                this.updatePinButtonDecoration();
+                                if (this.hasStorage) {
+                                    if (this.pinned) {
+                                        localStorage["infoSticker-pinned"] = "true";
+                                        localStorage["infoSticker-top"] = this.pinTop.toString();
+                                        if(this.locked) {
+                                            localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                                        }
+                                    } else {
+                                        localStorage["infoSticker-pinned"] = "false";
                                     }
-                                } else {
-                                    localStorage["infoSticker-pinned"] = "false";
                                 }
-                            }
-                            if(this.locked && this.pinned) {
-                                this.menuUpButton.setEnabled(true);
-                                this.menuDownButton.setEnabled(true);
-                            } else {
-                                this.menuUpButton.setEnabled(false);
-                                this.menuDownButton.setEnabled(false);
+                                if(this.locked && this.pinned) {
+                                    this.menuUpButton.setEnabled(true);
+                                    this.menuDownButton.setEnabled(true);
+                                } else {
+                                    this.menuUpButton.setEnabled(false);
+                                    this.menuDownButton.setEnabled(false);
+                                }
+                            } catch(e) {
+                                console.log("InfoSticker.toPin: ", e.toString());
                             }
                         },
                         updatePinButtonDecoration: function () {
@@ -321,14 +330,18 @@
                             this.pinPane.setDecorator(this.pinButtonDecoration);
                         },
                         hideResource: function () {
-                            //if(this.resourceHidden) 
-                            if (this.resourcePane.isVisible()) {
-                                //this.resourcePane.hide();
-                                this.resourcePane.exclude();
-                                this.resourceHideButton.setLabel("+");
-                            } else {
-                                this.resourcePane.show();
-                                this.resourceHideButton.setLabel("-");
+                            try {
+                                //if(this.resourceHidden) 
+                                if (this.resourcePane.isVisible()) {
+                                    //this.resourcePane.hide();
+                                    this.resourcePane.exclude();
+                                    this.resourceHideButton.setLabel("+");
+                                } else {
+                                    this.resourcePane.show();
+                                    this.resourceHideButton.setLabel("-");
+                                }
+                            } catch(e) {
+                                console.log("InfoSticker.hideResource: ", e.toString());
                             }
                         },
                         lastPane: null,
@@ -442,57 +455,70 @@
                             image.setHeight(20);
                             return image;
                         },
+
                         createMCVPane: function() {
                             try {
-                            this.mcvInfoLabel = new qx.ui.basic.Label();
-                            this.mcvTimerLabel = new qx.ui.basic.Label().set({
-                                font: qx.bom.Font.fromString('bold').set({
-                                        size: 18
+                                this.mcvInfoLabel = new qx.ui.basic.Label();
+                                this.mcvTimerLabel = new qx.ui.basic.Label().set({
+                                    font: qx.bom.Font.fromString('bold').set({
+                                            size: 18
+                                        }),
+                                    textColor: '#282828',
+                                    height: 20,
+                                    width: 114,
+                                    textAlign: 'center'
+                                });
+                                this.mcvTimerCreditProdLabel = new qx.ui.basic.Label().set({
+                                    font: qx.bom.Font.fromString('normal').set({
+                                        size: 12
                                     }),
-                                textColor: '#282828',
-                                height: 20,
-                                width: 114,
-                                textAlign: 'center'
-                            });
-                            this.mcvTimerCreditProdLabel = new qx.ui.basic.Label().set({
-                                font: qx.bom.Font.fromString('normal').set({
-                                    size: 12
-                                }),
-                                textColor: '#282828',
-                                height: 20,
-                                width: 114,
-                                textAlign: 'center',
-                                marginTop: 4,
-                                marginBottom: -4
-                            });
-                            var app = qx.core.Init.getApplication();
-                            var b3 = app.getBaseNavigationBar().getChildren()[0].getChildren()[0];
-                            var pane = this.createSection(b3, this.mcvInfoLabel, !this.mcvHide, "mcvHide");
-                            pane.add(this.mcvTimerLabel);
-                            pane.add(this.mcvTimerCreditProdLabel);
-                            this.lastPane.setMarginLeft(7);
+                                    textColor: '#282828',
+                                    height: 20,
+                                    width: 114,
+                                    textAlign: 'center',
+                                    marginTop: 4,
+                                    marginBottom: -4
+                                });
+                                var app = qx.core.Init.getApplication();
+                                var b3 = app.getBaseNavigationBar().getChildren()[0].getChildren()[0];
+                                
+                                
+                                var pane = this.createSection(b3, this.mcvInfoLabel, !this.mcvHide, "mcvHide");
+                                pane.add(this.mcvTimerLabel);
+                                pane.add(this.mcvTimerCreditProdLabel);
+                                this.mcvPane = this.lastPane;
+                                this.lastPane.setMarginLeft(7);
+                                
                             } catch(e) {
                                 console.log("InfoSticker.createMCVPopup", e.toString());
                             }
                         },
                         moveStickerUp: function() {
-                            var baseListBar = this.getBaseListBar();
-                            this.pinLockPos=Math.max(0, this.pinLockPos-1);
-                            if(baseListBar.indexOf(this.mcvPopup)>=0) {
-                                baseListBar.remove(this.mcvPopup);
-                            }
-                            if (this.hasStorage) {
-                                localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                            try {
+                                var baseListBar = this.getBaseListBar();
+                                this.pinLockPos=Math.max(0, this.pinLockPos-1);
+                                if(baseListBar.indexOf(this.mcvPopup)>=0) {
+                                    baseListBar.remove(this.mcvPopup);
+                                }
+                                if (this.hasStorage) {
+                                    localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                                }
+                            } catch(e) {
+                                console.log("InfoSticker.moveStickerUp", e.toString());
                             }
                         },
                         moveStickerDown: function() {
-                            var baseListBar = this.getBaseListBar();
-                            this.pinLockPos=Math.min(baseListBar.getChildren().length, this.pinLockPos+1);
-                            if(baseListBar.indexOf(this.mcvPopup)>=0) {
-                                baseListBar.remove(this.mcvPopup);
-                            }
-                            if (this.hasStorage) {
-                                localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                            try {
+                                var baseListBar = this.getBaseListBar();
+                                this.pinLockPos=Math.min(baseListBar.getChildren().length, this.pinLockPos+1);
+                                if(baseListBar.indexOf(this.mcvPopup)>=0) {
+                                    baseListBar.remove(this.mcvPopup);
+                                }
+                                if (this.hasStorage) {
+                                    localStorage["infoSticker-pinLock"] = this.pinLockPos.toString();
+                                }
+                            } catch(e) {
+                                console.log("InfoSticker.moveStickerDown", e.toString());
                             }
                         },
                         menuUpButton: null,
@@ -677,22 +703,48 @@
                             this.repositionSticker();
                         },
                         disposeRecover: function() {
-                            if(this.mcvInfoLabel.isDisposed()) {
-                                this.createMCVPane();
-                            }
-                            if(this.mcvPopup.isDisposed()) {
-                                this.createMCVPopup();
+                            
+                            try {
+                                if(this.mcvPane.isDisposed()) {
+                                    this.createMCVPane();
+                                }
                                 
-                                this.repositionSticker();
+                                if(this.mcvPopup.isDisposed()) {
+                                    this.createMCVPopup();
+                                    
+                                    this.repositionSticker();
+                                }
+                                this.waitingRecovery = false;
+                            } catch(e) {
+                                console.log("InfoSticker: disposeRecover", e.toString());
                             }
+                            
                         },
-                        cityChange: function() {
-                        },
+                        waitingRecovery: false,
                         citiesChange: function() {
-                            var self = this;
-                            window.setTimeout(function () {
-                                self.disposeRecover();
-                            }, 1);
+                            try {
+                                var self = this;
+                                var baseListBar = this.getBaseListBar();
+                                this.disposeRecover();
+                                
+                                if(baseListBar.indexOf(this.mcvPopup)>=0) {
+                                    baseListBar.remove(this.mcvPopup);
+                                    this.mcvPopup.dispose();
+                                }
+                                
+                                if(baseListBar.indexOf(this.mcvPane)>=0) {
+                                    baseListBar.remove(this.mcvPane);
+                                    this.mcvPane.dispose();
+                                }
+                                if(!this.waitingRecovery) {
+                                    this.waitingRecovery = true;
+                                    window.setTimeout(function () {
+                                        self.disposeRecover();
+                                    }, 10);
+                                }
+                            } catch(e) {
+                                console.log("InfoSticker: citiesChange", e.toString());
+                            }
                         },
                         calculateInfoData: function () {
                             try {
@@ -786,14 +838,6 @@
 
                                     try {
                                         this.attachEvent(ClientLib.Data.MainData.GetInstance().get_Cities(), "CurrentOwnChange", ClientLib.Data.CurrentOwnCityChange, this, this.currentCityChange);
-                                        
-                                        var eventCity;
-                                        var cityId;
-                                        var cityList = ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d;
-                                        for(cityId in cityList) {
-                                            var cityObject = cityList[cityId];
-                                            this.attachEvent(cityObject, "Change", ClientLib.Data.CityChange, this, this.cityChange);
-                                        }
                                         this.attachEvent(ClientLib.Data.MainData.GetInstance().get_Cities(), "Change", ClientLib.Data.CitiesChange, this, this.citiesChange);
                                     } catch(eventError) {
                                         console.log("InfoSticker.EventAttach:", eventError);
