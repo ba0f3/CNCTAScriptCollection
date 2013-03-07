@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name        C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade
-// @namespace   AutoUpgrade
+// @name        C&C Tiberium Alliances CustomFlunik Tools: AutoUpgrade
+// @namespace   CustomFlunikAutoUpgrade
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @author      Flunik dbendure RobertT KRS_L
-// @version     20130305a
+// @author      RobertT Flunik dbendure KRS_L
+// @version     20130307b
 // ==/UserScript==
 
 /*
@@ -208,62 +208,67 @@ intelligent.
 								var infolineUnits = "";
 								var infolineSkipped = "";
 								
-								var units = city.get_CityUnitsData();
-								var offenceUnits = units.get_OffenseUnits();
-								for (var nUnit in offenceUnits.d) {
-									var unit = offenceUnits.d[nUnit];
-									var unitlvl = unit.get_CurrentLevel();
-									var unit_obj = {
-											cityid: city.get_Id(),
-											unitId: unit.get_Id()
-									};
+								// MaelstromTools.Base.checkRepairAllUnits
+								if (!MaelstromTools.Base.prototype.checkRepairAllUnits()) {
+									var units = city.get_CityUnitsData();
+									var offenceUnits = units.get_OffenseUnits();
+									for (var nUnit in offenceUnits.d) {
+										var unit = offenceUnits.d[nUnit];
+										var unitlvl = unit.get_CurrentLevel();
+										var unit_obj = {
+												cityid: city.get_Id(),
+												unitId: unit.get_Id()
+										};
 
-									if (unitlvl<lowestoffencelevel) {
-										var lowestoffencelevel=unitlvl;
+										if (unitlvl<lowestoffencelevel) {
+											var lowestoffencelevel=unitlvl;
+										}
+
+										if (unitlvl<lowestupgoffencelevel && unit.CanUpgrade()) {
+											var lowestupgoffencelevel=unitlvl;
+											var lowestupgoffenceunit_obj=unit_obj;
+											var unitname = unit.get_UnitGameData_Obj().dn;
+										};
+										//console.debug("FLUNIK: OFFENCE - unitlvl: %d lowest: %d lowestupg: %d", unitlvl,lowestoffencelevel,lowestupgoffencelevel);
+									};
+									if (lowestupgoffencelevel<999) {
+										var infolineUnits = infolineUnits+" - O: "+unitname+" "+lowestupgoffencelevel;
+										//			var upgradeinfo = "FLUNIK: %d Upgrading %d offence unit from level of: %d",cityname, unitname, lowestupgoffencelevel);
+										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", lowestupgoffenceunit_obj, null, null, true);
+										//		} else {
+										//			console.debug("FLUNIK: No offence units are upgradable - lowest level: %d", lowestoffencelevel);
 									}
 
-									if (unitlvl<lowestupgoffencelevel && unit.CanUpgrade()) {
-										var lowestupgoffencelevel=unitlvl;
-										var lowestupgoffenceunit_obj=unit_obj;
-										var unitname = unit.get_UnitGameData_Obj().dn;
-									};
-									//console.debug("FLUNIK: OFFENCE - unitlvl: %d lowest: %d lowestupg: %d", unitlvl,lowestoffencelevel,lowestupgoffencelevel);
-								};
-								if (lowestupgoffencelevel<999) {
-									var infolineUnits = infolineUnits+" - O: "+unitname+" "+lowestupgoffencelevel;
-						//			var upgradeinfo = "FLUNIK: %d Upgrading %d offence unit from level of: %d",cityname, unitname, lowestupgoffencelevel);
-									ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", lowestupgoffenceunit_obj, null, null, true);
-						//		} else {
-						//			console.debug("FLUNIK: No offence units are upgradable - lowest level: %d", lowestoffencelevel);
-								}
+									var defenceUnits = units.get_DefenseUnits();
+									for (var nUnit in defenceUnits.d) {
+										var unit = defenceUnits.d[nUnit];
+										var unitlvl = unit.get_CurrentLevel();
+										var unit_obj = {
+												cityid: city.get_Id(),
+												unitId: unit.get_Id()
+										};
 
-								var defenceUnits = units.get_DefenseUnits();
-								for (var nUnit in defenceUnits.d) {
-									var unit = defenceUnits.d[nUnit];
-									var unitlvl = unit.get_CurrentLevel();
-									var unit_obj = {
-											cityid: city.get_Id(),
-											unitId: unit.get_Id()
-									};
+										if (unitlvl<lowestdefencelevel) {
+											var lowestdefencelevel=unitlvl;
+										}
 
-									if (unitlvl<lowestdefencelevel) {
-										var lowestdefencelevel=unitlvl;
+										if (unitlvl < lowestupgdefencelevel && unit.CanUpgrade()) {
+											var lowestupgdefencelevel=unitlvl;
+											var lowestupgdefenceunit_obj=unit_obj;
+											var unitname = unit.get_UnitGameData_Obj().dn;
+										};
+										//console.debug("FLUNIK: DEFENCE - unitlvl: %d lowest: %d lowestupg: %d", unitlvl,lowestdefencelevel,lowestupgdefencelevel);
+
+									};
+									if (lowestupgdefencelevel<999) {
+										var infolineUnits = infolineUnits+" - D: "+unitname+" "+lowestupgdefencelevel;
+										//			console.debug("FLUNIK: %d Upgrading %d defence unit from level of: %d",cityname, unitname, lowestupgdefencelevel);
+										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", lowestupgdefenceunit_obj, null, null, true);
+										//		} else {
+										//			console.debug("FLUNIK: No defence units are upgradable - lowest level: %d", lowestdefencelevel);
 									}
-
-									if (unitlvl < lowestupgdefencelevel && unit.CanUpgrade()) {
-										var lowestupgdefencelevel=unitlvl;
-										var lowestupgdefenceunit_obj=unit_obj;
-										var unitname = unit.get_UnitGameData_Obj().dn;
-									};
-									//console.debug("FLUNIK: DEFENCE - unitlvl: %d lowest: %d lowestupg: %d", unitlvl,lowestdefencelevel,lowestupgdefencelevel);
-
-								};
-								if (lowestupgdefencelevel<999) {
-									var infolineUnits = infolineUnits+" - D: "+unitname+" "+lowestupgdefencelevel;
-						//			console.debug("FLUNIK: %d Upgrading %d defence unit from level of: %d",cityname, unitname, lowestupgdefencelevel);
-									ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", lowestupgdefenceunit_obj, null, null, true);
-						//		} else {
-						//			console.debug("FLUNIK: No defence units are upgradable - lowest level: %d", lowestdefencelevel);
+								} else {
+									var infolineUnits = " - Units damaged - Repair needed" 
 								}
 
 								//if (lowestupgoffencelevel<999 || lowestupgdefencelevel<999) {
