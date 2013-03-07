@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      RobertT Flunik dbendure KRS_L
-// @version     20130307b
+// @version     20130307c
 // ==/UserScript==
 
 /*
@@ -137,7 +137,20 @@ intelligent.
 							} 
 						},	
 
+						CanRepairAll: function (ncity, viewMode) {
+							try {
 
+								var repairData = ncity.get_CityRepairData();
+								var myRepair = repairData.CanRepair(0, viewMode);
+								//repairData.UpdateCachedFullRepairAllCost(viewMode);
+								return ((myRepair != null) && (!ncity.get_IsLocked() || (viewMode != ClientLib.Vis.Mode.ArmySetup)));
+
+								return false;
+							} catch (e) {
+								console.log("FlunikTools.CanRepairAll: ", e);
+								return false;
+							}
+						},
 
 						get_IsFull: function (city, type) {
 							if (city.GetResourceCount(type) < (city.GetResourceMaxStorage(type)*0.80)) {
@@ -209,7 +222,10 @@ intelligent.
 								var infolineSkipped = "";
 								
 								// MaelstromTools.Base.checkRepairAllUnits
-								if (!MaelstromTools.Base.prototype.checkRepairAllUnits()) {
+//								if (!MaelstromTools.Base.prototype.checkRepairAllUnits()) {
+//								if (!MaelstromTools.Wrapper.prototype.CanRepairAll(city,ClientLib.Vis.Mode.ArmySetup)) {
+								//   MaelstromTools.Wrapper           CanRepairAll
+								if (!FlunikTools.Main.prototype.CanRepairAll(city,ClientLib.Vis.Mode.ArmySetup)) {
 									var units = city.get_CityUnitsData();
 									var offenceUnits = units.get_OffenseUnits();
 									for (var nUnit in offenceUnits.d) {
