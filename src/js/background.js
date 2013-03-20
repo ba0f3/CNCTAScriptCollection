@@ -56,7 +56,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 145168,
     name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
-    version : "1.7.1",
+    version : "1.8.3",
     enabled : true
 }, {
     id : 149809,
@@ -96,7 +96,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158565,
     name: "CustomFlunik Tools",
-    version: "20130305a",
+    version: "20130318c",
     enabled: true
 }, {
     id: 154546,
@@ -136,7 +136,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158869,
     name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version:  "0.5.7.02",
+    version:  "0.5.7.03",
     enabled: false
 }];
 

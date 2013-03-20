@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      Flunik dbendure RobertT KRS_L Trekker9876 
-// @version     0.5.7.02
+// @version     0.5.7.03
 // ==/UserScript==
 (function () {
 	var FlunikTools_main = function () {
@@ -81,7 +81,7 @@
 							}
 							this.buildingsToUpdate = _buildingsToUpdate;
 							this.autoUpgrade();
-							this.autoUpdateHandle = window.setInterval(this.autoUpgrade, 3000);
+							this.autoUpdateHandle = window.setInterval(this.autoUpgrade, 15000);
 						},
 						stopAutoUpdate: function () {
 							window.clearInterval(this.autoUpdateHandle);
@@ -110,137 +110,7 @@
 								      
 								// if (baseName != "Placeyourbasenamehere"){
 								//^^Doing this here will stop the base from upgrading altogether
-								//This is the building loop.
-								for (var nBuildings in buildings.d) {
-								var x = 0;
-									for(var x; x < 1 ; x++){
-										var count = x;
-									var building = buildings.d[nBuildings];
-									if (!building.CanUpgrade()) continue; //KRS_L
-									var name = building.get_UnitGameData_Obj().dn; //This is where is grabs the name of the building.
-									
-									
-									var buildinglvl = building.get_CurrentLevel();
-									blvlplusten = baselvl + 10.00;
-									blvlplusthree = baselvl + 3.00;
-									//var tibCost = building.GetResourceData(ClientLib.Base.EResourceType.Tiberium);
-									 
-									//My idea pool.
-									
-									//Need to fix the the upgrade bomb need it to do bases indiviually instead of all at once.
-									
-									//if (name == "Silo" || name == "Accumulator" || name == "Command Center" || name == "Defence HQ" ) {
-									if (window.FlunikTools.Main.getInstance().buildingsToUpdate.indexOf(name) != -1) {
-										//if (name == "Silo") {
-										
-										//This is the editable area you can input your own choices by saying if name of building and building level is lower or higher than base level then upgrade.
-										//I'm working on other options so bare with me, I work 3 jobs and go to college.
-										//you can change the inequality sign to: <,>,=, !=, <=, >=. 
-										
-										//These are the building names that is pulled from the .get_UnitGameData_Obj().dn:
-										//War Factory,Hand of Nod,Airport Construction Yard, Command Center, Defense HQ, Defense Facility, Barracks, Factory, Airfield, Accumulator, Silo, Refinery, Power Plant, Harvester, Blade of Kane, Eye of Kane, Fist of Kane, Falcon Support, Ion Cannon Support, Skystrike Support    
-									    
-										
-										  
-										  //if (baseName != "Placeyourbasenamehere"){
-										  // for a string of bases do this instead:
-										  //if((baseName != "YourFirstBaseName")||(baseName != "YourSecondBaseName")){
-										  
-										  //This if statement is incase the program crashes and you want to stop a specific baseor string of bases from upgrading, because you have more than five bases the game may crash while running this script. 
-										  //you have to put the  actual base name in quotes like I did. with my base name in there it does nothing special to the game. 
-										  //***Notice this is the building section just cut it off here and Def and Off will keep upgrading but not the buildings***
-										  
-										  //Ariana Lightrain
-										  switch (name) { 
-                                            
-											//NOD RT Building 3
-											case "War Factory": 
-												 if (buildinglvl >= baselvl && (buildinglvl <= offlvl || buildinglvl >= offlvl) && (vehRT <= infRT && vehRT <= airRT)) break;
-                                            
-											case "Hand of Nod": 
-                                               if (buildinglvl >= baselvl && (buildinglvl <= offlvl || buildinglvl >= offlvl) && (infRT <= airRT && infRT <= vehRT)) break;
-                                            
-											case "Airport": 
-                                                if (buildinglvl >= baselvl && (buildinglvl <= offlvl || buildinglvl >= offlvl) && (airRT <= infRT && airRT <= vehRT)) break; 
-                                            
-											//GDI RT Building 3
-											case "Barracks": 
-                                                if (buildinglvl >= baselvl && (buildinglvl <= offlvl || buildinglvl >= offlvl) && (infRT <= airRT && infRT <= vehRT)) break;
-                                            
-											case "Factory": 
-                                                 if (buildinglvl >= baselvl && (buildinglvl <= offlvl || buildinglvl >= offlvl) && (vehRT <= infRT && vehRT <= airRT)) break;
-                                            
-											case "Airfield": 
-                                                if (buildinglvl >= baselvl && (buildinglvl <= offlvl || buildinglvl >= offlvl) && (airRT <= infRT && airRT <= vehRT)) break; 
-											
-											//unit development buildings 4
-											case "Command Center": 
-                                                if (buildinglvl >= 27 && offlvl<=buildinglvl) break; 
-                                            
-											case "Defense HQ": 
-                                                if (buildinglvl >= 27 && deflvl<=buildinglvl) break;	
-                                            
-											case "Defense Facility": 
-                                                if (buildinglvl >= baselvl && deflvl>=buildinglvl) break;
-											
-											case "Construction Yard": 
-                                                if (buildinglvl >= 24) break; 
-											
-											//Storage Builings 2
-											case "Accumulator": 
-                                            case "Silo": 
-                                              if (buildinglvl >= blvlplusten ) break; 
-                                            
-											//Resourse Buildings 3
-											case "Harvester": 
-                                            case "Power Plant": 
-                                            case "Refinery": 
-                                                if (buildinglvl >= blvlplusthree ) break; 
-                                            
-											//GDI Support Buildings 3
-											case "Falcon Support": 
-                                            case "Ion Cannon Support": 
-                                            case "Skystrike Support":
-                                                if (buildinglvl >= baselvl && (buildinglvl <= deflvl || buildinglvl >= deflvl)) break; 
-											
-											//NOD Support Buildings 3 
-											case "Blade of Kane":
-                                            case "Eye of Kane":
-                                            case "Fist of Kane":
-                                                if (buildinglvl >= baselvl) break; 
-                                            case "UPGRADE BUILDING":
-											
-											var building_obj = {
-											cityid: city.get_Id(),
-											buildingid: building.get_Id(),
-											posX: building.get_CoordX(),
-											posY: building.get_CoordY(),
-											isPaid: true
-											};
-										
-										
-										
-                                                  //console.log(building); 
-                                          
-												ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
-												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
-												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
-                                                //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
-												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
-												break; 
-                                            default: 
-                                                console.log("Error: \"" + name + "\" is not recognized."); 
-                                                break; 
-                                        }
-
-											//}
-									}
-								}	
-								}
+								
 								//I haven't done much with the offence or defence but the same role applies, but the names are not being pulled. if you want to turn on or off the Off or D just change the inequality sign.
 								var units = city.get_CityUnitsData();
 								var offenceUnits = units.get_OffenseUnits();
@@ -266,7 +136,7 @@
 												console.log("City Name: {"+ city.m_SupportDedicatedBaseName + "} Offense unit name: {" + nameOne + "} Offence unit level: {" + unit.get_CurrentLevel()  +"} Offence unit new level: {" + newoffunitlvl  + "} Coordinates (x,y)= (" + unit.get_CoordX() + ", " + unit.get_CoordY() + ")"); 
                                                 console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}") 
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
 												
 									}
 									}
@@ -295,11 +165,221 @@
 												console.log("City Name: {"+ city.m_SupportDedicatedBaseName + "} Defence unit name: {" + nameTwo  + "} Defence unit level: [" + unit.get_CurrentLevel()+ "} Defence unit new level: [" + newdefunitlvl+ "] Coordinates (x,y)= (" + unit.get_CoordX() + ", " + unit.get_CoordY() + ")"); 
                                                 console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
 												console.log("Air repair time: " +  airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
 										
 										}
 									}
 								}
+								
+								//This is the building loop.
+								for (var nBuildings in buildings.d) {
+								var x = 0;
+									for(var x; x < 1 ; x++){
+										var count = x;
+									var building = buildings.d[nBuildings];
+									if (!building.CanUpgrade()) continue; //KRS_L
+									var name = building.get_UnitGameData_Obj().dn; //This is where is grabs the name of the building.
+									
+									
+									var buildinglvl = building.get_CurrentLevel();
+									var blvlHigh = baselvl + 5.00;
+									var blvlLow = baselvl - 5.00;
+									//var tibCost = building.GetResourceData(ClientLib.Base.EResourceType.Tiberium);
+									 
+									//My idea pool.
+									
+									//Need to fix the the upgrade bomb need it to do bases indiviually instead of all at once.
+									
+									//if (name == "Silo" || name == "Accumulator" || name == "Command Center" || name == "Defence HQ" ) {
+									if (window.FlunikTools.Main.getInstance().buildingsToUpdate.indexOf(name) != -1) {
+										//if (name == "Silo") {
+										
+										//This is the editable area you can input your own choices by saying if name of building and building level is lower or higher than base level then upgrade.
+										//I'm working on other options so bare with me, I work 3 jobs and go to college.
+										//you can change the inequality sign to: <,>,=, !=, <=, >=. 
+										
+										//These are the building names that is pulled from the .get_UnitGameData_Obj().dn:
+										//War Factory,Hand of Nod,Airport Construction Yard, Command Center, Defense HQ, Defense Facility, Barracks, Factory, Airfield, Accumulator, Silo, Refinery, Power Plant, Harvester, Blade of Kane, Eye of Kane, Fist of Kane, Falcon Support, Ion Cannon Support, Skystrike Support    
+									    
+										
+										  
+										  //if (baseName != "Placeyourbasenamehere"){
+										  // for a string of bases do this instead:
+										  //if((baseName != "YourFirstBaseName")||(baseName != "YourSecondBaseName")){
+										  
+										  //This if statement is incase the program crashes and you want to stop a specific baseor string of bases from upgrading, because you have more than five bases the game may crash while running this script. 
+										  //you have to put the  actual base name in quotes like I did. with my base name in there it does nothing special to the game. 
+										  //***Notice this is the building section just cut it off here and Def and Off will keep upgrading but not the buildings***
+										 
+										 //Start of Rt buildings {
+										 if(	(name == "War Factory" || name =="Factory")	&& ((vehRT >= infRT) && (vehRT >= airRT)) ){
+										  
+										  var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+										  
+										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+										  
+										  }
+										  if(	(name =="Hand of Nod" ||  name =="Barracks") &&	((infRT >= airRT) && (infRT >= vehRT)) ){
+										  var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+										  
+										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+										  
+										  }
+        								 
+										 
+										 if(	(name =="Airport" || name =="Airfield") && ((airRT >= infRT) && (airRT >= vehRT))	)	{
+										 
+										 var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+											
+											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+											
+											}
+											// End of Rt Buildings }
+											
+											//Start of Unit development buildings
+										  if (	(name == "Construction Yard"|| name =="Command Center" || name =="Defense HQ" ||  name =="Defense Facility") && (buildinglvl < 28)	){
+										  
+										  var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+										  
+										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+										  
+										  }
+										  //End of unit development buildings
+										 
+										 //Start of Storage buildings
+										  if (	(name =="Accumulator" || name =="Silo") && (buildinglvl <= blvlHigh)	){
+										  
+										  var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+										  
+										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+										  
+										  }
+										  //End of storage buildings
+										  
+										  //Start of Resouce Buildings
+										  if (	(name =="Refinery" || name =="Power Plant" || name =="Harvester") && (buildinglvl <= blvlLow)	){
+										  
+										  var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+											
+											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+											
+											}
+											//End of Resourse Buildings
+											
+											//Start of support buildings
+										  if (name =="Blade of Kane"|| name =="Eye of Kane"|| name =="Fist of Kane"|| name =="Falcon Support"|| name =="Ion Cannon Support"|| name =="Skystrike Support"){
+										  
+										  var building_obj = {
+											cityid: city.get_Id(),
+											buildingid: building.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+											};
+										  
+										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+                                              var newbuildinglvl = building.get_CurrentLevel() + 1;
+												console.log( "Building Upgraded and Previous upgraded lvl :");
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
+                                                //console.log("Tiberium Cost: {"+tibCost+"}");
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
+												console.log(" ");
+										  
+										  }
+										  //End of support buildings
+
+											//}
+									}
+									
+								}
+								}
+								
 								//}
 							}
 						}

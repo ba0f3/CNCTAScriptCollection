@@ -4,11 +4,11 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      RobertT Flunik dbendure KRS_L
-// @version     20130311b
+// @version     20130318c
 // ==/UserScript==
 
 /*
-NOTE: If conditions match for items 6-14 then script will wait until there is enough resources to perform the upgrade 
+NOTE: If conditions match for items 7-15 then script will wait until there is enough resources to perform the upgrade 
 	unless tiberium exceeds 80%. When tiberium exceeds 80% it will check the conditions in order until an upgrade is found.
 
 NOTE: Calculations in #16 can be overridden by changing city name. 
@@ -26,23 +26,25 @@ Script does this (in this order):
 1. Upgrade lowest level offence unit if possible 
 2. Upgrade lowest level defence unit if possible 
 3. Gather information about your base 
-4. if crystal is more than 80% full and your offence is maxed out try to upgrade CC 
-5. if #4 is true but you cant upgrade your CC (or you dont have one) and defence is maxed out try to upgrade DHQ 
-6. if your CY < level 25 upgrade CY 
-7. (removed for testing) if your CC < base level upgrade CC 
-8. if your offence is maxed out upgrade CC 
-9. if your DHQ is two levels below CC and defence is maxed upgrade DHQ 
-10. if you have no CC and defence is maxed upgrade DHQ 
-11. if DF < DHQ upgrade DF 
-12. if Defensive support building < DHQ then upgrade support 
-13. if repair time > 6 hours upgrade repair structure 
-14. if repair time > 4 hours and repair structure level < CC upgrade repair structure 
-15. if lowest building level is below 0.66*base level and we have at least 20% tiberium upgrade lowest building
-16. Priority calculations are made depending upon buildings existing. Lowest cost of those calculations is built if tiberium > 20%.
+4. Upgrade any production buildings < level 6
+5. if crystal is more than 80% full and your offence is maxed out try to upgrade CC 
+6. if #4 is true but you cant upgrade your CC (or you dont have one) and defence is maxed out try to upgrade DHQ 
+7. if your CY < level 25 upgrade CY 
+8. (removed for testing) if your CC < base level upgrade CC 
+9. if your offence is maxed out upgrade CC 
+10. if your DHQ is two levels below CC and defence is maxed upgrade DHQ 
+11. if you have no CC and defence is maxed upgrade DHQ 
+12. if DF < DHQ upgrade DF 
+13. if Defensive support building < DHQ then upgrade support 
+14. if repair time > 5:50 hours upgrade repair structure 
+15. if repair time > 4 hours and repair structure level < CC and base level < 20 upgrade repair structure 
+16. if lowest building level is below 0.66*base level and we have at least 20% tiberium upgrade lowest building
+17. if lowest silo is below base level and we have at least 80% tiberium upgrade lowest silo
+18. Priority calculations are made depending upon buildings existing. Lowest cost of those calculations is built if tiberium > 20%.
 	A. If harvesters exist priority calculations are done for Crystal and Tiberium
 	B. If #PP > #REF then base is power base and priority calculation is done for power
 	C. If #PP < #REF then base is cash base and priority calculation is done for cash
-17. if tiberium is > 95% and nothing was upgraded above then upgrade lowest level Silo/Harvester/Refinery/Power Plant/Accumulator
+19. if tiberium is > 95% and nothing was upgraded above then upgrade lowest level Silo/Harvester/Refinery/Power Plant/Accumulator
 
 
 NEW feature - upgrade based on maelstrom tools upgrade priority overview 
@@ -193,6 +195,7 @@ intelligent.
 								//var player = city.get_PlayerName();
 								var buildings = city.get_Buildings();
 								var lowestbuildinglevel = 999;
+								var lowestsilolevel = 999;
 								var lowestdefencelevel = 999;
 								var lowestoffencelevel = 999;
 								var lowestupgdefencelevel = 999;
@@ -319,7 +322,7 @@ intelligent.
 									continue;
 								}
 								
-								var CY=CC=DHQ=DF=SUPPORT=INF=VEH=AIR=lowestbuilding=null;
+								var CY=CC=DHQ=DF=SUPPORT=INF=VEH=AIR=lowestbuilding=lowestsilo=null;
 								var infRT=vehRT=airRT=numPOW=numREF=numHAR=0;
 								
 								for (var nBuildings in buildings.d) {
@@ -397,6 +400,8 @@ intelligent.
 										continue;
 									}; 
 									if (tech == ClientLib.Base.ETechName.Silo) {
+										var lowestsilolevel=buildinglvl;
+										var lowestsilo=building;
 										continue;
 									}; 
 									if (tech == ClientLib.Base.ETechName.Harvester) {
@@ -595,15 +600,15 @@ intelligent.
 								};
 
 								if (REPAIR != null) {
-									if (maxRT>21600) { // Always try to get time below 6 hours (21600 seconds)
+									if (maxRT>21000) { // Always try to get time below 5:50 hours (21000 seconds)
 										//console.debug("FLUNIK: %d Repair info in seconds: Max %d AIR %d VEH %d INF %d",cityname, maxRT, airRT, vehRT, infRT);
 										if (REPAIR.CanUpgrade()) {
 											//console.debug("FLUNIK: %d The %d level %d has repair time of %d - Upgrading",cityname,repairname, REPAIR.get_CurrentLevel(), maxRT);
-											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: "+repairname+" "+maxRT+">21600 "+REPAIR.get_CurrentLevel());
+											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: "+repairname+" "+maxRT+">21000 "+REPAIR.get_CurrentLevel());
 											REPAIR.Upgrade();
 											return;
 										} else {
-											var infolineSkipped=infolineSkipped+repairname+" "+maxRT+">21600,";
+											var infolineSkipped=infolineSkipped+repairname+" "+maxRT+">21000,";
 											//console.debug("FLUNIK: %d The %d level %d has repair time %d but cant upgrade - skipping to next",cityname,repairname, REPAIR.get_CurrentLevel(), maxRT);
 											if (currenttibpct<80) { 
 												console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped)
@@ -614,7 +619,7 @@ intelligent.
 								};
 								
 								if (REPAIR != null && CC != null) {
-									if (maxRT>14400 && REPAIR.get_CurrentLevel()<CC.get_CurrentLevel()) { // No point upgrading unless RT > 4 hours (14400 seconds)
+									if (maxRT>14400 && REPAIR.get_CurrentLevel()<CC.get_CurrentLevel() && baselvl<20) { // No point upgrading unless RT > 4 hours (14400 seconds)
 										//console.debug("FLUNIK: %d Repair info in seconds: Max %d AIR %d VEH %d INF %d",cityname, maxRT, airRT, vehRT, infRT);
 										if (REPAIR.CanUpgrade()) {
 											//console.debug("FLUNIK: %d The %d level %d has repair time of %d - Upgrading",cityname,repairname, REPAIR.get_CurrentLevel(), maxRT);
@@ -637,6 +642,15 @@ intelligent.
 										//console.debug("FLUNIK: %d Default upgrade - lowest building is %d level %d",cityname, lowestbuildingname, lowestbuildinglevel);
 										console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: lowest<0.66*baselvl "+lowestbuildingname+" lvl: "+lowestbuildinglevel)
 										lowestbuilding.Upgrade();
+										return;
+									}
+								}
+
+								if (lowestsilo != null) { 
+									if (lowestsilolevel<baselvl && currenttibpct>80) {
+										//console.debug("FLUNIK: %d Default upgrade - lowest building is %d level %d",cityname, lowestbuildingname, lowestbuildinglevel);
+										console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: lowestsilo<baselvl&tib>80 lvl: "+lowestsilolevel)
+										lowestsilo.Upgrade();
 										return;
 									}
 								}
