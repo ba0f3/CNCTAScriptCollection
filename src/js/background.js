@@ -96,7 +96,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158565,
     name: "CustomFlunik Tools",
-    version: "20130318c",
+    version: "20130325d",
     enabled: true
 }, {
     id: 154546,
