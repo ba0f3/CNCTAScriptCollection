@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      Flunik dbendure RobertT KRS_L Trekker9876 
-// @version     0.5.7.03
+// @version     0.5.7.05
 // ==/UserScript==
 (function () {
 	var FlunikTools_main = function () {
@@ -31,11 +31,11 @@
 						initialize: function () {
  
 							console.log('FLUNIKTOLS initialize');
-							AutoUpdateButton = new qx.ui.form.Button("AutoUpgrade", null).set({
+							AutoUpdateButton = new qx.ui.form.Button("DB.aUP", null).set({
 								toolTipText: "Autoupdate",
-								width: 100,
+								width: 50,
 								height: 40,
-								maxWidth: 100,
+								maxWidth: 50,
 								maxHeight: 40,
 								appearance: ("button-playarea-mode-frame"), //"button-standard-"+factionText), button-playarea-mode-red-frame
 								center: true
@@ -43,14 +43,14 @@
 							AutoUpdateButton.addListener("click", function (e) {
 								if (window.FlunikTools.Main.getInstance().autoUpdateHandle != null) {
 									window.FlunikTools.Main.getInstance().stopAutoUpdate();
-									AutoUpdateButton.setLabel("Flunik OFF");
+									AutoUpdateButton.setLabel("OFF");
 									//alert("Stopped auto-update");
 								} else {
 									//window.FlunikTools.Main.getInstance().startAutoUpdate("Construction Yard, Command Center, Defense HQ, Defense Facility, Barracks, Factory, Airfield, Accumulator, Silo, Refinery, Power Plant, Harvester, Blade of Kane, Eye of Kane, Fist of Kane");
 									//This is the first list of building names if I still missed something let me know
                                     window.FlunikTools.Main.getInstance().startAutoUpdate("Construction Yard, Command Center, Defense HQ, Defense Facility, Barracks, Factory, Airfield, Accumulator, Silo, Refinery, Power Plant, Harvester, Blade of Kane, Eye of Kane, Fist of Kane, Falcon Support, Ion Cannon Support, Skystrike Support, War Factory, Hand of Nod, Airport");
 									//window.FlunikTools.Main.getInstance().startAutoUpdate(this.buildingsToUpdate);
-									AutoUpdateButton.setLabel("Flunik ON");
+									AutoUpdateButton.setLabel("ON");
 									//alert("Started auto-update");
 								}
 							}, this);
@@ -63,8 +63,8 @@
 						   
  
 							app.getDesktop().add(AutoUpdateButton, {
-								right: 120,
-								bottom: 80
+								right: 60,
+								bottom: 185
 							});
 															   
  
@@ -81,7 +81,7 @@
 							}
 							this.buildingsToUpdate = _buildingsToUpdate;
 							this.autoUpgrade();
-							this.autoUpdateHandle = window.setInterval(this.autoUpgrade, 15000);
+							this.autoUpdateHandle = window.setInterval(this.autoUpgrade, 120000);
 						},
 						stopAutoUpdate: function () {
 							window.clearInterval(this.autoUpdateHandle);
@@ -128,7 +128,7 @@
 										unitId: unit.get_Id()
 									};
 									//This is the upgrade part, you can change the inequality sign to: <,>,=, !=, <=, >=. 
-									if (offlvl>baselvl||offlvl<baselvl) {
+									if (/*(nameOne=="Paladin"||nameOne=="Firehawk"||nameOne=="Orca"||nameOne=="Kodiak")&&*/(unitlvl<city.get_CommandCenterLevel())) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										//console.log(unit);
 										var newoffunitlvl = unit.get_CurrentLevel() + 1;
@@ -138,7 +138,7 @@
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
 												console.log(" ");break;
 												
-									}
+									}break;
 									}
 								}
  
@@ -169,7 +169,7 @@
 										
 										}
 									}
-								}
+								}break;
 								
 								//This is the building loop.
 								for (var nBuildings in buildings.d) {
@@ -203,7 +203,7 @@
 									    
 										
 										  
-										  //if (baseName != "Placeyourbasenamehere"){
+										  //if (baseName != "LOD Michelangelo"){
 										  // for a string of bases do this instead:
 										  //if((baseName != "YourFirstBaseName")||(baseName != "YourSecondBaseName")){
 										  
@@ -225,12 +225,13 @@
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                               var newbuildinglvl = building.get_CurrentLevel() + 1;
 												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
 												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
+												
 										  
 										  }
 										  if(	(name =="Hand of Nod" ||  name =="Barracks") &&	((infRT >= airRT) && (infRT >= vehRT)) ){
@@ -250,7 +251,8 @@
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
 												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
+												
 										  
 										  }
         								 
@@ -268,12 +270,13 @@
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                               var newbuildinglvl = building.get_CurrentLevel() + 1;
 												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
 												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
+												
 											
 											}
 											// End of Rt Buildings }
@@ -292,12 +295,13 @@
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                               var newbuildinglvl = building.get_CurrentLevel() + 1;
 												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
 												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
+												
 										  
 										  }
 										  //End of unit development buildings
@@ -316,12 +320,13 @@
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                               var newbuildinglvl = building.get_CurrentLevel() + 1;
 												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
 												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
+												
 										  
 										  }
 										  //End of storage buildings
@@ -340,12 +345,13 @@
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                               var newbuildinglvl = building.get_CurrentLevel() + 1;
 												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
 												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
-												console.log(" ");
+												console.log(" ");break;
+												
 											
 											}
 											//End of Resourse Buildings
@@ -364,18 +370,19 @@
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                               var newbuildinglvl = building.get_CurrentLevel() + 1;
 												console.log( "Building Upgraded and Previous upgraded lvl :");
-												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
+												console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}");
 												console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
                                                 //console.log("Tiberium Cost: {"+tibCost+"}");
-												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}")
+												console.log( "Offense level: {" + city.get_LvlOffense() + "} Defense level: {" + city.get_LvlDefense() + "}");
 												console.log("Air repair time: " + airRT + " in seconds. Vehical repair time: " + vehRT + " in seconds. Infantry repair time: " + infRT + " in seconds.");
 												console.log(" ");
+												
 										  
 										  }
 										  //End of support buildings
 
-											//}
-									}
+											}break;
+									//}
 									
 								}
 								}
@@ -399,7 +406,8 @@
 					for (var key in ClientLib.Data.CityBuilding.prototype) { //KRS_L
 						if (ClientLib.Data.CityBuilding.prototype[key] !== null) {
 							var strFunction = ClientLib.Data.CityBuilding.prototype[key].toString();
-							if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0)){return true;}}return false") > -1) {
+							//if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0)){return true;}}return false") > -1) {
+							if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0))") > -1){	
 								ClientLib.Data.CityBuilding.prototype.CanUpgrade = ClientLib.Data.CityBuilding.prototype[key];
 								break;
 							}

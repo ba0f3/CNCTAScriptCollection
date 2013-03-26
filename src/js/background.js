@@ -131,12 +131,12 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 159496,
     name: "CnC:Tiberium Aliances Navigator - Compass",
-    version: "1.1.0",
+    version: "1.2.1",
     enabled: false
 }, {
     id: 158869,
     name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version:  "0.5.7.03",
+    version:  "0.5.7.05",
     enabled: false
 }];
 

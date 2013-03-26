@@ -4,50 +4,41 @@
 // @updateURL     https://userscripts.org/scripts/source/159496.meta.js
 // @namespace     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @description   Creates compass poiting to the currently selected base (compass points from itself).
-// @version       1.1.0
+// @version       1.2.1
 // @author        MrHIDEn based on Caine code. Extended
 // @grant         none
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
 
 (function () {
-  var CompassMain = function () {
+  var NavigatorMain = function () {
     try {
       function createNavigator() {
-        //http://userscripts.org/scripts/show/159496
+        //Note:
+        //ClientLib.API.Battleground.prototype.GetLootFromCurrentCity()
         qx.Class.define('MHTools.Navigator', {
           type: 'singleton',
           extend: qx.core.Object,
           statics : {
-            VERSION: '1.1.0',
+            VERSION: '1.2.1',
             AUTHOR: 'MrHIDEn',
             CLASS: 'Navigator'
           },
           construct: function() {
             try {
               try {
-                this.stats.src = 'http://goo.gl/aeCxf';//1.0.0
+                this.stats.src = 'http://goo.gl/aeCxf';//1.0.0 1.1.0 1.2.0
                 this.Self = this;
                 var backColor = '#eef';
+                backColor = '#eeeeffaa';
+                backColor = '#eeeeff';
                 var ser = ClientLib.Data.MainData.GetInstance().get_Server();         
                 this.cenX = ser.get_ContinentWidth() / 2;
                 this.cenY = ser.get_ContinentHeight() / 2;
                 this.lockX = this.cenX;
                 this.lockY = this.cenY;
-                //this.Window = new webfrontend.gui.OverlayWindow().set({
-                    // autoHide: false,
-                    // title: WindowTitle,
-                    // minHeight: 350
-
-                    // //resizable: false,
-                    // //showMaximize:false,
-                    // //showMinimize:false,
-                    // //allowMaximize:false,
-                    // //allowMinimize:false,
-                    // //showStatusbar: false
-                  // });                  
-                  // this.Window.clientArea.setPadding(10);
-                  // this.Window.clientArea.setLayout(new qx.ui.layout.VBox(3));
+                this.posTimer = new qx.event.Timer();
+                this.posTimer.addListener("interval",this.onPosTimer,this);
                 this.win = (new qx.ui.window.Window("Navigator")).set({
                   width:120,
                   //showMinimize:false,
@@ -90,6 +81,7 @@
                 compass.addListener("click",function(e) {
                   var cid  = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCityId();
                   webfrontend.gui.UtilView.centerCityOnRegionViewWindow(cid);
+                  this.displayCompass();
                 },this);
                 compass.set({
                   toolTipText: "Click - go to."
@@ -109,11 +101,11 @@
                 cnt2.setLayout(vbox);                        
                 cnt2.setThemedBackgroundColor(backColor);
                 cnt2.setThemedFont("bold");
-                this.disBase = new qx.ui.basic.Label('1.0');
+                this.disBase = new qx.ui.basic.Label('0');
                 this.disBase.set({
                   toolTipText: "Distance from your curren base to the center of view."
                 });
-                cnt2.add(new qx.ui.basic.Label("Current Base:"));
+                cnt2.add(new qx.ui.basic.Label("Current Base"));
                 cnt2.add(this.disBase);
                 // add
                 this.extItems.push(cnt2);
@@ -147,7 +139,8 @@
                 vbox2.setAlignX("center");
                 var cnt3 = new qx.ui.container.Composite();
                 cnt3.setLayout(vbox2);
-                cnt3.setThemedBackgroundColor('#eef');
+                //cnt3.setThemedBackgroundColor('#eef');
+                cnt3.setThemedBackgroundColor(backColor);
                 cnt3.setThemedFont("bold");
 
                 this.coordLock = new qx.ui.basic.Label('X:Y');
@@ -161,7 +154,7 @@
                   this.coordLock.setValue(this.lockX.toString()+':'+this.lockY.toString());
                   this.displayCompass();
                 },this);
-                this.disLock = new qx.ui.basic.Label('3.0');
+                this.disLock = new qx.ui.basic.Label('0');
                 this.disLock.set({
                   toolTipText: "Distance from locked object to the selected object."
                 });
@@ -190,7 +183,7 @@
                 console.warn("win.initialize: ", e);
               }
              
-              phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Region(), "PositionChange", ClientLib.Vis.PositionChange, this, this.displayCompass);
+              phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Region(), "PositionChange", ClientLib.Vis.PositionChange, this, this.onPositionChange);
               phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "SelectionChange", ClientLib.Vis.SelectionChange, this, this.onSelectionChange);
             
               console.log('Navigator loaded');
@@ -207,6 +200,7 @@
             win: null,
             extItems: [],
             extMinimized: false,
+            posTimer: null,
             disBase: null,
             disObj: null,
             coordLock: null,
@@ -224,6 +218,15 @@
             cenY: 0,
             selected: null,
             visObject: null,
+            onPositionChange: function (e) {
+              //console.log('onPositionChange');
+              this.posTimer.restartWith(200);
+            },
+            onPosTimer: function (e) {
+              //console.log('onPosTimer');
+              this.posTimer.stop();
+              this.displayCompass();
+            },
             onSelectionChange: function (l,c) {
               try {
                 //console.log('onSelectionChange.c:',c);
@@ -249,7 +252,8 @@
                     case ClientLib.Vis.VisObject.EObjectType.RegionNPCCamp:
                     case ClientLib.Vis.VisObject.EObjectType.RegionPointOfInterest:
                     case ClientLib.Vis.VisObject.EObjectType.RegionRuin:
-                    case ClientLib.Vis.VisObject.EObjectType.RegionHub:
+                    case ClientLib.Vis.VisObject.EObjectType.RegionHubControl:
+                    case ClientLib.Vis.VisObject.EObjectType.RegionHubCenter:
                       //this.calcDistance();
                       //console.log('visObject:',visObject);
                       //console.log('Vis Object Type:',t,', ',this.LObjectType[t]);
@@ -302,9 +306,10 @@
                 ctx1.save();                
                 ctx1.translate(25, 25);
                 ctx1.rotate(dy > 0 ? Math.asin(dx / distance) + Math.PI : -Math.asin(dx / distance));
-                //ctx1.drawImage(this.needle, -this.size / 2, -this.size / 2 - 0);   
                 this.drawCompass(ctx1);
-                ctx1.restore();              
+                ctx1.restore(); 
+
+                
                 
                 var dx2 = this.selX - this.lockX;
                 var dy2 = this.lockY - this.selY;
@@ -313,11 +318,10 @@
                 ctx2.save();                
                 ctx2.translate(25, 25);
                 ctx2.rotate(dy2 > 0 ? Math.asin(dx2 / distance2) + Math.PI : -Math.asin(dx2 / distance2));
-                //ctx2.drawImage(this.needle, -this.size / 2, -this.size / 2 - 0);   
                 this.drawCompass(ctx2);
                 ctx2.restore();             
                 
-                this.disBase.setValue(distance.toFixed(1));
+                this.disBase.setValue(distance.toFixed(1).toString());
                 var ltext = ClientLib.Base.Util.CalculateDistance(this.lockX, this.lockY, this.selX, this.selY);
                 this.disLock.setValue(ltext.toString());              
                 
@@ -327,15 +331,12 @@
               }
             },
             drawCompass: function(c) {
-              c.clearRect(-100,-100,200,200);
               c.strokeStyle = 'black';
               c.beginPath();
               c.arc(0,0,20,0,Math.PI*2,true); // Outer circle
               c.stroke();
 
-              //c.translate(25,25);
-              //c.rotate(45 * Math.PI / 180);
-
+              c.strokeStyle = 'black';
               c.beginPath();
               c.moveTo(0, 0);
               c.lineTo(0, -20);  // Line
@@ -343,12 +344,14 @@
               c.stroke();
 
               c.beginPath();
+              c.strokeStyle = 'black';
               c.fillStyle = 'white';
               c.arc(0,0,4,0,Math.PI*2,true); // Inner dot
               c.fill();
               c.stroke();
 
               c.beginPath();
+              c.strokeStyle = 'black';
               c.fillStyle = 'aqua';
               c.arc(0,-20,4,0,Math.PI*2,true); // Outer dot
               c.fill();
@@ -365,7 +368,6 @@
       try {
         if (typeof qx != 'undefined' && qx.core.Init.getApplication() && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION) && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION).isVisible()) {
           createNavigator();
-          //window.Navigator.getInstance();
           MHTools.Navigator.getInstance();
         } else {
           window.setTimeout(CompassCheckLoaded, 1000);
@@ -374,17 +376,13 @@
         console.log('CompassCheckLoaded: ', e);
       }
     }
-    //if (/commandandconquer\.com/i.test(document.domain)) {
     window.setTimeout(CompassCheckLoaded, 1000);
-    //}
   }
   try {
     var CompassScript = document.createElement('script');
-    CompassScript.innerHTML = "(" + CompassMain.toString() + ')();';
+    CompassScript.innerHTML = "(" + NavigatorMain.toString() + ')();';
     CompassScript.type = 'text/javascript';
-    //if (/commandandconquer\.com/i.test(document.domain)) {
     document.getElementsByTagName('head')[0].appendChild(CompassScript);
-    //}
   } catch (e) {
     console.log('Compass: init error: ', e);
   }
