@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      RobertT Flunik dbendure KRS_L
-// @version     20130318c
+// @version     20130325d
 // ==/UserScript==
 
 /*
@@ -30,7 +30,7 @@ Script does this (in this order):
 5. if crystal is more than 80% full and your offence is maxed out try to upgrade CC 
 6. if #4 is true but you cant upgrade your CC (or you dont have one) and defence is maxed out try to upgrade DHQ 
 7. if your CY < level 25 upgrade CY 
-8. (removed for testing) if your CC < base level upgrade CC 
+8. if City Repair time is > 11:45 hours upgrade the CY 
 9. if your offence is maxed out upgrade CC 
 10. if your DHQ is two levels below CC and defence is maxed upgrade DHQ 
 11. if you have no CC and defence is maxed upgrade DHQ 
@@ -71,6 +71,7 @@ intelligent.
 					members: {
 						AutoUpdateButton: null,
 						autoUpdateHandle: null,
+						_this: null,
 
 						initialize: function () {
 
@@ -161,6 +162,87 @@ intelligent.
 							}
 						},
 
+						// Use
+						// this.canUpgradeUnit(unit, city)
+						// instead of
+						// unit.CanUpgrade()
+						canUpgradeUnit: function (unit, city) {
+							var _this = FlunikTools.Main.getInstance();
+							var nextLevel = unit.get_CurrentLevel() + 1;
+							var gameDataTech = unit.get_UnitGameData_Obj();
+							var hasEnoughResources = city.HasEnoughResources(ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(nextLevel, gameDataTech));
+						    if (gameDataTech == null || unit.get_IsDamaged() || city.get_IsLocked() || !hasEnoughResources) {
+						        return false;
+						    }
+						    var id = _this.getMainProductionBuildingMdbId(gameDataTech.pt, gameDataTech.f);
+						    var building = city.get_CityBuildingsData().GetBuildingByMDBId(id);
+						    if ((building == null) || (building.get_CurrentDamage() > 0)) {
+						        return false;
+						    }
+						    var levelReq = ClientLib.Base.Util.GetUnitLevelRequirements_Obj(nextLevel, gameDataTech);
+							var reqTechIndexes = _this.getMissingTechIndexesFromTechLevelRequirement(levelReq, true, city);
+						    if ((reqTechIndexes != null) && (reqTechIndexes.length > 0)) {
+						        return false;
+						    }
+						    return true;
+						},
+
+						getMainProductionBuildingMdbId: function (placementType, faction) {
+							var mdbId = -1;
+							var techNameId = -1;
+							if (placementType == 2) {
+								techNameId = 3;
+							} else {
+								techNameId = 4;
+							}
+							if (techNameId > 0) {
+								mdbId = ClientLib.Base.Tech.GetTechIdFromTechNameAndFaction(techNameId, faction);
+							}
+							return mdbId;
+						},
+
+						getMissingTechIndexesFromTechLevelRequirement: function (levelRequirements, breakAtFirst, city) {
+							var reqTechIndexes = [];
+							if (levelRequirements != null && levelRequirements.length > 0) {
+								for (var lvlIndex=0; (lvlIndex < levelRequirements.length); lvlIndex++) {
+									var lvlReq = levelRequirements[lvlIndex];
+									var requirementsMet = false;
+									var amountCounter = lvlReq.Amount;
+									for (var buildingIndex in city.get_Buildings().d) {
+										if (city.get_Buildings().d[buildingIndex].get_MdbBuildingId() == lvlReq.RequiredTechId && city.get_Buildings().d[buildingIndex].get_CurrentLevel() >= lvlReq.Level) {
+											amountCounter--;
+											if (amountCounter <= 0) {
+												requirementsMet=true;
+												break;
+											}
+										}
+									}
+									if (!requirementsMet) {
+										requirementsMet = ClientLib.Data.MainData.GetInstance().get_Player().get_PlayerResearch().IsResearchMinLevelAvailable(lvlReq.RequiredTechId, lvlReq.Level);
+									}
+									if (!requirementsMet) {
+										reqTechIndexes.push(lvlIndex);
+										if (breakAtFirst) {
+											return reqTechIndexes;
+										}
+									}
+								}
+							}
+							return reqTechIndexes;
+						},
+						
+						// Add the below function to your code and then use
+						// this.canUpgradeBuilding(building, city)
+						// instead of
+						// building.CanUpgrade()
+
+						canUpgradeBuilding: function (building, city) {
+							var nextLevel = (building.get_CurrentLevel() + 1);
+							var gameDataTech = building.get_TechGameData_Obj();
+							var hasEnoughResources = city.HasEnoughResources(ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(nextLevel, gameDataTech));
+							return (!building.get_IsDamaged() && !city.get_IsLocked() && hasEnoughResources);
+						},
+						
 						get_IsFull: function (city, type) {
 							if (city.GetResourceCount(type) < (city.GetResourceMaxStorage(type)*0.80)) {
 								return false;
@@ -187,6 +269,7 @@ intelligent.
 						},
 
 						autoUpgrade: function () {
+							var _this = FlunikTools.Main.getInstance();
 						
 							for (var nCity in ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d) {
 								var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d[nCity];
@@ -226,6 +309,8 @@ intelligent.
 									}
 								}
 
+								//var CityRT = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity().get_CityBuildingsData().GetFullRepairTime();
+								var CityRT = city.get_CityBuildingsData().GetFullRepairTime();
 								
 //								console.debug("FLUNIK: Tiberium current %d max %d",city.GetResourceCount(ClientLib.Base.EResourceType.Tiberium),city.GetResourceMaxStorage(ClientLib.Base.EResourceType.Tiberium));
 //								console.debug("FLUNIK: Crystal current %d max %d",city.GetResourceCount(ClientLib.Base.EResourceType.Crystal),city.GetResourceMaxStorage(ClientLib.Base.EResourceType.Crystal));
@@ -262,7 +347,7 @@ intelligent.
 										var lowestoffencelevel=unitlvl;
 									}
 
-									if (unitlvl<lowestupgoffencelevel && unit.CanUpgrade()) {
+									if (unitlvl<lowestupgoffencelevel && _this.canUpgradeUnit(unit,city)) {
 										var lowestupgoffencelevel=unitlvl;
 										var lowestupgoffenceunit_obj=unit_obj;
 										var unitname = unit.get_UnitGameData_Obj().dn;
@@ -294,7 +379,7 @@ intelligent.
 										var lowestdefencelevel=unitlvl;
 									}
 
-									if (unitlvl < lowestupgdefencelevel && unit.CanUpgrade()) {
+									if (unitlvl < lowestupgdefencelevel && _this.canUpgradeUnit(unit,city)) {
 										var lowestupgdefencelevel=unitlvl;
 										var lowestupgdefenceunit_obj=unit_obj;
 										var unitname = unit.get_UnitGameData_Obj().dn;
@@ -338,7 +423,6 @@ intelligent.
 											posY: building.get_CoordY(),
 											isPaid: true
 									};
-
 									
 									if (tech == ClientLib.Base.ETechName.Harvester_Crystal) {
 										console.debug(infolineHeader+"Not sure what it is but Found a Harvester_Crystal!");
@@ -390,7 +474,8 @@ intelligent.
 									}
 									// Buildings above this will never be a default upgrade
 									//console.debug("The %d building has a level of: %d", name, buildinglvl);
-									if	(buildinglvl < lowestbuildinglevel && building.CanUpgrade())	{
+									
+									if	(buildinglvl < lowestbuildinglevel && _this.canUpgradeBuilding(building, city) )	{
 										var lowestbuildinglevel=buildinglvl;
 										var lowestbuilding=building;
 										var lowestbuildingname=name;
@@ -460,7 +545,7 @@ intelligent.
 									if (CC != null) {
 										var tryDHQ=false;
 										if (CC.get_CurrentLevel() == lowestoffencelevel) {
-											if (CC.CanUpgrade()) {
+											if (_this.canUpgradeBuilding(CC, city)) {
 												console.debug(infolineHeader+infolineUnits+" - Crystal is full - Upgrading CC since offencelevel is maximum");
 												CC.Upgrade();
 												return;
@@ -472,23 +557,42 @@ intelligent.
 
 									// tryDHQ will only be true if CC exists, offence level is maxed and CC unable to upgrade
 									if (DHQ != null && tryDHQ) { 
-										if (DHQ.get_CurrentLevel() == lowestdefencelevel && DHQ.CanUpgrade()) {
+										if (DHQ.get_CurrentLevel() == lowestdefencelevel && _this.canUpgradeBuilding(DHQ, city)) {
 											console.debug(infolineHeader+infolineUnits+" - Crystal is full - Upgrading DHQ since defencelevel is maximum");
 											DHQ.Upgrade();
 											return;
 										}
 									};
 								};
-
+ 
 								if (CY != null) { 
 									if (CY.get_CurrentLevel() < 25) {
-										if (CY.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(CY, city)) {
 											//console.debug("FLUNIK: %d The CY building level %d is lower than 25 - Upgrading",cityname, CY.get_CurrentLevel());
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: CY<25");
 											CY.Upgrade();
 											return;
 										} else {
 											var infolineSkipped=infolineSkipped+"CY<25,";
+											//console.debug("FLUNIK: %d The CY building level %d is lower than 25 but cant upgrade - skipping to next",cityname, CY.get_CurrentLevel());
+											if (currenttibpct<80) { 
+												console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped)
+												continue; 
+											}
+										};
+									}
+								};
+
+								//CityRT
+								if (CY != null) { 
+									if (CityRT > 42300) {
+										if (_this.canUpgradeBuilding(CY, city)) {
+											//console.debug("FLUNIK: %d The CY building level %d is lower than 25 - Upgrading",cityname, CY.get_CurrentLevel());
+											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: CityRT>11:45");
+											CY.Upgrade();
+											return;
+										} else {
+											var infolineSkipped=infolineSkipped+"CityRT>11:45,";
 											//console.debug("FLUNIK: %d The CY building level %d is lower than 25 but cant upgrade - skipping to next",cityname, CY.get_CurrentLevel());
 											if (currenttibpct<80) { 
 												console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped)
@@ -520,7 +624,7 @@ intelligent.
 
 								if (CC != null) { 
 									if (CC.get_CurrentLevel() == lowestoffencelevel) {
-										if (CC.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(CC, city)) {
 											//console.debug("FLUNIK: %d The CC building level %d matches lowest offence level %d - Upgrading",cityname, CC.get_CurrentLevel(), lowestoffencelevel);
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: CC=army "+CC.get_CurrentLevel());
 											CC.Upgrade();
@@ -547,7 +651,7 @@ intelligent.
 									}
 
 									if (DHQ.get_CurrentLevel() == lowestdefencelevel && tryDHQ) {
-										if (DHQ.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(DHQ, city)) {
 											//console.debug("FLUNIK: %d The DHQ building level %d matches lowest defence level %d - Upgrading",cityname, DHQ.get_CurrentLevel(), lowestdefencelevel);
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: DHQ=def "+DHQ.get_CurrentLevel());
 											DHQ.Upgrade();
@@ -565,7 +669,7 @@ intelligent.
 
 								if (DF != null && DHQ != null) { 
 									if (DF.get_CurrentLevel() < DHQ.get_CurrentLevel()) {
-										if (DF.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(DF, city)) {
 											//console.debug("FLUNIK: %d The DF building level %d is lower than DHQ level %d - Upgrading",cityname, DF.get_CurrentLevel(), DHQ.get_CurrentLevel());
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: DF<DHQ "+DF.get_CurrentLevel());
 											DF.Upgrade();
@@ -583,7 +687,7 @@ intelligent.
 
 								if (SUPPORT != null && DHQ != null) { 
 									if (SUPPORT.get_CurrentLevel() < DHQ.get_CurrentLevel()) {
-										if (SUPPORT.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(SUPPORT, city)) {
 											//console.debug("FLUNIK: %d The SUPPORT building level %d is lower than DHQ level %d - Upgrading",cityname, SUPPORT.get_CurrentLevel(), DHQ.get_CurrentLevel());
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: SUPPORT<DHQ "+SUPPORT.get_CurrentLevel());
 											SUPPORT.Upgrade();
@@ -602,7 +706,7 @@ intelligent.
 								if (REPAIR != null) {
 									if (maxRT>21000) { // Always try to get time below 5:50 hours (21000 seconds)
 										//console.debug("FLUNIK: %d Repair info in seconds: Max %d AIR %d VEH %d INF %d",cityname, maxRT, airRT, vehRT, infRT);
-										if (REPAIR.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(REPAIR, city)) {
 											//console.debug("FLUNIK: %d The %d level %d has repair time of %d - Upgrading",cityname,repairname, REPAIR.get_CurrentLevel(), maxRT);
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: "+repairname+" "+maxRT+">21000 "+REPAIR.get_CurrentLevel());
 											REPAIR.Upgrade();
@@ -621,7 +725,7 @@ intelligent.
 								if (REPAIR != null && CC != null) {
 									if (maxRT>14400 && REPAIR.get_CurrentLevel()<CC.get_CurrentLevel() && baselvl<20) { // No point upgrading unless RT > 4 hours (14400 seconds)
 										//console.debug("FLUNIK: %d Repair info in seconds: Max %d AIR %d VEH %d INF %d",cityname, maxRT, airRT, vehRT, infRT);
-										if (REPAIR.CanUpgrade()) {
+										if (_this.canUpgradeBuilding(REPAIR, city)) {
 											//console.debug("FLUNIK: %d The %d level %d has repair time of %d - Upgrading",cityname,repairname, REPAIR.get_CurrentLevel(), maxRT);
 											console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Upg: "+repairname+" "+maxRT+">14400&REPAIR<CC "+REPAIR.get_CurrentLevel());
 											REPAIR.Upgrade();
@@ -715,7 +819,7 @@ intelligent.
 								}
 
 								if (lowestbuilding != null) { 
-									if (lowestbuilding.CanUpgrade() && currenttibpct>95) {
+									if (_this.canUpgradeBuilding(lowestbuilding, city) && currenttibpct>95) {
 										//console.debug("FLUNIK: %d Default upgrade - lowest building is %d level %d",cityname, lowestbuildingname, lowestbuildinglevel);
 										console.debug(infolineHeader+infolineUnits+" - Skipped: "+infolineSkipped+" - Default Upg: "+lowestbuildingname+" lvl: "+lowestbuildinglevel)
 										lowestbuilding.Upgrade();
@@ -743,7 +847,8 @@ intelligent.
 					for (var key in ClientLib.Data.CityBuilding.prototype) { //KRS_L
 						if (ClientLib.Data.CityBuilding.prototype[key] !== null) {
 							var strFunction = ClientLib.Data.CityBuilding.prototype[key].toString();
-							if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0)){return true;}}return false") > -1) {
+							//if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0)){return true;}}return false") > -1) {
+							if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0))") > -1) {
 								ClientLib.Data.CityBuilding.prototype.CanUpgrade = ClientLib.Data.CityBuilding.prototype[key];
 								break;
 							}
