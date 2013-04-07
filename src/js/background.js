@@ -26,7 +26,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 140991,
     name : "MaelstromTools Dev",
-    version : "0.1.3.1",
+    version : "0.1.3.2",
     enabled : true
 }, {
     id : 135806,
@@ -136,7 +136,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158869,
     name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version:  "0.5.7.05",
+    version:  "0.5.7.08",
     enabled: false
 }];
 
