@@ -101,7 +101,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158565,
     name: "CustomFlunik Tools",
-    version: "20130325d",
+    version: "20130415a",
     enabled: true
 }, {
     id: 154546,
@@ -141,7 +141,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158869,
     name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version:  "0.5.7.08",
+    version:  "0.5.7.09",
     enabled: false
 }];
 

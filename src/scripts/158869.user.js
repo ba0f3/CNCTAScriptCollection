@@ -4,7 +4,7 @@
 // @description Only uses the AutoUpgrade Feature For C&C Tiberium Alliances
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @author      Flunik dbendure RobertT KRS_L Trekker9876 
-// @version     0.5.7.08
+// @version     0.5.7.09
 // ==/UserScript==
 (function () {
 	var FlunikTools_main = function () {
@@ -69,6 +69,382 @@
 															   
  
 						},
+						//Only an Updater;
+						 Update : function(city,building,unit) {
+					
+					var _this = FlunikTools.Main.getInstance();
+						
+						city;building;unit;
+						if((city&&building)||(city&&unit)||(city != null)||(building != null)||(unit != null)){
+							for (var nCity in ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d)
+							{
+							if((city&&building)||(city&&unit)||(city)){
+							
+								//var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_AllCities().d[nCity];
+								var buildings = city.get_Buildings();
+                                var bids = city.get_CityBuildingsData();
+                                var baseName = city.m_SupportDedicatedBaseName;
+                                if(city.m_SupportDedicatedBaseName = baseName){
+                                    
+                                    var cis = new Array();
+									cis[baseName] = new Object();
+									cis[baseName]["City ID"] = city.get_Id();
+                                    cis[baseName]["City Name"] = city.m_SupportDedicatedBaseName;
+                                    cis[baseName]["City Level"] = city.get_LvlBase();
+                                    cis[baseName]["Offense Level"] = city.get_LvlOffense();
+                                    cis[baseName]["Defense Level"] = city.get_LvlDefense();
+                                    cis[baseName]["TibMake"] = city.GetResourceCount(ClientLib.Base.EResourceType.Tiberium);
+                                    cis[baseName]["TibMax"] = city.GetResourceMaxStorage(ClientLib.Base.EResourceType.Tiberium);
+                                    cis[baseName]["CryMake"] = city.GetResourceCount(ClientLib.Base.EResourceType.Crystal);
+                                    cis[baseName]["CryMax"] = city.GetResourceMaxStorage(ClientLib.Base.EResourceType.Crystal);
+                                    cis[baseName]["PowMake"] = city.GetResourceCount(ClientLib.Base.EResourceType.Power);
+                                    cis[baseName]["PowMax"] = city.GetResourceMaxStorage(ClientLib.Base.EResourceType.Power);
+                                    cis[baseName]["Coords"] = "["+city.get_PosX()+", "+city.get_PosY()+"]"; 
+                                    cis[baseName]["Building"] = new Object();
+                                    cis[baseName]["Offense Unit"] = new Object();
+                                    cis[baseName]["Defense Unit"] = new Object();
+                                    
+                                
+ var x = 0;
+								for (var nBuildings in buildings.d) {
+                                   if(building&&city){
+									//for(var x; x <= 1 ; x++){
+										var count = x++;
+                                    //var building = buildings.d[nBuildings];
+									var name = building.get_UnitGameData_Obj().dn;
+                                    var tech = building.get_TechName();
+                                    //var nLevel =  building.get_CurrentLevel() + 1;
+									//if (name == "Silo" || name == "Accumulator" || name == "Command Center" || name == "Defence HQ" ) {
+									//if (buildingsToUpdate.indexOf(name) != -1 ) {
+                                    
+									if (tech == ClientLib.Base.ETechName.Construction_Yard ||
+                                        tech == ClientLib.Base.ETechName.Refinery ||
+                                        tech == ClientLib.Base.ETechName.PowerPlant ||
+                                        tech == ClientLib.Base.ETechName.Command_Center ||
+                                        tech == ClientLib.Base.ETechName.Defense_HQ ||
+                                        tech == ClientLib.Base.ETechName.Barracks ||
+                                        tech == ClientLib.Base.ETechName.Factory ||
+                                        tech == ClientLib.Base.ETechName.Airport||
+                                        tech == ClientLib.Base.ETechName.Defense_Facility ||
+                                        tech == ClientLib.Base.ETechName.Research_BaseFound ||
+                                        tech == ClientLib.Base.ETechName.Harvester_Crystal ||
+                                        tech == ClientLib.Base.ETechName.Harvester ||
+                                        tech == ClientLib.Base.ETechName.Support_Air ||
+                                        tech == ClientLib.Base.ETechName.Support_Ion ||
+                                        tech == ClientLib.Base.ETechName.Support_Art ||
+                                        tech == ClientLib.Base.ETechName.Silo ||
+                                        tech == ClientLib.Base.ETechName.Accumulator){
+                                        
+                                        //console.log(name, tech);
+                                         
+                                 var bild = building.get_TechGameData_Obj().dn;  
+								 cis[baseName]["Building"][bild] = new Array();
+                                cis[baseName]["Building"][bild][count] = new Object();
+								cis[baseName]["Building"][bild][count]["Count"] = count;
+                                cis[baseName]["Building"][bild][count]["ID"] = building.get_Id();
+                                //cis[baseName]["Building"][bild][count]["City Name"] = city.m_SupportDedicatedBaseName;
+                                cis[baseName]["Building"][bild][count]["Name"] = building.get_TechGameData_Obj().dn;
+								cis[baseName]["Building"][bild][count]["preLevel"] = building.get_CurrentLevel();
+                                cis[baseName]["Building"][bild][count]["Level"] = building.get_CurrentLevel() + 1;
+								cis[baseName]["Building"][bild][count]["NxtLevel"] = building.get_CurrentLevel() + 2;
+                                cis[baseName]["Building"][bild][count]["NxtTibCost"] = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(cis[baseName]["Building"][bild][count]["NxtLevel"], building.get_TechGameData_Obj() )[0].Count;
+                                cis[baseName]["Building"][bild][count]["NxtPowCost"] = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(cis[baseName]["Building"][bild][count]["NxtLevel"], building.get_TechGameData_Obj() )[1].Count;
+                                cis[baseName]["Building"][bild][count]["Coords"] = "[" + building.get_CoordX() +", "+ building.get_CoordY() + "]";
+                                cis[baseName]["Building"][bild][count]["IsBuildingDamaged"] = bids.get_HasDamagedBuilding();
+                                        
+                                        }
+                                    
+										
+                                        if(tech == ClientLib.Base.ETechName.Silo){
+										
+                                       
+                                          //cis[baseName]["Building"][bild][count][count]= new Array();  
+                                        cis[baseName]["Building"][bild][count]["TibNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[1].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["TibProduction"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[1].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["CryNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[4].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CryProduction"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[4].TotalValue;    
+										
+											}
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                            
+                                       
+                                    	 if(tech == ClientLib.Base.ETechName.Accumulator){
+                                        cis[baseName]["Building"][bild][count]["PowNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[6].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["PowProduction"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[6].TotalValue;
+                                           
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                             }
+                                    	if(tech == ClientLib.Base.ETechName.Refinery){
+                                        cis[baseName]["Building"][bild][count]["CredNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[30].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CredProductionPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[30].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["CredNxtLvlPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[32].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CredPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[32].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["PackagePerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[36].TotalValue/3600;
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                            }
+                                    	
+                                    	if(tech == ClientLib.Base.ETechName.Harvester){
+                                            
+                                            
+                                            if(city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[1]&&city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[25]&&city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[33]){
+                                        //console.log(building.get_UnitGameData_Obj().dn, city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d);
+                                        cis[baseName]["Building"][bild][count]["TibNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[1].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["TibProdPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[1].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["TibNxtLvlPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[25].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["TibPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[25].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["PackagePerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[33].TotalValue/3600;
+                                        }
+                                        
+                                        if(city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[4]&&city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[26]&&city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[34]){
+                                        //console.log(building.get_UnitGameData_Obj().dn, city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d);
+                                                 
+                                        cis[baseName]["Building"][bild][count]["CryNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[4].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CryProdPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[4].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["CryNxtLvlPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[26].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CryPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[26].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["PackagePerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[34].TotalValue/3600;
+                                        
+                                            }
+                                       // console.log(name, tech,cis[baseName]["Building"][bild][count] );;}
+                                    	}
+                                    	/*if(tech == ClientLib.Base.ETechName.Harvester_Crystal){
+                                        
+                                        if(city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[4]&&city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[26]&&city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d[34]){
+                                        console.log(building.get_UnitGameData_Obj().dn, city.GetBuildingCache(building.get_Id()).DetailViewInfo.OwnProdModifiers.d);
+                                                 
+                                        cis[baseName]["Building"][bild][count] ["CryNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[4].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count] ["CryProdPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[4].TotalValue;
+                                        cis[baseName]["Building"][bild][count] ["CryNxtLvlPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[26].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count] ["CryPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[26].TotalValue;
+                                        cis[baseName]["Building"][bild][count] ["PackagePerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[34].TotalValue/3600;
+                                        }
+                                        console.log(name, tech,cis[baseName]["Building"][bild][count] );;}*/
+                                    
+                                    	if(tech == ClientLib.Base.ETechName.PowerPlant){
+                                        cis[baseName]["Building"][bild][count]["PowNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[6].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["PowProductionPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[6].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["PowNxtLvlPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[28].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["PowPackage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[28].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["CredNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[30].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CredProductionPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[30].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["PackagePerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[35].TotalValue/3600;
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    	
+                                    	if(tech == ClientLib.Base.ETechName.Factory){
+                                        cis[baseName]["Building"][bild][count]["RtNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[43].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["RtProductionPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[43].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["TotalRT"] = city.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Vehicle, false);
+                                       	//console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    	if(tech == ClientLib.Base.ETechName.Airport){
+                                        cis[baseName]["Building"][bild][count]["RtNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[39].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["RtProductionPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[39].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["TotalRT"] = city.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Aircraft, false);
+                                       //	console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    	if(tech == ClientLib.Base.ETechName.Barracks){
+                                        cis[baseName]["Building"][bild][count]["RtNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[41].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["RtProductionPerHour"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[41].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["TotalRT"] = city.get_CityUnitsData().GetRepairTimeFromEUnitGroup(ClientLib.Data.EUnitGroup.Infantry, false);
+                                       	//console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    	
+                                    	if(tech == ClientLib.Base.ETechName.Command_Center){
+                                        cis[baseName]["Building"][bild][count]["CCNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[22].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CCLimit"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[22].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["MaxRT"] = city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[47].TotalValue;
+                                       	//console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    
+                                    	if(tech == ClientLib.Base.ETechName.Defense_HQ){
+                                        cis[baseName]["Building"][bild][count]["DHNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[31].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["DHLimit"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[31].TotalValue;
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    
+                                    	if(tech == ClientLib.Base.ETechName.Construction_Yard){
+                                        cis[baseName]["Building"][bild][count]["TibStorage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[2].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["TibStNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[2].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["CryStorage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[5].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["CryStNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[5].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["PowStorage"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[29].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["PowStNxtLvlProd"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[29].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["RtEff"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[29].TotalValue;
+                                        cis[baseName]["Building"][bild][count]["RtEffNxtLvl"] =city.GetBuildingCache(cis[baseName]["Building"][bild][count] ["ID"]).DetailViewInfo.OwnProdModifiers.d[29].NewLvlDelta;
+                                        cis[baseName]["Building"][bild][count]["TotalCityRt"] =city.get_CityBuildingsData().GetFullRepairTime();
+                                        
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                        }
+                                    
+                                    	 if(tech == ClientLib.Base.ETechName.Defense_Facility){
+                                       
+                                           
+                                        //console.log(name, tech,cis[baseName]["Building"][bild][count] );;
+                                         }
+                                    	if(tech == ClientLib.Base.ETechName.Support_Air ||
+                                           tech == ClientLib.Base.ETechName.Support_Ion ||
+                                           tech == ClientLib.Base.ETechName.Support_Art){
+                                       
+                                           
+                                       // console.log(name, tech,cis[baseName]["Building"][bild][count] );
+                                         }
+										 
+										if (Math.random() > 0.90) {
+                                            var building_obj = {
+											cityid: city.get_Id(),
+											posX: building.get_CoordX(),
+											posY: building.get_CoordY(),
+											isPaid: true
+										}
+											//console.log(building);
+											//ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true);
+										}
+									//}
+								
+										 //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+										 return(cis[baseName]["Building"][bild][count] );
+										}
+								}
+								
+                                
+								var units = city.get_CityUnitsData();
+								var offenceUnits = units.get_OffenseUnits();
+								for (var nUnit in offenceUnits.d) 
+								{var count = x++;
+									if(unit&&city){
+									//var unit = offenceUnits.d[nUnit];
+                                    //var nLevel = unit.get_CurrentLevel() + 1;
+                                    //var unitInfType = units.GetEUnitGroupByEModifierType(ClientLib.Base.EModifierType.RepairEfficiencyInf);
+                                    //var unitVehType = units.GetEUnitGroupByEModifierType(ClientLib.Base.EModifierType.RepairEfficiencyVeh);
+                                     //units.GetEUnitGroupByEModifierType(ClientLib.Base.EModifierType.RepairEfficiencyAir);
+                                    /*if(ClientLib.Base.EUnitType.Infantry||
+  									   ClientLib.Base.EUnitType.Tank||
+ 									   ClientLib.Base.EUnitType.Air){*/
+								  //city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Infantry ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+									var ofit = unit.get_UnitGameData_Obj().dn;
+                                    cis[baseName]["Offense Unit"][ofit]= new Array();
+									cis[baseName]["Offense Unit"][ofit][count]= new Object();
+									cis[baseName]["Offense Unit"][ofit][count]["Name"] = unit.get_UnitGameData_Obj().dn;
+                                    cis[baseName]["Offense Unit"][ofit][count]["ID"] = unit.get_Id();
+									cis[baseName]["Offense Unit"][ofit][count]["preLevel"] = unit.get_CurrentLevel();
+                                    cis[baseName]["Offense Unit"][ofit][count]["Level"] = unit.get_CurrentLevel() + 1;
+									cis[baseName]["Offense Unit"][ofit][count]["NxtLevel"] = unit.get_CurrentLevel() + 2;
+                                    cis[baseName]["Offense Unit"][ofit][count]["NxtLvlCryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(cis[baseName]["Offense Unit"][ofit][count]["NxtLevel"] , unit.get_UnitGameData_Obj())[0].Count;
+                                    cis[baseName]["Offense Unit"][ofit][count]["NxtLvlPowCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(cis[baseName]["Offense Unit"][ofit][count]["NxtLevel"] , unit.get_UnitGameData_Obj())[1].Count;
+                                    cis[baseName]["Offense Unit"][ofit][count]["unitRepairTime"] = unit.get_UnitLevelRepairRequirements()[1].Count;
+                                    cis[baseName]["Offense Unit"][ofit][count]["unitRepairCost"] = unit.get_UnitLevelRepairRequirements()[0].Count;
+                                    //cis[baseName]["Offense Unit"][ofit][count]["highestUnitLevel"] = units.get_HighestLVlForUnitGroupTypes().d[0];
+                                    cis[baseName]["Offense Unit"][ofit][count]["Coords"] = "["+unit.get_CoordX()+", "+unit.get_CoordY()+"]";
+                                    //cis[baseName]["Offense Unit"][ofit][count]["CanUpgrade"] = unit.CanUpgrade();
+                                    //console.log("Offense",ofit,cis[baseName]["Offense Unit"][ofit][count]);
+                                    
+                                    //}
+                                        
+                                   
+                                    /*if(ClientLib.Base.EUnitType.Infantry ){
+                                        //cis[baseName]["Offense Unit"][ofit][count]["CryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
+                                       
+                                        // cis[baseName]["Offense Unit"][ofit][count]["CanUpgrade"] = city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Infantry ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+                                       // console.log( cis[baseName]["Offense Unit"][ofit][count]);
+                                    }
+                                    
+                                    if(ClientLib.Base.EUnitType.Tank){
+                                        cis[baseName]["Offense Unit"][ofit][count]["CryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
+                                      //  cis[baseName]["Offense Unit"][ofit][count]["CanUpgrade"] = city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Tank ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+                                        console.log(cis[baseName]["Offense Unit"][ofit][count]);
+                                    }
+                                    
+                                     if(ClientLib.Base.EUnitType.Air){
+                                         cis[baseName]["Offense Unit"][ofit][count]["CryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
+                                      //  cis[baseName]["Offense Unit"][ofit][count]["CanUpgrade"] = city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Air ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+                                         console.log(cis[baseName]["Offense Unit"][ofit][count]);
+                                    }*/
+                                    
+                                    if (Math.random() > 0.95) {
+                                        var unit_obj = {
+										cityid: city.get_Id(),
+										unitId: unit.get_Id()
+									}
+										//ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
+										//console.log(unit);
+									}
+									//if(unit){
+										 //console.log(name, tech,cis[baseName]["Building"][bild][count] );
+										 return(cis[baseName]["Offense Unit"][ofit][count] );
+										}
+										
+								}
+
+								var defenceUnits = units.get_DefenseUnits();
+								for (var nUnit in defenceUnits.d) 
+								{var count = x++;
+									if(unit&&city){
+									//var unit = defenceUnits.d[nUnit];
+									//var nLevel = unit.get_CurrentLevel() + 1;
+                                    /*if(ClientLib.Base.EUnitType.Infantry||
+  									   ClientLib.Base.EUnitType.Tank||
+ 									   ClientLib.Base.EUnitType.Structure){*/
+								  //city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Infantry ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+									var dfit = unit.get_UnitGameData_Obj().dn;
+                                    cis[baseName]["Defense Unit"][dfit]= new Array();
+									cis[baseName]["Defense Unit"][dfit][count]= new Object();
+                                    cis[baseName]["Defense Unit"][dfit][count]["ID"] = unit.get_Id();
+                                    cis[baseName]["Defense Unit"][dfit][count]["Name"] = unit.get_UnitGameData_Obj().dn;
+									cis[baseName]["Defense Unit"][dfit][count]["preLevel"] = unit.get_CurrentLevel();
+                                    cis[baseName]["Defense Unit"][dfit][count]["Level"] = unit.get_CurrentLevel() + 1;
+									cis[baseName]["Defense Unit"][dfit][count]["NxtLevel"] = unit.get_CurrentLevel() + 2;
+                                    cis[baseName]["Defense Unit"][dfit][count]["NxtTiborCryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(cis[baseName]["Defense Unit"][dfit][count]["NxtLevel"], unit.get_UnitGameData_Obj())[0].Count;
+                                    cis[baseName]["Defense Unit"][dfit][count]["NxtPowCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(cis[baseName]["Defense Unit"][dfit][count]["NxtLevel"], unit.get_UnitGameData_Obj())[1].Count;
+                                    cis[baseName]["Defense Unit"][dfit][count]["unitRepairTime"] = unit.get_UnitLevelRepairRequirements()[1].Count;
+                                    cis[baseName]["Defense Unit"][dfit][count]["unitRepairCost"] = unit.get_UnitLevelRepairRequirements()[0].Count;
+                                    //cis[baseName]["Defense Unit"][dfit][count]["highestUnitLevel"] = units.get_HighestLVlForUnitGroupTypes().d[0];
+                                    cis[baseName]["Defense Unit"][dfit][count]["Coords"] = "["+unit.get_CoordX()+", "+unit.get_CoordY()+"]";
+                                   // cis[baseName]["Defense Unit"][dfit][count]["CanUpgrade"] = unit.CanUpgrade();
+                                     //console.log("Defense", dfit, cis[baseName]["Defense Unit"][dfit][count]);
+                                    //}
+                                   
+                                   
+                                    /*if(dfit ){
+                                        cis[baseName]["Defense Unit"][dfit][count]["CryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
+                                        //cis[baseName]["Defense Unit"][dfit][count]["CanUpgrade"] = city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Infantry ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+                                        console.log(cis[baseName]["Defense Unit"][dfit][count]);
+                                    }
+                                    
+                                    if(dfit){
+                                        cis[baseName]["Defense Unit"][dfit][count]["CryCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
+                                       // cis[baseName]["Defense Unit"][dfit][count]["CanUpgrade"] = city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Tank ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+                                         console.log(cis[baseName]["Defense Unit"][dfit][count]);
+                                    }
+                                    
+                                     if(dfit){
+                                         cis[baseName]["Defense Unit"][dfit][count]["TibCost"] = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
+                                        //cis[baseName]["Defense Unit"][dfit][count]["CanUpgrade"] = city.GetUnitRecruitedInfoByCoord(ClientLib.Base.EUnitType.Air ,unit.get_CoordX() ,unit.get_CoordY()).CanUpgrade();
+                                          console.log(cis[baseName]["Defense Unit"][dfit][count]);
+                                    }*/
+								  
+									if (Math.random() > 0.95) {
+                                        var unit_obj = {
+										cityid: city.get_Id(),
+										unitId: unit.get_Id()
+									}
+										//ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
+										//console.log(unit);
+									
+									}
+									 return(cis[baseName]["Defense Unit"][dfit][count]);
+										}
+								}
+								
+                               
+							}/*<---close my city if*/
+							return(cis[baseName]);
+							   }
+                        }
+					}else{console.log("oops!")};
+				},
+						//End
+						
 						
 						// Use
 						// this.canUpgradeUnit(unit, city)
@@ -557,7 +933,7 @@
 							}
 							this.buildingsToUpdate = _buildingsToUpdate;
 							this.autoUpgrade();
-							this.autoUpdateHandle = window.setInterval(this.autoUpgrade, 15000);
+							this.autoUpdateHandle = window.setInterval(this.autoUpgrade, 60000);
 						},
 						stopAutoUpdate: function () {
 							window.clearInterval(this.autoUpdateHandle);
@@ -625,7 +1001,7 @@
 								//console.log("Total Repair Time: " + _this.totalRepairTime);
 								//console.log(" ");
 								//I haven't done much with the offence or defence but the same role applies, but the names are not being pulled. if you want to turn on or off the Off or D just change the inequality sign.+(_this.totalRepairTime(city)/unit.BOUKAK[1].Count))
-								
+								//console.log(_this.Update(city,building,unit));
 								var units = city.get_CityUnitsData();
 								var offenceUnits = units.get_OffenseUnits();
 								//if (city.CanRepairAll(ClientLib.Vis.Mode.ArmySetup) != true)continue;
@@ -648,7 +1024,7 @@
 									var highestUnitLevel = units.get_HighestLVlForUnitGroupTypes().d[0];
 									var unitCryCost = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
 									//var unitPowCost = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[1].Count;
-									
+									//console.log(_this.Update(city,null,unit));
 									
 									var unitRepairRatio = unitRepairTime/_this.totalRepairTime(city, airRT, vehRT, infRT);
 									var unit_obj = {
@@ -664,7 +1040,8 @@
 									if (  (( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 4 )  && (nLevel <= highestUnitLevel) ) || (( unitRepairRatio>1 ) && ( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 2 )) ) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										//console.log(unit);
-										console.log(_this.cityOffUnitInfo(unit, city)+ " unitRT/TotalRT " + unitRepairRatio.toFixed(3)+" "+ _this.updateCityCache(city, unit, null, cCount, count));
+										console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,null,unit));
+										//console.log(_this.cityOffUnitInfo(unit, city)+ " unitRT/TotalRT " + unitRepairRatio.toFixed(3)+" "+ _this.updateCityCache(city, unit, null, cCount, count));
 										
 										}
 										}continue;
@@ -673,8 +1050,9 @@
 								if (  (( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 4 )  && (nLevel <= highestUnitLevel) ) || (( unitRepairRatio>1 ) && ( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 2 )) ) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										//console.log(unit);
-										console.log(_this.cityOffUnitInfo(unit, city)+ " unitRT/TotalRT " + unitRepairRatio.toFixed(3)+" "+ _this.updateCityCache(city, unit, null, cCount, count));
-										_this.updateCityCache(city, cCount);
+										console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,null,unit));
+										//console.log(_this.cityOffUnitInfo(unit, city)+ " unitRT/TotalRT " + unitRepairRatio.toFixed(3)+" "+ _this.updateCityCache(city, unit, null, cCount, count));
+										//_this.updateCityCache(city, cCount);
 										}
 										}continue;
 								 _this.updateCityCache(city, unit, null, cCount, count)
@@ -682,8 +1060,9 @@
 								if (  (( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 4 )  && (nLevel <= highestUnitLevel) ) || (( unitRepairRatio>1 ) && ( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 2 )) ) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										//console.log(unit);
-										console.log(_this.cityOffUnitInfo(unit, city)+ " unitRT/TotalRT " + unitRepairRatio.toFixed(3)+" "+ _this.updateCityCache(city, unit, null, cCount, count));
-										_this.updateCityCache(city, cCount);
+										console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,null,unit));
+										//console.log(_this.cityOffUnitInfo(unit, city)+ " unitRT/TotalRT " + unitRepairRatio.toFixed(3)+" "+ _this.updateCityCache(city, unit, null, cCount, count));
+										//_this.updateCityCache(city, cCount);
 										}
 										}continue;	
 										_this.updateCityCache(city, unit, null, cCount, count)
@@ -700,7 +1079,7 @@
 								if(city){
 									_this.updateCityCache(city, cCount);
 								}
- 
+ //console.log(_this.Update(city,building,unit));
 								var defenceUnits = units.get_DefenseUnits();
 								//if (city.CanRepairAll(ClientLib.Vis.Mode.DefenseSetup) != true)continue;
 								for (var nUnit in defenceUnits.d) {
@@ -714,14 +1093,14 @@
 									var name = unit.get_UnitGameData_Obj().dn;
 									var baselvl = city.get_LvlBase();
 									var unitlvl = unit.get_CurrentLevel();
-									var nLevel = unitlvl + 1;
+									var nLevel =unit.get_CurrentLevel() + 1;
 									var unitRepairCost = unit.get_UnitLevelRepairRequirements()[0].Count;
 									var unitRepairTime = unit.get_UnitLevelRepairRequirements()[1].Count;
 									//var offCurrentRepairCost = city.GetResourceCount(ClientLib.Base.EResourceType.RepairChargeAir);
-									var highestUnitLevel = units.get_HighestLVlForUnitGroupTypes().d[0];
+									//var highestUnitLevel = units.get_HighestLVlForUnitGroupTypes().d[0];
 									var unitCryorTibCost = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[0].Count;
 									//var unitPowCost = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(nLevel, unit.get_UnitGameData_Obj())[1].Count;
-									
+									//console.log(_this.Update(city,null,unit));
 									var unit_obj = {
 										cityid: city.get_Id(),
 										unitId: unit.get_Id()
@@ -729,30 +1108,30 @@
 									
 									//ClientLib.Base.EUnitType Structure
 									
-									var unitRepairRatio = unitRepairTime/_this.totalRepairTime(city, airRT, vehRT, infRT);
+									//var unitRepairRatio = unitRepairTime/_this.totalRepairTime(city, airRT, vehRT, infRT);
 									
 									
-									if(ClientLib.Base.EUnitType.Infantry){
+									/*if(ClientLib.Base.EUnitType.Infantry){*/
 										
-									if (  (( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  tibCurrentAmount/unitCryorTibCost)> 4 )  && (nLevel <= highestUnitLevel) ) || (( unitRepairRatio>1 ) && ( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 2 )) ) {
+									if (  (( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  tibCurrentAmount/unitCryorTibCost)> 4 ))  || ( ( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 2 )) ) {
 										
 										//console.log(unit);
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
-										
-												console.log(_this.cityDefUnitInfo(unit, city)+ " " + _this.updateCityCache(city, unit, null, cCount, count));
+										console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,null,unit));
+												//console.log(_this.cityDefUnitInfo(unit, city)+ " " + _this.updateCityCache(city, unit, null, cCount, count));
 										
 										}
-										}continue;
-										_this.updateCityCache(city, unit, null, cCount, count);
-									if(ClientLib.Base.EUnitType.Tank){
+										//}continue;
+										//_this.updateCityCache(city, unit, null, cCount, count);
+									/*if(ClientLib.Base.EUnitType.Tank){
 									
 
 
 									if (  (( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryorTibCost)> 4 )  && (nLevel <= highestUnitLevel) ) || (( unitRepairRatio>1 ) && ( cryCurrentAmount > cryCurrentStorage*0.05 ) && ((  cryCurrentAmount/unitCryCost)> 2 )) ) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										//console.log(unit);
-										
-										console.log(_this.cityDefUnitInfo(unit, city)+ " " + _this.updateCityCache(city, unit, null, cCount, count));
+										console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,null,unit));
+										//console.log(_this.cityDefUnitInfo(unit, city)+ " " + _this.updateCityCache(city, unit, null, cCount, count));
 										
 										}
 										}continue;
@@ -766,20 +1145,20 @@
 									if (  (( tibCurrentAmount > tibCurrentStorage*0.05 ) && ((  tibCurrentAmount/unitCryorTibCost)> 4 )  && (nLevel <= highestUnitLevel) ) || (( unitRepairRatio>1 ) && ( tibCurrentAmount > tibCurrentStorage*0.05 ) && ((  tibCurrentAmount/unitCryCost)> 2 )) ) {
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", unit_obj, null, null, true);
 										//console.log(unit);
-										
-										console.log(_this.cityDefUnitInfo(unit, city)+ " " + _this.updateCityCache(city, unit, null, cCount, count));
+										console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,null,unit));
+										//console.log(_this.cityDefUnitInfo(unit, city)+ " " + _this.updateCityCache(city, unit, null, cCount, count));
 									
 										}
 										}continue;
-										_this.updateCityCache(city, unit, null, cCount, count);	
-									
+										//_this.updateCityCache(city, unit, null, cCount, count);	
+									*/
 										
 									}
 									}catch (e) {
 										console.log("This crashed FlunikTools Def: ", e);
 									};
 								}
-								
+								//console.log(_this.Update(city,building,unit));
 								//This is the building loop.
 								var buildings = city.get_Buildings();
 								for (var nBuildings in buildings.d) {
@@ -787,26 +1166,30 @@
 								var x = 0;
 									for(var x; x < 1 ; x++){
 										var count = x;
-										
+																	
 									var building = buildings.d[nBuildings];
+									var name = building.get_UnitGameData_Obj().dn;
+									/*if(name == "Silo"){
+	console.log(_this.Update(city,null,null)["City Name"],_this.Update(city,building,null));
+	}*/		
 									//console.log(building.GetUniqueBuildingByTechName());
 									var nLevel = building.get_CurrentLevel()+1;
 									//console.log( ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj( nLevel, building.get_TechGameData_Obj() )[1].Count);
 									if (!_this.canUpgradeBuilding(building, city)) continue; //KRS_L
-									var name = building.get_UnitGameData_Obj().dn; //This is where is grabs the name of the building.
+									 //This is where is grabs the name of the building.
 									//var name = building.GetUniqueBuildingByTechName(tech);
 									
-									
+																		
 									var buildinglvl = building.get_CurrentLevel();
 									var blvlHigh = baselvl + 5.00;
 									var blvlLow = baselvl + 3.00;
 									var buildingTibCost = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj( nLevel, building.get_TechGameData_Obj() )[0].Count;
 									//var buildingPowCost = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj( nLevel, building.get_TechGameData_Obj() )[1].Count
-									 
+									 //ClientLib.Base.Tech.GetModifierValueFromLvl1Tech (System.Int32 techNameId ,System.Int32 modifierTypeId ,System.Int32 factionId)
 									//My idea pool.
 									
 									//Need to fix the the upgrade bomb need it to do bases indiviually instead of all at once.
-									if ((city.GetResourceCount(tib) > (city.GetResourceMaxStorage(tib)*0.75))&&((city.GetResourceCount(tib)/buildingTibCost)>1))continue; 
+									//if ((city.GetResourceCount(tib) > (city.GetResourceMaxStorage(tib)*0.75))&&((city.GetResourceCount(tib)/buildingTibCost)>1))continue; 
 									//if (name == "Silo" || name == "Accumulator" || name == "Command Center" || name == "Defence HQ" ) {
 									if (window.FlunikTools.Main.getInstance().buildingsToUpdate.indexOf(name) != -1) {
 										//if (name == "Silo") {
@@ -842,8 +1225,8 @@
 										  
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
                                              
-												
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
+												console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
 												//console.log( "Building Upgraded and Previous upgraded lvl :");
 												//console.log("City Name: {"+ city.m_SupportDedicatedBaseName +"} Base level: {"+ baselvl + "}")
 												//console.log("Building name: {" + name  + "} Building Current level: [" + building.get_CurrentLevel() + "] New Building Level: [" + newbuildinglvl + "] Coordinates (x,y)= (" + building.get_CoordX() + ", " + building.get_CoordY() + ")"); 
@@ -854,7 +1237,7 @@
 										 
 										  }
 										  
-										  _this.updateCityCache(city, null, building, cCount, count)
+										  //_this.updateCityCache(city, null, building, cCount, count)
 										  if(	(name =="Hand of Nod" ||  name =="Barracks") &&	((infRT >= airRT) && (infRT >= vehRT)) ){
 										  var building_obj = {
 											cityid: city.get_Id(),
@@ -865,12 +1248,13 @@
 											};
 										  
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
+										  console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
                         
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));                        
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));                        
 										  
 										  }
         								 
-										 _this.updateCityCache(city, null, building, cCount, count)
+										 //_this.updateCityCache(city, null, building, cCount, count)
 										 if(	(name =="Airport" || name =="Airfield") && ((airRT >= infRT) && (airRT >= vehRT))	)	{
 										 
 										 var building_obj = {
@@ -882,12 +1266,12 @@
 											};
 											
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                              
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count)); 
+                                             console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null)); 
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count)); 
 											
 											}
 											// End of Rt Buildings }
-											_this.updateCityCache(city, null, building, cCount, count)
+											//_this.updateCityCache(city, null, building, cCount, count)
 											//Start of Unit development buildings
 										  if (	(name == "Construction Yard"|| name =="Command Center" || name =="Defense HQ" ||  name =="Defense Facility") && (buildinglvl < blvlLow)	){
 										  
@@ -900,12 +1284,12 @@
 											};
 										  
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                            
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
+                                            console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
 										  
 										  }
 										  //End of unit development buildings
-										 _this.updateCityCache(city, null, building, cCount, count)
+										 //_this.updateCityCache(city, null, building, cCount, count)
 										 //Start of Storage buildings
 										  if (	(name =="Accumulator" || name =="Silo") && (buildinglvl <= blvlHigh)&&((city.GetResourceCount(tib)/buildingTibCost)>2)	){
 										  
@@ -918,12 +1302,12 @@
 											};
 										  
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                              
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));   
+                                              console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));   
 										  
 										  }
 										  //End of storage buildings
-										  _this.updateCityCache(city, null, building, cCount, count)
+										  //_this.updateCityCache(city, null, building, cCount, count)
 										  //Start of Resouce Buildings
 										  if (	(name =="Harvester") && (buildinglvl <= blvlLow)&&((city.GetResourceCount(tib)/buildingTibCost)>4)	){
 										  
@@ -936,12 +1320,12 @@
 											};
 											
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                            
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
+                                            console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
 											
 											}
-											_this.updateCityCache(city, null, building, cCount, count)
-											if (	(name == "PowerPlant" ) && (buildinglvl <= blvlLow)&&((city.GetResourceCount(tib)/buildingTibCost)>3)	){
+											//_this.updateCityCache(city, null, building, cCount, count)
+											if (	(name == "Power Plant" ) && (buildinglvl <= blvlLow)&&((city.GetResourceCount(tib)/buildingTibCost)>3)	){
 										  
 										  var building_obj = {
 											cityid: city.get_Id(),
@@ -952,11 +1336,11 @@
 											};
 											
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                              
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));   
+                                              console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));   
 												
 											}
-											_this.updateCityCache(city, null, building, cCount, count)
+											//_this.updateCityCache(city, null, building, cCount, count)
 											if (	(name =="Refinery") && (buildinglvl <= blvlLow)&&((city.GetResourceCount(tib)/buildingTibCost)>2)	){
 										  
 										  var building_obj = {
@@ -968,11 +1352,11 @@
 											};
 											
 											ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                              
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
+                                              console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
 											
 											}
-											_this.updateCityCache(city, null, building, cCount, count)
+											//_this.updateCityCache(city, null, building, cCount, count)
 											
 											//End of Resourse Buildings
 											
@@ -988,12 +1372,13 @@
 											};
 										  
 										  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", building_obj, null, null, true); 
-                                              
-												console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
+                                              console.log("Upgraded:",_this.Update(city,null,null),_this.Update(city,building,null));
+												//console.log(_this.cityBuildingInfo(building, city)+ " "+ _this.updateCityCache(city, null, building, cCount, count));  
 										  
 										  }
 										  //End of support buildings
-_this.updateCityCache(city, null, building, cCount, count)
+//_this.Update(city, building, null);
+
 											//}
 									//}
 									}
@@ -1007,7 +1392,9 @@ _this.updateCityCache(city, null, building, cCount, count)
 								}
 								//}
 							//}
+							console.log("Update:",_this.Update(city,null,null));
 						}
+						//console.log(_this.Update(city,building,unit));
 						}
 					}
 				});
@@ -1022,30 +1409,12 @@ _this.updateCityCache(city, null, building, cCount, count)
 					createFlunikTools();
 					console.log(" ");
 					console.log("[FlunikTools Wrapper]");
- 
-					for (var key in ClientLib.Data.CityBuilding.prototype) { //KRS_L
-						if (ClientLib.Data.CityBuilding.prototype[key] !== null) {
-							var strFunction = ClientLib.Data.CityBuilding.prototype[key].toString();
-							//console.log(strFunction);
-							//if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0)){return true;}}return false") > -1) {
-							if (typeof ClientLib.Data.CityBuilding.prototype[key] === 'function' & strFunction.indexOf("true).l.length==0))") > -1){	
-								ClientLib.Data.CityBuilding.prototype.CanUpgrade = ClientLib.Data.CityBuilding.prototype[key];
-								console.log("ClientLib.Data.CityBuilding.prototype.CanUpgrade = ClientLib.Data.CityBuilding.prototype[" +key+"]");
-								break;
-							}
-						}
-					}
- 
-					for (var key in ClientLib.Data.CityUnit.prototype) { //KRS_L
-						if (ClientLib.Data.CityUnit.prototype[key] !== null) {
-							var strFunction = ClientLib.Data.CityUnit.prototype[key].toString();
-							if (typeof ClientLib.Data.CityUnit.prototype[key] === 'function' & strFunction.indexOf(".l.length>0)){return false;}") > -1) {
-								ClientLib.Data.CityUnit.prototype.CanUpgrade = ClientLib.Data.CityUnit.prototype[key];
-								console.log("ClientLib.Data.CityUnit.prototype.CanUpgrade = ClientLib.Data.CityUnit.prototype[" +key+"]");
-								break;
-							}
-						}
-					}
+					  //var city = null;
+					  //var building = null;
+					  //var unit = null;
+					  
+				
+					//console.log(Update, Update(null,null,null));
 					console.log("[FlunikTools Wrapper]");
 					console.log(" ");
  
