@@ -44,11 +44,6 @@ var DEFAULT_SCRIPTS = [{
     version : "1.8.0",
     enabled : false
 }, {
-    id : 138212,
-    name : "TACS (Tiberium Alliances Combat Simulator)",
-    version : "2.2",
-    enabled : true
-}, {
     id : 140988,
     name : "infernal wrapper",
     version : "0.390737.5",
