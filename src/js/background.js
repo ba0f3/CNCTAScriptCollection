@@ -9,6 +9,16 @@ var DEFAULT_SCRIPTS = [{
     version : "2.1.8",
     enabled : false
 }, {
+    id : 138212,
+    name : "TACS (Tiberium Alliances Combat Simulator)",
+    version : "2.2",
+    enabled : true
+}, {
+    id : 1382121,
+    name : "TACS 3 (Tiberium Alliances Combat Simulator)",
+    version : "3.0b",
+    enabled : false
+}, {
     id : 137978,
     name : "CnC: MH Tiberium Alliances Available Loot Summary",
     version : "1.8.3",
