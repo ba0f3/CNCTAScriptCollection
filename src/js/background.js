@@ -143,6 +143,11 @@ var DEFAULT_SCRIPTS = [{
     name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
     version:  "0.5.7.09",
     enabled: false
+}, {
+    id : 160800,
+    name : "CnC: Tiberium Alliances Available Loot Summary + Info",
+    version : "2.0.0",
+    enabled : false
 }];
 
 var storage = chrome.storage.sync;
