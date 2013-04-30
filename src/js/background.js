@@ -148,6 +148,11 @@ var DEFAULT_SCRIPTS = [{
     name : "CnC: Tiberium Alliances Available Loot Summary + Info",
     version : "2.0.0",
     enabled : false
+}, {
+    id : 165625,
+    name : "Tiberium Alliances BaseNavBar Reorderer",
+    version : "1.0",
+    enabled : true
 }];
 
 var storage = chrome.storage.sync;
