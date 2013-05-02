@@ -61,7 +61,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 145168,
     name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
-    version : "1.8.3",
+    version : "1.8.4",
     enabled : true
 }, {
     id : 149809,
