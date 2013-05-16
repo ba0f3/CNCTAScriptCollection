@@ -153,6 +153,11 @@ var DEFAULT_SCRIPTS = [{
     name : "Tiberium Alliances BaseNavBar Reorderer",
     version : "1.0",
     enabled : true
+}, {
+    id : 165888,
+    name : "nWo - Tiberium Alliances Combat Simulator",
+    version : "13.05.12",
+    enabled : false
 }];
 
 var storage = chrome.storage.sync;
