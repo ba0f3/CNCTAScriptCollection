@@ -86,7 +86,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 152787,
     name: "C&C:Tiberium Alliances Coords Button",
-    version: "1.0.1",
+    version: "2.0",
     enabled: true
 }, {
     id: 153193,
