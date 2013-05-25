@@ -3,7 +3,7 @@
 // @namespace   CNCTACoordsButtonAll
 // @description Copy & Paste selected world object coords to chat message
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version     2.0
+// @version     2.0.1
 // @author Bruce Doan, Chiantii
 // @updateURL   https://userscripts.org/scripts/source/167957.meta.js
 // @downloadURL https://userscripts.org/scripts/source/167957.user.js
@@ -13,7 +13,7 @@
     try {
       function createCoordsButton() {
         console.log('C&C:Tiberium Alliances Coords Button All loaded.');
- 
+
         /*
         $a = qx.core.Init.getApplication(); // Application
         $c = $a.getChat(); // ChatWindow
@@ -21,27 +21,27 @@
         $i = $cw.getEditable(); // Input
         $d = $i.getContentElement().getDomElement(); // Input DOM Element
         */
- 
+
         var coordsButton = {
           selectedBase: null,
           pasteCoords: function(){
             var $i = qx.core.Init.getApplication().getChat().getChatWidget().getEditable(); // Input
             var $d = $i.getContentElement().getDomElement(); // Input DOM Element
- 
+
             var result = new Array();
             result.push($d.value.substring(0,$d.selectionStart)); // start
- 
+
             result.push('[coords]' + coordsButton.selectedBase.get_RawX() + ':' + coordsButton.selectedBase.get_RawY() + '[/coords]');
- 
+
             result.push($d.value.substring($d.selectionEnd, $d.value.length)); // end
- 
+
             $i.setValue(result.join(' '));
           }
         };
- 
+
         if (!webfrontend.gui.region.RegionCityMenu.prototype.__coordsButton_showMenu) {
           webfrontend.gui.region.RegionCityMenu.prototype.__coordsButton_showMenu = webfrontend.gui.region.RegionCityMenu.prototype.showMenu;
-       
+
           webfrontend.gui.region.RegionCityMenu.prototype.showMenu = function (selectedVisObject) {
             coordsButton.selectedBase = selectedVisObject;
             if (this.__coordsButton_initialized != 1) {
@@ -54,7 +54,7 @@
                   var button = new qx.ui.form.Button("Paste Coords");
                   button.addListener("execute", function () {
                     coordsButton.pasteCoords();
-                  });            
+                  });
                   this[i].add(button);
                 }
               }
@@ -64,16 +64,17 @@
               case ClientLib.Vis.VisObject.EObjectType.RegionPointOfInterest:
               case ClientLib.Vis.VisObject.EObjectType.RegionRuin:
               case ClientLib.Vis.VisObject.EObjectType.RegionHubControl:
+              case ClientLib.Vis.VisObject.EObjectType.RegionHubServer:
                 this.add(this.__newComposite);
                 break;
             }
           }
         }
-      }    
+      }
     } catch (e) {
       console.log("createCoordsButton: ", e);
     }
- 
+
     function CNCTACoordsButtonAll_checkIfLoaded() {
       try {
         if (typeof qx !== 'undefined') {

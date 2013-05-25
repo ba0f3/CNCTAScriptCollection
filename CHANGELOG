@@ -1,3 +1,6 @@
+1.2.8.42:
+- Add "Tiberium Alliances - New Resource Trade Window" version 1.2
+- Update "C&C:Tiberium Alliances Coords Button" to version 2.0.1 (Updated by Chiantii)
 1.2.8.41:
 - Update "C&C:Tiberium Alliances Coords Button" to version 2.0 (Updated by Chiantii)
 1.2.8.40:
@@ -202,7 +205,7 @@
 1.2.6.3:
 - Update "C&C Combat Simulator" to version 0.1.7.5
 1.2.6.2:
-- Update "Tiberium Alliances Map" to version 1.8.1 (hotfix) 
+- Update "Tiberium Alliances Map" to version 1.8.1 (hotfix)
 - Remove "Tiberium Alliances Combat Simulator" due to development was discontinued
 - Remove "Maelstrom ADDON Basescanner" due to development was discontinued
 1.2.6.1:
@@ -255,7 +258,7 @@
 1.2.4.5:
   - Update "CnC: MH Tiberium Alliances Available Loot Summary" to version 1.7.0
   - Add "Maelstrom ADDON Basescanner" script
-1.2.4.4:  
+1.2.4.4:
   - Minor fix to make the extension works on Chromium & Chrome old than v20
   - Minor fix to make CNCOpt works (re-enable by default)
 1.2.4.3:

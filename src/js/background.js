@@ -86,7 +86,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 152787,
     name: "C&C:Tiberium Alliances Coords Button",
-    version: "2.0",
+    version: "2.0.1",
     enabled: true
 }, {
     id: 153193,
@@ -158,6 +158,11 @@ var DEFAULT_SCRIPTS = [{
     name : "nWo - Tiberium Alliances Combat Simulator",
     version : "13.05.12",
     enabled : false
+}, {
+    id : 168297,
+    name : "Tiberium Alliances - New Resource Trade Window",
+    version : "1.2",
+    enabled : false
 }];
 
 var storage = chrome.storage.sync;
@@ -191,7 +196,7 @@ storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function (config) {
         storage.set({'CNCTA_GA': true});
         config.CNCTA_GA = true;
     }
-    if (config.CNCTA_GA === true) {    
+    if (config.CNCTA_GA === true) {
         var _gaq = _gaq || [];
         _gaq.push([ '_setAccount', 'UA-15252221-7' ]);
         _gaq.push([ '_trackPageview' ]);
