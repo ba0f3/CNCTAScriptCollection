@@ -111,7 +111,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 158164,
     name: "Tiberium Alliances Transfer All Resources",
-    version: "1.5.1",
+    version: "1.6.1",
     enabled: true
 }, {
     id: 158919,
@@ -161,7 +161,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 168297,
     name : "Tiberium Alliances - New Resource Trade Window",
-    version : "1.2",
+    version : "1.4.7",
     enabled : false
 }, {
     id : 166833,
