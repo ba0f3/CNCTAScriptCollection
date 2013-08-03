@@ -2,6 +2,8 @@
 // @name           CnC: Tiberium Alliances Shortcuts
 // @author         MrHIDEn
 // @description    Easy login to C&C from https://www.tiberiumalliances.com/login/auth
+// @downloadURL   https://userscripts.org/scripts/source/135806.user.js
+// @updateURL     https://userscripts.org/scripts/source/135806.meta.js
 // @description    to many apccounts by pressing Alt+1, Alt+2, ..... Alt+9(9th apccount)
 // @description    Alt+0 - Logout
 // @description    Get and plapce coordinates into a message with three useful keyboard shortcuts
@@ -20,8 +22,7 @@
 // @grant          none 
 // @include        *tiberiumalliances.com*
 // @include        http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @require        http://sizzlemctwizzle.com/updater.php?id=135806&days=2
-// @version        1.8.0
+// @version        1.8.1
 // ==/UserScript==
 
 
@@ -237,7 +238,7 @@ Ini();
             console.log("MHTools: Shortcuts loaded - Part 2.");
           },
           statics : {
-            VERSION: '1.8.0',
+            VERSION: '1.8.1',
             AUTHOR: 'MrHIDEn',
             CLASS: 'Shortcuts'
           },
@@ -340,7 +341,7 @@ Ini();
                   if (inputField != null) {
                     var apc = ClientLib.Data.MainData.GetInstance().get_Cities();//all player cities
                     var PlayerName = apc.get_CurrentOwnCity().get_PlayerName();
-                    var txt = 'Player: ' + PlayerName + "\r\n----------------------------------\r\n";
+                    var txt = 'Player: ' + PlayerName + "\r\n";//----------------------------------\r\n";
                     var apcl = apc.get_AllCities().d;//all player cities list
                     for (var key in apcl) {
                       var c = apcl[key];
@@ -351,19 +352,18 @@ Ini();
                         if(sd !== null) {
                           sl = sd.get_Level().toString();
                           sn = c.get_SupportWeapon().dn; 
-                        }
-                      
-                        txt += "Base \'" + c.get_Name() + "\' info:\r\n"; //m_Level
-                        txt += "Base       lvl: " + c.get_LvlBase().toFixed(2).toString() + "\r\n";
-                        txt += "Deffence lvl: " + c.get_LvlDefense().toFixed(2).toString() + "\r\n";
-                        txt += "Offence  lvl: " + c.get_LvlOffense().toFixed(2).toString() + "\r\n";
-                        txt += "Support  lvl: " + sl + " - " + sn + "\r\n";
-                        txt += "Distance to center: " + Math.round(ClientLib.Base.Util.CalculateDistance(ClientLib.Data.MainData.GetInstance().get_Server().get_ContinentWidth() / 2, ClientLib.Data.MainData.GetInstance().get_Server().get_ContinentHeight() / 2, c.get_PosX(), c.get_PosY())) + "\r\n";
-                        txt += "[coords]" + c.get_PosX() + ":" + c.get_PosY() + "[/coords]\r\n";
+                        }                      
+                        txt += "[b]" + c.get_Name() + "[/b]_________________________\r\n"; //m_Level
+                        txt += "[u]Off: " + c.get_LvlOffense().toFixed(1).toString() + "[/u]  " + //"\r\n" +
+                               "Def: " + c.get_LvlDefense().toFixed(1).toString() + "  " + "__" + //"\r\n" +
+                               "Bas: " + c.get_LvlBase().toFixed(1).toString()    + "  " + //"\r\n" +
+                               "[i]Sup: " + sl + " - " + sn + "[/i]\r\n";
+                        //txt += "Distance to center: " + Math.round(ClientLib.Base.Util.CalculateDistance(ClientLib.Data.MainData.GetInstance().get_Server().get_ContinentWidth() / 2, ClientLib.Data.MainData.GetInstance().get_Server().get_ContinentHeight() / 2, c.get_PosX(), c.get_PosY())) + "\r\n";
+                        //txt += "[coords]" + c.get_PosX() + ":" + c.get_PosY() + "[/coords]\r\n";
                       } catch (e) {
                         console.warn("MHTools.Shortcuts.INFO exception: ", e); 
                       }
-                      txt += "----------------------------------\r\n";
+                      //txt += "----------------------------------\r\n";
                     }
                     inputField.value += txt;
                   }

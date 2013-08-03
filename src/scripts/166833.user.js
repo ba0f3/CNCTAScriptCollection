@@ -2,7 +2,7 @@
 // @name        New Custom Flunik Tools
 // @namespace   FlunikTools
 // @description Upgrades Offense or Defense or Buildings. 
-// @version     Awesome 1.2.2
+// @version     Awesome 1.2.4
 // @author      dbendure
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @updateURL   https://userscripts.org/scripts/source/166833.meta.js
@@ -36,7 +36,7 @@
 						initialize: function() {
 						
 							console.log('FLUNIKTOOLS initialize');
-							AutoUpdateButton = new qx.ui.form.Button("All", null).set({
+							/*AutoUpdateButton = new qx.ui.form.Button("All", null).set({
 								toolTipText: "Only Upgrades Everything, even if you turn it off... stupid all button!",
 								width: 60,
 								height: 30,
@@ -44,7 +44,7 @@
 								maxHeight: 30,
 								appearance: ("button-text-small"), //"button-standard-"+factionText), button-playarea-mode-red-frame
 								center: true
-							});
+							});*/
 							BuildingsButton = new qx.ui.form.Button("Building", null).set({
 								toolTipText: "Only Upgrades Buildings",
 								width: 60,
@@ -93,35 +93,35 @@
 							BuildingsButton.addListener("click", function (e) {
 								if (window.FlunikTools.Main.getInstance().autoUpdateHandle != null) {
 									window.FlunikTools.Main.getInstance().BstopAutoUpdate();
-									BuildingsButton.setLabel("F.OFF");
+									BuildingsButton.setLabel("B.OFF");
 									//alert("Stopped auto-update");
 								} else {
 									window.FlunikTools.Main.getInstance().BuildingstartAutoUpdate();
-									BuildingsButton.setLabel("F.ON");
+									BuildingsButton.setLabel("B.ON");
 								}
 							}, this);
 							DefenseButton.addListener("click", function (e) {
 								if (window.FlunikTools.Main.getInstance().autoUpdateHandle != null) {
 									window.FlunikTools.Main.getInstance().DstopAutoUpdate();
-									DefenseButton.setLabel("F.OFF");
+									DefenseButton.setLabel("D.OFF");
 									//alert("Stopped auto-update");
 								} else {
 									window.FlunikTools.Main.getInstance().DefensestartAutoUpdate();
-									DefenseButton.setLabel("F.ON");
+									DefenseButton.setLabel("D.ON");
 								}
 							}, this);
 							OffenseButton.addListener("click", function (e) {
 								if (window.FlunikTools.Main.getInstance().autoUpdateHandle != null) {
 									window.FlunikTools.Main.getInstance().OstopAutoUpdate();
-									OffenseButton.setLabel("F.OFF");
+									OffenseButton.setLabel("O.OFF");
 									//alert("Stopped auto-update");
 								} else {
 									window.FlunikTools.Main.getInstance().OffensestartAutoUpdate();
-									OffenseButton.setLabel("F.ON");
+									OffenseButton.setLabel("O.ON");
 								}
 							}, this);
 							
-							AutoUpdateButton.addListener("click", function (e) {
+							/*AutoUpdateButton.addListener("click", function (e) {
 								if (window.FlunikTools.Main.getInstance().autoUpdateHandle != null) {
 									
 									AutoUpdateButton.setLabel("F.OFF");
@@ -146,11 +146,11 @@
 									window.FlunikTools.Main.getInstance().OffensestartAutoUpdate();
 									OffenseButton.setLabel("F.ON");
 								}
-							}, this);
+							}, this);*/
 							
 							//popup.add(new qx.ui.basic.Atom(null, null));//new qx.ui.basic.Atom("Hello World #1", "button-text-small")
 							
-							popup.add(AutoUpdateButton, {row: 0, column: 0});
+							//popup.add(AutoUpdateButton, {row: 0, column: 0});
 							popup.add( BuildingsButton, {row: 0, column: 1});
 							popup.add(DefenseButton, {row: 0, column: 2});
 							popup.add(OffenseButton, {row: 0, column: 3});
@@ -429,28 +429,28 @@
                                     var name  = unit.get_UnitGameData_Obj().dn;
 									//console.log(HQ[0]);
 									
-								  if(unit.get_CurrentLevel() > 2){
+								  if(unit.get_CurrentLevel() > 3){
 									var unitHealthperCost = _this.GetUnitMaxHealth(unit.get_CurrentLevel(), ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(unit.get_MdbUnitId()), false)/(ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(unitlvlup1, unit.get_UnitGameData_Obj())[1].Count);
 									}
-									if(unit.get_CurrentLevel() <= 2){
+									if(unit.get_CurrentLevel() <= 3){
 									var unitHealthperCost = Math.pow( (_this.GetUnitMaxHealth(unit.get_CurrentLevel(), ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(unit.get_MdbUnitId()), false)/(ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(unitlvlup1, unit.get_UnitGameData_Obj())[0].Count)), -1);
 									}
 									defarr[defnum] =  unitHealthperCost;
 								    defarr.sort(function(a,b){return b-a});
 									//console.log(defarr[0], defarr[1]);
 									
-									if((defarr[0] >= defarr[1]) && ((unit.get_CurrentLevel() > 2)&&( unit.get_CurrentLevel() <= 3) ) && (defarr[1] != undefined)  ){
+									if((defarr[0] >= defarr[1]) && ((unit.get_CurrentLevel() > 3)&&( unit.get_CurrentLevel() <= 4) ) && (defarr[1] != undefined)  ){
 									
 									//console.log(defarr[0], defarr[1]);
 									defarr.shift();
 									}
-									if((defarr[0] >= defarr[1]) && (unit.get_CurrentLevel() > 3) && (defarr[1] != undefined)  ){
+									if((defarr[0] >= defarr[1]) && (unit.get_CurrentLevel() > 4) && (defarr[1] != undefined)  ){
 									defarr.sort(function(a,b){return a-b});
 									//console.log(defarr[0], defarr[1]);
 									defarr.shift();
 									}
 									
-									if((defarr[0] >= defarr[1]) && (unit.get_CurrentLevel() <= 2) && (defarr[1] != undefined)){
+									if((defarr[0] >= defarr[1]) && (unit.get_CurrentLevel() <= 3) && (defarr[1] != undefined)){
 									defarr.shift();
 									}
 									
@@ -476,6 +476,7 @@
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", defunit_obj, null, null, true);
 										defarr = [];
 										HQ = [];
+										break;
 								}
                                
 							}
@@ -568,6 +569,7 @@
 										console.log(offunit_obj, offarr);
 										ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UnitUpgrade", offunit_obj, null, null, true);
 										offarr = [];
+										break;
 								}
                                
 							}
@@ -678,7 +680,7 @@
 											//ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", offRT_obj, null, null, true);
                                  }
                                  
-                                 if (	(tech == ClientLib.Base.ETechName.Construction_Yard|| tech ==ClientLib.Base.ETechName.Command_Center || tech ==ClientLib.Base.ETechName.Defense_HQ ) && (building.get_CurrentLevel() < blvlLow) 	){
+                                 if (	(tech == ClientLib.Base.ETechName.Construction_Yard|| tech ==ClientLib.Base.ETechName.Command_Center || tech ==ClientLib.Base.ETechName.Defense_HQ ) && (building.get_CurrentLevel() < blvlLow) && (_this.totalRepairTime(airRT, vehRT, infRT) < 14400)	){
 										  
 										  var building_obj = {
 											cityid: city.get_Id(),
@@ -824,21 +826,21 @@
                                             var powCost = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(buildinglvlup1, building.get_UnitGameData_Obj())[1].Count;
                                             var powLinkTypes0 = 0;
 											var powLinkTypes1 = 0;
-											var powLinkTypes1 = 0;
+											var powLinkTypes2 = 0;
 											
                                             
 											
 											if(city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.PowerProduction].ConnectedLinkTypes.d[29] != undefined ){
 											 powLinkTypes0 = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.PowerProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.AccumulatorPowerBonus].Value ;											var powLinkTypes1 = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.PowerProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.CrystalCreditProduction].Value ;
-                                            var powTotalPro = powPro + (powPac/(powPacperH/3600)) + powLinkTypes0 ;
-											var powTotalProOfLevel12 = 605 + (7260/6) + 456; 
+                                            var powTotalPro = powPro + (powPac/(powPacperH/3600)) + powLinkTypes0 +  powLinkTypes1 + powLinkTypes2 ;
+											var powTotalProOfLevel12 = 605 + (7260/6) + 570 + 456 + 484; 
 											//console.log(powLinkTypes0);
 											}
 											
 											if( city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.PowerProduction].ConnectedLinkTypes.d[38] != undefined ){
 											 powLinkTypes1 = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.PowerProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.CrystalCreditProduction].Value ;
-                                            var powTotalPro = powPro + (powPac/(powPacperH/3600)) + powLinkTypes0 +  powLinkTypes1;
-											var powTotalProOfLevel12 = 605 + (7260/6) + 456 + 570; 
+                                            var powTotalPro = powPro + (powPac/(powPacperH/3600)) + powLinkTypes0 +  powLinkTypes1 + powLinkTypes2 ;
+											var powTotalProOfLevel12 = 605 + (7260/6) + 570 + 456 + 484; 
 											//console.log(powLinkTypes1);
 											}
 											
@@ -1032,7 +1034,7 @@
 											 //OwnProdModifiers.d[1].ConnectedLinkTypes.d[39].Value - OwnProdModifiers.d[4].ConnectedLinkTypes.d[40].Value
                               				//console.log(city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d);
                                             var silCryLinkType = 0;
-                                            
+                                            var silTibLinkType = 0;
                                             var silCryPro = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].TotalValue;
 											//var silCryLinkType = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterCrystalProduction].Value;
                                             var silTibPro = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.TiberiumProduction].TotalValue;
@@ -1042,12 +1044,12 @@
                                             var silCost = ClientLib.Base.Util.GetUnitLevelResourceRequirements_Obj(buildinglvlup1, building.get_UnitGameData_Obj())[1].Count;
                                             
 											if(city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterCrystalProduction] != undefined){
-											var silCryLinkType = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterCrystalProduction].Value;
+											silCryLinkType = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterCrystalProduction].Value;
 											 var silTotalPro = silCryPro + silTibPro + silCryLinkType;
 											}
 											
-											if(silTibLinkType = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterTiberiumProduction] != undefined){
-											var silTibLinkType = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.CrystalProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterTiberiumProduction].Value;
+											if(city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.TiberiumProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterTiberiumProduction] != undefined){
+											silTibLinkType = city.GetBuildingCache(bulid).DetailViewInfo.OwnProdModifiers.d[ClientLib.Base.EModifierType.TiberiumProduction].ConnectedLinkTypes.d[ClientLib.Base.ELinkType.HarvesterTiberiumProduction].Value;
 											var silTotalPro = silCryPro + silTibPro + silCryLinkType + silTibLinkType;
 											}
 											
@@ -1151,7 +1153,7 @@
 							  break;
 							  }
 							  
-							 if((support_obj != undefined) && ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(support_obj.buildinglevel < 40))){
+							 if((support_obj != undefined) && ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(support_obj.buildinglevel < 15))){
 							  console.log(support_obj);
 							  ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", support_obj, null, null, true);
 							  support_obj = {};

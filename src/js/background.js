@@ -41,7 +41,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 135806,
     name : "CnC: Tiberium Alliances Shortcuts",
-    version : "1.8.0",
+    version : "1.8.1",
     enabled : false
 }, {
     id : 140988,
@@ -64,14 +64,9 @@ var DEFAULT_SCRIPTS = [{
     version : "1.8.4",
     enabled : true
 }, {
-    id : 149809,
-    name : "C&C:Tiberium Alliances Maelstrom ADDON Citycolor",
-    version : "0.4",
-    enabled : true
-}, {
     id : 138386,
     name : "CnC Tiberium Coord Box Shortcut",
-    version : "1",
+    version : "1.1",
     enabled : false
 }, {
     id: 149093,
@@ -155,8 +150,8 @@ var DEFAULT_SCRIPTS = [{
     enabled : true
 }, {
     id : 165888,
-    name : "nWo - Tiberium Alliances Combat Simulator",
-    version : "13.05.12",
+    name : "WarChiefs - Tiberium Alliances Combat Simulator",
+    version : "13.07.03",
     enabled : false
 }, {
     id : 168297,
@@ -166,9 +161,25 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 166833,
     name : "C&C Tiberium Alliances Flunik Tools: New Custom AutoUpgrade",
-    version : "Awesome 1.2.2",
+    version : "Awesome 1.2.4",
+    enabled : false
+}, {
+    id : 158799,
+    name : "TA - Upgrade Tool",
+    version : "1.0",
+    enabled : false
+}, {
+    id : 173330,
+    name : "Command & Conquer TA World Map",
+    version : "1.0.0",
+    enabled : false
+}, {
+    id : 171353,
+    name : "Command and Conquer TA POIs Analyser",
+    version : "1.5.2",
     enabled : false
 }];
+
 
 var storage = chrome.storage.sync;
 

@@ -3,7 +3,7 @@
 // @namespace   noobs
 // @description Adds "navigate" button which opens dialog in which you can enter map coordinates and scroll your screen to that location
 // @include   https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version     1
+// @version     1.1
 // ==/UserScript==
 
 // Fixed to work for chrome
@@ -131,13 +131,18 @@
 		}
 
 		function navigate(){
-			createDialog(["x","y"], processNavigateDialog);
+            var dialog = document.getElementById('ta_navigation_container');  
+            if(dialog)  
+                dialog.style.display = (dialog.style.display == 'block') ? 'none' : 'block';  
+            else  
+                createDialog(["x","y"], processNavigateDialog);
 		}
 		function processNavigateDialog(){
 
 		}
 		function createDialog(fields, handler){
 			var dialog = document.createElement("div");
+            dialog.id = 'ta_navigation_container';
 			dialog.style.position="absolute";
 			dialog.style.top="30px";
 			dialog.style.left="127px";

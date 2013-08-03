@@ -1,8 +1,8 @@
-// ==UserScript== 
-// @name            nWo - Tiberium Alliances Combat Simulator
+// ==UserScript==
+// @name            WarChiefs - Tiberium Alliances Combat Simulator
 // @description     Combat Simulator used to plan and strategize attack before going into battle.
 // @author          Eistee
-// @version         13.05.12
+// @version         13.07.03
 // @namespace       http*://*.alliances.commandandconquer.com/*
 // @include         http*://*.alliances.commandandconquer.com/*
 // @require         http://usocheckup.redirectme.net/165888.js
@@ -17,8 +17,10 @@
 // @grant           GM_xmlhttpRequest
 // ==/UserScript==
 /**
+ *  License: CC-BY-NC-SA 3.0
+ *
  *  Although I am the author of this script, I want to also give credit to other authors who's methods and ideas are or might appear in this script.
- *  Credits: Topper42, Eferz98, KRS_L, PythEch, MrHIDEn, Panavia2, Deyhak, CodeEcho, Matthias Fuchs, Enceladus, TheLuminary, Da Xue, Quor, WildKatana, Peluski17, Elda1990, TheStriker, JDuarteDJ, null
+ *  Credits: Topper42, Eferz98, PythEch, MrHIDEn, Panavia2, Deyhak, CodeEcho, Matthias Fuchs, Enceladus, TheLuminary, Da Xue, Quor, WildKatana, Peluski17, Elda1990, TheStriker, JDuarteDJ, null
  */
 (function () {
     var injectFunction = function () {
@@ -26,9 +28,9 @@
             qx.Class.define("Simulator", {
                 type: "singleton",
                 extend: qx.core.Object,
-
                 construct: function () {
                     try {
+                        var qxApp = qx.core.Init.getApplication();
                         this.armyBar = qx.core.Init.getApplication().getArmySetupAttackBar();
                         this.playArea = qx.core.Init.getApplication().getMainOverlay();
                         this.replayBar = qx.core.Init.getApplication().getReportReplayOverlay();
@@ -62,93 +64,126 @@
                          */
 
                         //Simulation Button//
-                        this.simBtn = new qx.ui.form.Button("Simulate").set({toolTipText: "Opens Simulation Screen.", width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
+                        this.simBtn = new qx.ui.form.Button(qxApp.tr("Simulate")).set({toolTipText: qxApp.tr("Opens Simulation Screen."), width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
                         this.simBtn.addListener("click", function () { this.__openSimulatorWindow(); }, this);
                         this.armyBar.add(this.simBtn, {left: null, right: 58, bottom: 119});
 
                         //Simulator Stats Button//
-                        this.statBtn = new qx.ui.form.Button("Stats").set({toolTipText: "Opens Simulator Stats Window", width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
+                        this.statBtn = new qx.ui.form.Button(qxApp.tr("Stats")).set({toolTipText: qxApp.tr("Opens Simulator Stats Window."), width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
                         this.statBtn.addListener("click", function () { this.__openStatWindow(); }, this);
                         this.armyBar.add(this.statBtn, {left: null, right: 58, bottom: 81});
 
                         //Simulator Options Button//
-                        this.optionBtn = new qx.ui.form.Button("Options").set({toolTipText: "Opens Simulator Options", width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
+                        this.optionBtn = new qx.ui.form.Button(qxApp.tr("Options")).set({toolTipText: qxApp.tr("Opens Simulator Options."), width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
                         this.optionBtn.addListener("click", function () { this.__openOptionWindow(); }, this);
                         this.armyBar.add(this.optionBtn, {left: null, right: 58, bottom: 43});
 
                         //Simulator Layout Button//
-                        this.layoutBtn = new qx.ui.form.Button("Layout").set({toolTipText: "Save/Load/Delete Unit Formations for current city", width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
+                        this.layoutBtn = new qx.ui.form.Button(qxApp.tr("Layout")).set({toolTipText: qxApp.tr("Save/Load/Delete Unit Formations for current city."), width: 60, height: 28, alignY: "middle", appearance: "button-text-small"});
                         this.layoutBtn.addListener("click", function () { this.__openLayoutWindow(); }, this);
                         this.armyBar.add(this.layoutBtn, {left: null, right: 58, bottom: 6});
 
                         //Simulator Unlock Combat Button//
-                        this.unlockCmtBtn = new qx.ui.form.Button("Unlock").set({toolTipText: "Unlock Combat Button", width: 50, height: 50, opacity: 0.7, alignY: "middle", appearance: "button-text-small"});
+                        this.unlockCmtBtn = new qx.ui.form.Button(qxApp.tr("Unlock")).set({toolTipText: qxApp.tr("Unlock Combat Button."), width: 44, height: 44, opacity: 0.4, padding : 0, alignY: "middle", appearance: "button-text-small"});
                         this.unlockCmtBtn.addListener("click", function () { this.timeoutCmtBtn(); }, this);
-                        this.armyBar.add(this.unlockCmtBtn, {left: null, right: 7, bottom: 5});
+                        this.armyBar.add(this.unlockCmtBtn, {left: null, right: 10, bottom: 8});
 
                         //Simulator Unlock Repair Time Button//
-                        this.unlockRTBtn = new qx.ui.form.Button("Unlock").set({toolTipText: "Unlock Repair Button", width: 50, height: 50, opacity: 0.7, alignY: "middle", appearance: "button-text-small"});
+                        this.unlockRTBtn = new qx.ui.form.Button(qxApp.tr("Unlock")).set({toolTipText: qxApp.tr("Unlock Repair Button."), width: 44, height: 44, opacity: 0.4, padding : 0, alignY: "middle", appearance: "button-text-small"});
                         this.unlockRTBtn.addListener("click", function () { this.timeoutRTBtn(); }, this);
-                        this.armyBar.add(this.unlockRTBtn, {left: null, right: 7, bottom: 97});
+                        this.armyBar.add(this.unlockRTBtn, {left: null, right: 10, bottom: 100});
 
                         //Formation Shift Buttons//
-                        this.shiftUpBtn = new qx.ui.form.Button("", img.Arrows.Up).set({toolTipText: "Shifts units one space up", width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
-                        this.shiftUpBtn.addListener("click", function () { this.shiftFormation("u", 0); }, this);
+                        this.shiftUpBtn = new qx.ui.form.Button("", img.Arrows.Up).set({toolTipText: qxApp.tr("Shifts units one space up."), width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
+                        this.shiftUpBtn.addListener("click", function () { this.shiftFormation("u"); }, this);
                         this.shiftUpBtn.hide();
                         this.playArea.add(this.shiftUpBtn, {left: null, right: 75, bottom: 113});
 
-                        this.shiftDownBtn = new qx.ui.form.Button("", img.Arrows.Down).set({toolTipText: "Shifts units one space down", width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
-                        this.shiftDownBtn.addListener("click", function () { this.shiftFormation("d", 0); }, this);
+                        this.shiftDownBtn = new qx.ui.form.Button("", img.Arrows.Down).set({toolTipText: qxApp.tr("Shifts units one space down."), width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
+                        this.shiftDownBtn.addListener("click", function () { this.shiftFormation("d"); }, this);
                         this.shiftDownBtn.hide();
                         this.playArea.add(this.shiftDownBtn, {left: null, right: 75, bottom: 73});
 
-                        this.shiftLeftBtn = new qx.ui.form.Button("", img.Arrows.Left).set({toolTipText: "Shifts units one space left", width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
-                        this.shiftLeftBtn.addListener("click", function () { this.shiftFormation("l", 0); }, this);
+                        this.shiftLeftBtn = new qx.ui.form.Button("", img.Arrows.Left).set({toolTipText: qxApp.tr("Shifts units one space left."), width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
+                        this.shiftLeftBtn.addListener("click", function () { this.shiftFormation("l"); }, this);
                         this.shiftLeftBtn.hide();
                         this.playArea.add(this.shiftLeftBtn, {left: null, right: 95, bottom: 93});
 
-                        this.shiftRightBtn = new qx.ui.form.Button("", img.Arrows.Right).set({toolTipText: "Shifts units one space right", width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
-                        this.shiftRightBtn.addListener("click", function () { this.shiftFormation("r", 0); }, this);
+                        this.shiftRightBtn = new qx.ui.form.Button("", img.Arrows.Right).set({toolTipText: qxApp.tr("Shifts units one space right."), width: 30, height: 20, alignY: "middle", appearance: "button-text-small", gap: 0, iconPosition: "top", show: "icon"});
+                        this.shiftRightBtn.addListener("click", function () { this.shiftFormation("r"); }, this);
                         this.shiftRightBtn.hide();
                         this.playArea.add(this.shiftRightBtn, {left: null, right: 55, bottom: 93});
 
                         for (i = 0; i < ClientLib.Base.Util.get_ArmyMaxSlotCountY(); i++) {
-                            var shiftLeftBtn = new qx.ui.form.Button(i+1, img.Arrows.Left).set({toolTipText: "Shifts units one space left", width: 30, maxHeight: 25, alignY: "middle", show: "icon", iconPosition: "top"});
+                            var btnMirrorH = new qx.ui.form.Button(i, img.Flip.H).set({toolTipText: qxApp.tr("Mirrors units horizontally."), width: 19, maxHeight: 25, alignY: "middle", show: "icon", iconPosition: "top", appearance: "button-addpoints"});
+                            btnMirrorH.addListener("click", function (e) { this.mirrorFormation("h", parseInt(e.getTarget().getLabel(), 10)); }, this);
+                            btnMirrorH.getChildControl("icon").set({width: 16, height: 16, scale: true});
+                            var shiftLeftBtn = new qx.ui.form.Button(i, img.Arrows.Left).set({toolTipText: qxApp.tr("Shifts units one space left."), width: 20, maxHeight: 25, alignY: "middle", show: "icon", iconPosition: "top", appearance: "button-addpoints"});
                             shiftLeftBtn.addListener("click", function (e) { this.shiftFormation("l", parseInt(e.getTarget().getLabel(), 10)); }, this);
-                            var shiftRightBtn = new qx.ui.form.Button(i+1, img.Arrows.Right).set({toolTipText: "Shifts units one space right", width: 30, maxHeight: 25, alignY: "middle", show: "icon", iconPosition: "top"});
+                            var shiftRightBtn = new qx.ui.form.Button(i, img.Arrows.Right).set({toolTipText: qxApp.tr("Shifts units one space right."), width: 20, maxHeight: 25, alignY: "middle", show: "icon", iconPosition: "top", appearance: "button-addpoints"});
                             shiftRightBtn.addListener("click", function (e) { this.shiftFormation("r", parseInt(e.getTarget().getLabel(), 10)); }, this);
 
-                            var cntWave = this.armyBar.getChildren()[1].getChildren()[(i+4)];
+                            var cntWave = this.armyBar.getMainContainer().getChildren()[(i+4)];
                             cntWave.removeAll();
                             cntWave.setLayout(new qx.ui.layout.HBox());
+                            cntWave.add(btnMirrorH);
                             cntWave.add(new qx.ui.core.Spacer(), {flex: 1});
                             cntWave.add(shiftLeftBtn);
                             cntWave.add(shiftRightBtn);
-                            cntWave.add(new qx.ui.core.Spacer(), {flex: 1});
+                        }
+                        var formation = this.armyBar.getMainContainer().getChildren()[1].getChildren()[0];
+                        var btnHBox = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+                        var btnHBoxouter = new qx.ui.container.Composite(new qx.ui.layout.HBox());
+                        btnHBoxouter.add(new qx.ui.core.Spacer(), {flex: 1});
+                        btnHBoxouter.add(btnHBox);
+                        btnHBoxouter.add(new qx.ui.core.Spacer(), {flex: 1});
+                        this.armyBar.add(btnHBoxouter, { left : 16, top : 7, right : 0});
+                        formation.bind("changeWidth", btnHBox, "width");
+
+                        for (i = 0; i < ClientLib.Base.Util.get_ArmyMaxSlotCountX(); i++) {
+                            var btnMirrorV = new qx.ui.form.Button(i, img.Flip.V).set({toolTipText: qxApp.tr("Mirrors units vertically."), width: 25, maxHeight: 19, alignY: "middle", show: "icon", iconPosition: "top", appearance: "button-addpoints", opacity: 0.3});
+                            btnMirrorV.addListener("click", function (e) { this.mirrorFormation("v", parseInt(e.getTarget().getLabel(), 10)); }, this);
+                            btnMirrorV.addListener("mouseover", function (e) { e.getTarget().set({opacity: 1.0}); }, this);
+                            btnMirrorV.addListener("mouseout", function (e) { e.getTarget().set({opacity: 0.3}); }, this);
+                            btnMirrorV.getChildControl("icon").set({width: 14, height: 14, scale: true});
+                            var btnShiftUp = new qx.ui.form.Button(i, img.Arrows.Up).set({toolTipText: qxApp.tr("Shifts units one space up."), width: 25, maxHeight: 19, alignY: "middle", show: "icon", iconPosition: "top", appearance: "button-addpoints", opacity: 0.3});
+                            btnShiftUp.addListener("click", function (e) { this.shiftFormation("u", parseInt(e.getTarget().getLabel(), 10)); }, this);
+                            btnShiftUp.addListener("mouseover", function (e) { e.getTarget().set({opacity: 1.0}); }, this);
+                            btnShiftUp.addListener("mouseout", function (e) { e.getTarget().set({opacity: 0.3}); }, this);
+                            var btnShiftDown = new qx.ui.form.Button(i, img.Arrows.Down).set({toolTipText: qxApp.tr("Shifts units one space down."), width: 25, maxHeight: 19, alignY: "middle", show: "icon", iconPosition: "top", appearance: "button-addpoints", opacity: 0.3});
+                            btnShiftDown.addListener("click", function (e) { this.shiftFormation("d", parseInt(e.getTarget().getLabel(), 10)); }, this);
+                            btnShiftDown.addListener("mouseover", function (e) { e.getTarget().set({opacity: 1.0}); }, this);
+                            btnShiftDown.addListener("mouseout", function (e) { e.getTarget().set({opacity: 0.3}); }, this);
+                            btnHBox.add(new qx.ui.core.Spacer(), {flex: 1});
+                            btnHBox.add(btnMirrorV);
+                            btnHBox.add(new qx.ui.core.Spacer().set({ width: 2 }));
+                            btnHBox.add(btnShiftUp);
+                            btnHBox.add(btnShiftDown);
+                            btnHBox.add(new qx.ui.core.Spacer(), {flex: 1});
                         }
 
                         //Formation Mirror Buttons//
-                        this.mirrorBtnH = new qx.ui.form.Button("", img.Flip.H).set({toolTipText: "Mirrors current army formation layout", show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
+                        this.mirrorBtnH = new qx.ui.form.Button("", img.Flip.H).set({toolTipText: qxApp.tr("Mirrors units horizontally."), show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
                         this.mirrorBtnH.getChildControl("icon").set({width: 20, height: 20, scale: true});
                         this.mirrorBtnH.addListener("click", function () { this.mirrorFormation("h"); }, this);
                         this.mirrorBtnH.hide();
                         this.playArea.add(this.mirrorBtnH, {left: null, right: 6, bottom: 160});
 
-                        this.mirrorBtnV = new qx.ui.form.Button("", img.Flip.V).set({toolTipText: "Mirrors current army formation layout", show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
+                        this.mirrorBtnV = new qx.ui.form.Button("", img.Flip.V).set({toolTipText: qxApp.tr("Mirrors units vertically."), show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
                         this.mirrorBtnV.getChildControl("icon").set({width: 20, height: 20, scale: true});
                         this.mirrorBtnV.addListener("click", function () { this.mirrorFormation("v"); }, this);
                         this.mirrorBtnV.hide();
                         this.playArea.add(this.mirrorBtnV, {left: null, right: 46, bottom: 160});
 
                         //Disable all Units Button//
-                        this.disableAllUnitsBtn = new qx.ui.form.Button("", img.DisableUnit).set({toolTipText: "Enables/Disables all units", show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
+                        this.disableAllUnitsBtn = new qx.ui.form.Button("", img.DisableUnit).set({toolTipText: qxApp.tr("Enables/Disables all units."), show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
                         this.disableAllUnitsBtn.getChildControl("icon").set({width: 20, height: 20, scale: true});
-                        this.disableAllUnitsBtn.addListener("click", function () { this.shiftFormation("n", 0); }, this);
+                        this.disableAllUnitsBtn.addListener("click", function () { this.shiftFormation("n"); }, this);
                         this.disableAllUnitsBtn.hide();
                         this.playArea.add(this.disableAllUnitsBtn, {left: null, right: 6, bottom: 120});
 
                         //Undo Button//
-                        this.armyUndoBtn = new qx.ui.form.Button("", img.Undo).set({toolTipText: "Undo's formation to previous saved formation.<br>Save formations by hitting<br>the Update or Simulate button.", show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
+                        this.armyUndoBtn = new qx.ui.form.Button("", img.Undo).set({toolTipText: qxApp.tr("Undo's formation to previous saved formation.<br>Save formations by hitting<br>the Update or Simulate button."), show: "icon", width: 35, height: 35, center: true, alignY: "middle", appearance: "button-text-small"});
                         this.armyUndoBtn.getChildControl("icon").set({width: 20, height: 20, scale: true});
                         this.armyUndoBtn.addListener("click", function () { this.undoCurrentFormation(); }, this);
                         this.armyUndoBtn.setEnabled(false);
@@ -156,20 +191,21 @@
                         this.playArea.add(this.armyUndoBtn, {left: null, right: 6, bottom: 200});
 
                         //Quick Save Button//
-                        this.quickSaveBtn = new qx.ui.form.Button("QS").set({toolTipText: "Saves the current layout<br>without having to open<br>the Formation Saver window.<br>Does not make persistent.", width: 35, height: 35, alignY: "middle", appearance: "button-text-small"});
+                        this.quickSaveBtn = new qx.ui.form.Button(qxApp.tr("QS")).set({toolTipText: qxApp.tr("Saves the current layout<br>without having to open<br>the Formation Saver window.<br>Does not make persistent."), width: 35, height: 35, alignY: "middle", appearance: "button-text-small"});
                         this.quickSaveBtn.addListener("click", function () { Simulator.LayoutWindow.getInstance().saveNewLayout(true); }, this);
                         this.quickSaveBtn.hide();
                         this.playArea.add(this.quickSaveBtn, {left: null, right: 6, bottom: 240});
 
                         //Simulator Back Button//
-                        this.backBtn = new qx.ui.form.Button("Back").set({toolTipText: "Return to Combat Setup", width: 50, height: 24, appearance: "button-text-small"});
+                        this.backBtn = new qx.ui.form.Button(qxApp.tr("Back")).set({toolTipText: qxApp.tr("Return to Combat Setup."), width: 50, height: 24, appearance: "button-text-small"});
                         this.backBtn.addListener("click", function () { this.backToCombatSetup(); }, this);
                         this.replayBar.add(this.backBtn, {top: 37, left: 255});
 
-                        this.replayStatBtn = new qx.ui.form.Button("Stats").set({toolTipText: "Return to Combat Setup", width: 50, height: 24, appearance: "button-text-small"});
+                        this.replayStatBtn = new qx.ui.form.Button(qxApp.tr("Stats")).set({toolTipText: qxApp.tr("Opens Simulator Stats Window."), width: 50, height: 24, appearance: "button-text-small"});
                         this.replayStatBtn.addListener("click", function () { this.__openStatWindow(); }, this);
                         this.replayBar.add(this.replayStatBtn, {top: 7, left: 255});
 
+                        phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this, this._onViewChanged);
                     } catch (e) {
                         console.log("Error setting up Simulator Constructor: ");
                         console.log(e.toString());
@@ -201,6 +237,48 @@
                     quickSaveBtn: null,
                     backBtn: null,
                     replayStatBtn: null,
+                    _onViewChanged: function (oldMode, newMode) {
+                        try {
+                            if (newMode != ClientLib.Vis.Mode.CombatSetup && newMode != ClientLib.Vis.Mode.Battleground) {
+                                Simulator.getInstance().armyTempFormations = [];
+                                Simulator.getInstance().armyTempIdx = 0;
+                                Simulator.getInstance().armyUndoBtn.setEnabled(false);
+                                Simulator.getInstance().isSimulation = false;
+                                localStorage['allUnitsDisabled'] = "no";
+                            } else if (newMode == ClientLib.Vis.Mode.CombatSetup && oldMode != ClientLib.Vis.Mode.Battleground) {
+                                Simulator.getInstance().saveTempFormation();
+                            }
+
+                            var cityId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity().get_Id();
+                            var ownCityId = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity().get_Id();
+                            if (ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity() !== null) {
+                                if (newMode == ClientLib.Vis.Mode.Battleground || cityId == ownCityId) {
+                                    Simulator.getInstance().shiftUpBtn.hide();
+                                    Simulator.getInstance().shiftDownBtn.hide();
+                                    Simulator.getInstance().shiftLeftBtn.hide();
+                                    Simulator.getInstance().shiftRightBtn.hide();
+                                    Simulator.getInstance().disableAllUnitsBtn.hide();
+                                    Simulator.getInstance().mirrorBtnH.hide();
+                                    Simulator.getInstance().mirrorBtnV.hide();
+                                    Simulator.getInstance().armyUndoBtn.hide();
+                                    Simulator.getInstance().quickSaveBtn.hide();
+                                } else if (cityId != ownCityId) {
+                                    Simulator.getInstance().shiftUpBtn.show();
+                                    Simulator.getInstance().shiftDownBtn.show();
+                                    Simulator.getInstance().shiftLeftBtn.show();
+                                    Simulator.getInstance().shiftRightBtn.show();
+                                    Simulator.getInstance().disableAllUnitsBtn.show();
+                                    Simulator.getInstance().mirrorBtnH.show();
+                                    Simulator.getInstance().mirrorBtnV.show();
+                                    Simulator.getInstance().armyUndoBtn.show();
+                                    Simulator.getInstance().quickSaveBtn.show();
+                                }
+                            }
+                        } catch (e) {
+                            console.log("Error closing windows or hiding buttons on view change");
+                            console.log(e.toString());
+                        }
+                    },
                     __openSimulatorWindow: function () {
                         var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
                         if (city != null) {
@@ -237,13 +315,6 @@
                                 }
                             }
 
-                            setTimeout(function () {
-                                var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
-                                var battleDuration = battleground.get_BattleDuration();
-                                battleDuration = phe.cnc.Util.getTimespanString(battleDuration);
-                                Simulator.StatWindow.getInstance().sim[Simulator.StatWindow.getInstance().simSelected].Label.Battle.Duration.setValue(battleDuration);
-                            }, 10);
-
                             if (Simulator.StatWindow.getInstance().simReplayBtn.getEnabled() == false) {
                                 Simulator.StatWindow.getInstance().simReplayBtn.setEnabled(true);
                             }
@@ -271,7 +342,6 @@
                             } else {
                                 console.log("Opening Stat Window");
                                 Simulator.StatWindow.getInstance().open();
-                                Simulator.StatWindow.getInstance().calcResources();
                             }
                         } catch (e) {
                             console.log("Error Opening or Closing Stat Window");
@@ -346,10 +416,7 @@
                             console.log(e.toString());
                         }
                     },
-                    mirrorFormation: function (direction) {
-                        /*
-                         * Mirrors across the X/Y Axis
-                         */
+                    mirrorFormation: function (direction, sel) {
                         try {
                             console.log("Shifting Unit Formation");
 
@@ -361,12 +428,12 @@
                                     armyUnit = {},
                                     x = unit.get_CoordX(),
                                     y = unit.get_CoordY();
-                                if (direction == "h")
-                                    x = Math.abs(x - 8);
-                                if (direction == "v")
-                                    y = Math.abs(y - 3);
-                                armyUnit.x = x;
-                                armyUnit.y = y;
+                                if (direction == "h") x = Math.abs(x - 8);
+                                if (direction == "v") y = Math.abs(y - 3);
+                                if (sel !== undefined && unit.get_CoordY() != sel && direction == "h") armyUnit.x = unit.get_CoordX();
+                                else armyUnit.x = x;
+                                if (sel !== undefined && unit.get_CoordX() != sel && direction == "v") armyUnit.y = unit.get_CoordY();
+                                else armyUnit.y = y;
                                 armyUnit.id = unit.get_Id();
                                 armyUnit.enabled = unit.get_Enabled();
                                 newLayout.push(armyUnit);
@@ -378,21 +445,15 @@
                         }
                     },
                     shiftFormation: function (direction, sel) {
-                        /*
-                         * Code from one of the previous authors of an older simulator version. If anyone knows the true author please let me know.
-                         */
                         try {
-                            console.log("Shifting Unit Formation: direction:"+ direction +", sel:"+ sel);
                             var v_shift = 0;
                             var h_shift = 0;
-                            var select = sel;
 
-                            //Determines shift direction
                             if (direction == "u") var v_shift = -1;
                             if (direction == "d") var v_shift = 1;
                             if (direction == "l") var h_shift = -1;
                             if (direction == "r") var h_shift = 1;
-                            //No need to continue
+
                             if (v_shift == 0 && h_shift == 0 && direction != "n")
                                 return;
 
@@ -420,19 +481,12 @@
                                     y = 3;
                                     break;
                                 }
-                                if (select != 0 && (unit.get_CoordX() != (select - 1)) && (direction == "u" || direction == "d")) {
-                                    armyUnit.y = unit.get_CoordY();
-                                } else {
-                                    armyUnit.y = y;
-                                }
-                                if (select != 0 && (unit.get_CoordY() != (select - 1)) && (direction == "l" || direction == "r")) {
-                                    armyUnit.x = unit.get_CoordX();
-                                } else {
-                                    armyUnit.x = x;
-                                }
+                                if (sel !== undefined && unit.get_CoordY() != sel && (direction == "l" || direction == "r")) armyUnit.x = unit.get_CoordX();
+                                else armyUnit.x = x;
+                                if (sel !== undefined && unit.get_CoordX() != sel && (direction == "u" || direction == "d")) armyUnit.y = unit.get_CoordY();
+                                else armyUnit.y = y;
                                 armyUnit.id = unit.get_Id();
 
-                                //For enabling/disabling all units
                                 if (direction == "n") {
                                     if (localStorage['allUnitsDisabled'] !== undefined) {
                                         if (localStorage['allUnitsDisabled'] == "yes") {
@@ -447,7 +501,6 @@
                                 armyUnit.enabled = unit.get_Enabled();
                                 newLayout.push(armyUnit);
                             }
-                            //Change disable button to opposite
                             if (direction == "n") {
                                 if (localStorage['allUnitsDisabled'] == "yes")
                                     localStorage['allUnitsDisabled'] = "no";
@@ -493,29 +546,20 @@
                         var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
                         var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
                         var formationManager = ownCity.get_CityArmyFormationsManager();
-                        ownCity.get_CityArmyFormationsManager().set_CurrentTargetBaseId(city.get_Id());
-
+                        formationManager.set_CurrentTargetBaseId(city.get_Id());
                         return formationManager.GetFormationByTargetBaseId(formationManager.get_CurrentTargetBaseId());
                     },
                     timeoutCmtBtn: function () {
-                        this.armyBar.remove(this.unlockCmtBtn);
+                        this.unlockCmtBtn.exclude();
                         setTimeout(function () {
-                            Simulator.getInstance().armyBar.add(Simulator.getInstance().unlockCmtBtn, {
-                                left: null,
-                                right: 7,
-                                bottom: 5
-                            });
-                        }, 2000);
+                            Simulator.getInstance().unlockCmtBtn.show();
+                        }, 3000);
                     },
                     timeoutRTBtn: function () {
-                        this.armyBar.remove(this.unlockRTBtn);
+                        this.unlockRTBtn.exclude();
                         setTimeout(function () {
-                            Simulator.getInstance().armyBar.add(Simulator.getInstance().unlockRTBtn, {
-                                left: null,
-                                right: 7,
-                                bottom: 97
-                            });
-                        }, 2000);
+                            Simulator.getInstance().unlockRTBtn.show();
+                        }, 3000);
                     },
                     backToCombatSetup: function () {
                         try {
@@ -541,11 +585,12 @@
                                 }, 1000);
                             } else {
                                 setTimeout(function () {
+                                    var qxApp = qx.core.Init.getApplication();
                                     Simulator.getInstance().simBtn.setEnabled(true);
                                     if (Simulator.OptionWindow.getInstance()._buttonSizeCB.getValue())
-                                        Simulator.getInstance().simBtn.setLabel("Simulate");
+                                        Simulator.getInstance().simBtn.setLabel(qxApp.tr("Simulate"));
                                     else
-                                        Simulator.getInstance().simBtn.setLabel("S");
+                                        Simulator.getInstance().simBtn.setLabel(qxApp.tr("S"));
                                 }, timer);
                                 this.isSimButtonDisabled = false;
                             }
@@ -557,45 +602,43 @@
                     hideArmyTooltips: function () {
                         try {
                             if (localStorage["ArmyUnitTooltipDisabled"] === undefined) localStorage["ArmyUnitTooltipDisabled"] = "yes";
-                            for (var i in ClientLib.Vis.BaseView.BaseView.prototype) {
-                                if (typeof ClientLib.Vis.BaseView.BaseView.prototype[i] === "function") {
-                                    var j = ClientLib.Vis.BaseView.BaseView.prototype[i].toString();
-                                    var k = ClientLib.Vis.BaseView.BaseView.prototype.ShowToolTip.toString();
-                                    if (j.indexOf(k) > -1) {
-                                        Function("", "ClientLib.Vis.BaseView.BaseView.prototype.ShowToolTip_Original = ClientLib.Vis.BaseView.BaseView.prototype." + i)();
-                                        Function("", "ClientLib.Vis.BaseView.BaseView.prototype."+ i +" = function (a) { if(ClientLib.Vis.VisMain.GetInstance().get_Mode()==7 && localStorage['ArmyUnitTooltipDisabled']=='yes') { return; } else { this.ShowToolTip_Original(a); } };")();
-                                        break;
-                                    }
+                            var Baseview = ClientLib.Vis.BaseView.BaseView.prototype;
+                            for (var i in Baseview) {
+                                if (typeof Baseview[i] === "function" && Baseview[i] === Baseview.ShowToolTip) {
+                                    Baseview.ShowToolTip2 = Baseview[i];
+                                    Baseview[i] = function (a) {
+                                        if (ClientLib.Vis.VisMain.GetInstance().get_Mode() == ClientLib.Vis.Mode.CombatSetup && localStorage['ArmyUnitTooltipDisabled'] == 'yes') return;
+                                        else this.ShowToolTip2(a);
+                                    };
+                                    break;
                                 }
                             }
-                            qx.core.Init.getApplication().getArmyUnitTooltipOverlay().setVisibility_Original = qx.core.Init.getApplication().getArmyUnitTooltipOverlay().setVisibility;
-                            qx.core.Init.getApplication().getArmyUnitTooltipOverlay().setVisibility = function (k) {
-                                if (localStorage["ArmyUnitTooltipDisabled"] == "yes") {
-                                    qx.core.Init.getApplication().getArmyUnitTooltipOverlay().setVisibility_Original(false);
-                                } else {
-                                    qx.core.Init.getApplication().getArmyUnitTooltipOverlay().setVisibility_Original(k);
-                                }
+                            var ArmyUnitTooltipOverlay = qx.core.Init.getApplication().getArmyUnitTooltipOverlay();
+                            ArmyUnitTooltipOverlay.setVisibility2 = ArmyUnitTooltipOverlay.setVisibility;
+                            ArmyUnitTooltipOverlay.setVisibility = function (a) {
+                                if (localStorage["ArmyUnitTooltipDisabled"] == "yes") this.setVisibility2(false);
+                                else this.setVisibility2(a);
                             };
                         } catch (e) {
-                            console.log("Error hideArmyUnitTooltips()");
+                            console.log("Error hideArmyTooltips()");
                             console.log(e.toString());
                         }
                     }
                 }
             });
-
             qx.Class.define("Simulator.StatWindow", {
                 type: "singleton",
                 extend: qx.ui.window.Window,
                 construct: function () {
                     try {
+                        var qxApp = qx.core.Init.getApplication();
                         this.base(arguments);
 
                         this.set({
                             layout: new qx.ui.layout.VBox().set({
                                 spacing: 0
                             }),
-                            caption: "Simulator Stats",
+                            caption: qxApp.tr("Simulator") + " - " + qxApp.tr("Stats"),
                             icon: "FactionUI/icons/icon_res_plinfo_command_points.png",
                             contentPadding: 5,
                             contentPaddingTop: 0,
@@ -623,7 +666,6 @@
                             this.simViews = 3;
                         }
 
-                        var qxApp = qx.core.Init.getApplication();
                         this.isSimStatButtonDisabled = false;
 
                         /**
@@ -769,7 +811,7 @@
                         this.add(simButton);
 
                         this.simStatBtn = new qx.ui.form.Button(qxApp.tr("tnf:update")).set({allowGrowX: false});
-                        this.simStatBtn.setToolTipText("Updates Simulation Stats");
+                        this.simStatBtn.setToolTipText(qxApp.tr("Updates Simulation Stats."));
                         this.simStatBtn.addListener("click", this.simulateStats, this);
 
                         this.simReplayBtn = new qx.ui.form.Button(qxApp.tr("tnf:show combat")).set({allowGrowX: false});
@@ -825,15 +867,14 @@
 
                         //Events
                         phe.cnc.Util.attachNetEvent(ClientLib.API.Battleground.GetInstance(), "OnSimulateBattleFinished", ClientLib.API.OnSimulateBattleFinished, this, this.__OnSimulateBattleFinished);
+                        phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this, this._onViewChanged);
                         phe.cnc.base.Timer.getInstance().addListener("uiTick", this._onTick, this);
                     } catch (e) {
                         console.log("Error setting up Simulator.StatWindow Constructor: ");
                         console.log(e.toString());
                     }
                 },
-
                 destruct: function () {},
-
                 members: {
                     Battle: null,
                     EnemyHealth: null,
@@ -851,7 +892,7 @@
                             this.TargetCity = null;
                             this.OwnCity = null;
                             var Formation = null;
-                            var Result = null;
+                            this.Result = null;
                             this.Label = {
                                 Battle: {
                                     container: new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({width: 65, padding: 5, allowGrowX: true, marginLeft: 0, marginRight: 0, decorator: "pane-light-opaque"}),
@@ -936,14 +977,43 @@
                                     Overall:   new _StatsLoot()
                                 }
                             };
+                            this.getLootFromCurrentCity = function () {
+                                try {
+                                    this.Stats.Loot.Tib.Base = 0;
+                                    this.Stats.Loot.Cry.Base = 0;
+                                    this.Stats.Loot.Cred.Base = 0;
+                                    this.Stats.Loot.RP.Base = 0;
+                                    this.Stats.Loot.Overall.Base = 0;
+                                    var loot = ClientLib.API.Battleground.GetInstance().GetLootFromCurrentCity();
+                                    for (var i = 0; i < loot.length; i++) {
+                                        this.Stats.Loot.Overall.Base += loot[i].Count;
+                                        switch (parseInt(loot[i].Type, 10)) {
+                                        case ClientLib.Base.EResourceType.Tiberium:
+                                            this.Stats.Loot.Tib.Base += loot[i].Count;
+                                            break;
+                                        case ClientLib.Base.EResourceType.Crystal:
+                                            this.Stats.Loot.Cry.Base += loot[i].Count;
+                                            break;
+                                        case ClientLib.Base.EResourceType.Gold:
+                                            this.Stats.Loot.Cred.Base += loot[i].Count;
+                                            break;
+                                        case ClientLib.Base.EResourceType.ResearchPoints:
+                                            this.Stats.Loot.RP.Base += loot[i].Count;
+                                            break;
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.log("Error Getting Loot from Current City");
+                                    console.log(e.toString());
+                                }
+                            };
                             this.setSimulation = function (data) {
                                 simulated = true;
-                                this.TargetCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
                                 this.OwnCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
                                 this.Stats.Battle.OwnCity = this.OwnCity.get_Name();
                                 this.saveFormation();
-                                Result = [];
-                                for (var i = 0; i < data.length; i++) Result.push(data[i].Value);
+                                this.Result = [];
+                                for (var i = 0; i < data.length; i++) this.Result.push(data[i].Value);
                             };
                             this.UpdateLabels = function () {
                                 var qxApp = qx.core.Init.getApplication();
@@ -1237,18 +1307,15 @@
                                 this.Label.Loot.Overall.resetTextColor();
                             };
                             this.Reset = function () {
-                                var CurrentOwnCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
-                                if (this.TargetCity === null || CurrentOwnCity.get_CityArmyFormationsManager().get_CurrentTargetBaseId() != this.TargetCity.get_Id()) {
+                                var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
+                                if (this.TargetCity === null || ownCity.get_CityArmyFormationsManager().get_CurrentTargetBaseId() != this.TargetCity.get_Id()) {
                                     simulated = false;
-                                    this.TargetCity = null;
                                     this.OwnCity = null;
+                                    this.TargetCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
+                                    ownCity.get_CityArmyFormationsManager().set_CurrentTargetBaseId(this.TargetCity.get_Id());
                                     this.ResetStats();
-                                    this.Stats.Loot.Tib.Base = 0;
-                                    this.Stats.Loot.Cry.Base = 0;
-                                    this.Stats.Loot.Cred.Base = 0;
-                                    this.Stats.Loot.RP.Base = 0;
-                                    this.Stats.Loot.Overall.Base = 0;
                                     this.ResetLabels();
+//                                    this.getLootFromCurrentCity();
                                 }
                             };
                             this.Select = function (selected) {
@@ -1344,7 +1411,6 @@
                         }
                     },
                     simulateStats: function () {
-                        console.log("Simulating Stats");
                         var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
                         if (city != null) {
                             Simulator.getInstance().isSimulation = true;
@@ -1401,11 +1467,35 @@
                                     break;
                                 }
                             }
+
+                            // Fix Repairtime for Forgotten
+                            switch (ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity().get_CityFaction()) {
+                            case ClientLib.Base.EFactionType.GDIFaction:
+                            case ClientLib.Base.EFactionType.NODFaction:
+                                break;
+                            default:
+                                repairCosts.RT = dmgRatio * 3600;
+                                break;
+                            }
+
                         }
                         return repairCosts;
                     },
                     _onTick: function () {
                         for (var i = 0; i < this.sim.length; i++) this.sim[i].UpdateLabels();
+                    },
+                    _onViewChanged: function (oldMode, newMode) {
+                        if (newMode == ClientLib.Vis.Mode.CombatSetup && oldMode != ClientLib.Vis.Mode.Battleground) {
+                            this.getLootFromCurrentCity();
+                            // Auto open StatWindow
+                            if (localStorage['autoOpenStat'] !== undefined && localStorage['autoOpenStat'] == "yes") this.open();
+                            else {
+                                this.open();
+                                localStorage['autoOpenStat'] = "yes"; // Default
+                            }
+                        } else if (newMode != ClientLib.Vis.Mode.CombatSetup && newMode != ClientLib.Vis.Mode.Battleground) {
+                            this.close();
+                        }
                     },
                     __OnSimulateBattleFinished: function (data) {
                         //Disable Simulate Button
@@ -1417,20 +1507,32 @@
                         }
                         if (this.simReplayBtn.getEnabled() == false) this.simReplayBtn.setEnabled(true);
 
-                        this.getSimulationInfo(data, this.sim[this.simSelected]);
                         this.sim[this.simSelected].setSimulation(data);
+                        this.calcHealth(this.sim[this.simSelected]);
+                        this.calcLoot(this.sim[this.simSelected]);
+                        this.getBattleDuration(this.sim[this.simSelected]);
                     },
-                    getSimulationInfo: function (data, sim) {
-                        console.log("Getting Player Unit Damage");
+                    calcHealth: function (sim) {
                         try {
                             sim.ResetStats();
                             var costs = {};
-                            var entities = []; //for calculating loot
-                            var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
-                            var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
-                            var cityFaction = city.get_CityFaction(); // ClientLib.Base.EFactionType
-                            for (var idx = 0; idx < data.length; idx++) {
-                                var unitData = data[idx].Value;
+                            var targetunits = [];
+                            var ownunits = [];
+                            for (var i = 0; i < sim.Result.length; i++) {
+                                var unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(sim.Result[i].t);
+                                switch (unit.pt) {
+                                case ClientLib.Base.EPlacementType.Structure:
+                                case ClientLib.Base.EPlacementType.Defense:
+                                    targetunits.push(sim.Result[i]);
+                                    break;
+                                case ClientLib.Base.EPlacementType.Offense:
+                                    ownunits.push(sim.Result[i]);
+                                    break;
+                                }
+                            }
+                            ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(sim.TargetCity.get_Id());
+                            for (var i = 0; i < targetunits.length; i++) {
+                                var unitData = targetunits[i];
                                 var unitMDBID = unitData.t;
                                 var unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(unitMDBID);
                                 var unitLevel = unitData.l;
@@ -1439,69 +1541,15 @@
                                 var unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(unitLevel, unit, false)) * 16);
                                 var unitPlacementType = unit.pt; // ClientLib.Base.EPlacementType
                                 var unitMovementType = unit.mt; // ClientLib.Base.EUnitMovementType
-                                entities.push(unitData);
-
-                                switch (cityFaction) {
+                                switch (sim.TargetCity.get_CityFaction()) {
                                 case ClientLib.Base.EFactionType.GDIFaction:
                                 case ClientLib.Base.EFactionType.NODFaction:
-                                    switch (unitPlacementType) {
-                                    case ClientLib.Base.EPlacementType.Defense:
-                                    case ClientLib.Base.EPlacementType.Structure:
-                                        unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(unitLevel, unit, true)) * 16);
-                                        break;
-                                    }
+                                    unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(unitLevel, unit, true)) * 16);
                                     break;
                                 }
-
                                 costs = this.calculateRepairCosts(unitMDBID, unitLevel, unitStartHealth, unitEndHealth, unitMaxHealth);
+
                                 switch (unitPlacementType) {
-                                case ClientLib.Base.EPlacementType.Defense:
-                                    sim.Stats.EnemyHealth.Overall.StartHealth += unitStartHealth;
-                                    sim.Stats.EnemyHealth.Overall.EndHealth += unitEndHealth;
-                                    sim.Stats.EnemyHealth.Overall.MaxHealth += unitMaxHealth;
-                                    sim.Stats.EnemyHealth.Overall.Tib += costs.Tib;
-                                    sim.Stats.EnemyHealth.Overall.Cry += costs.Cry;
-                                    sim.Stats.EnemyHealth.Defense.StartHealth += unitStartHealth;
-                                    sim.Stats.EnemyHealth.Defense.EndHealth += unitEndHealth;
-                                    sim.Stats.EnemyHealth.Defense.MaxHealth += unitMaxHealth;
-                                    sim.Stats.EnemyHealth.Defense.Tib += costs.Tib;
-                                    sim.Stats.EnemyHealth.Defense.Cry += costs.Cry;
-                                    break;
-                                case ClientLib.Base.EPlacementType.Offense:
-                                    sim.Stats.Repair.Overall.StartHealth += unitStartHealth;
-                                    sim.Stats.Repair.Overall.EndHealth += unitEndHealth;
-                                    sim.Stats.Repair.Overall.MaxHealth += unitMaxHealth;
-                                    sim.Stats.Repair.Overall.Tib += costs.Tib;
-                                    sim.Stats.Repair.Overall.Cry += costs.Cry;
-                                    switch (unitMovementType) {
-                                    case ClientLib.Base.EUnitMovementType.Feet:
-                                        sim.Stats.Repair.Inf.StartHealth += unitStartHealth;
-                                        sim.Stats.Repair.Inf.EndHealth += unitEndHealth;
-                                        sim.Stats.Repair.Inf.MaxHealth += unitMaxHealth;
-                                        sim.Stats.Repair.Inf.RT += costs.RT;
-                                        sim.Stats.Repair.Inf.Tib += costs.Tib;
-                                        sim.Stats.Repair.Inf.Cry += costs.Cry;
-                                        break;
-                                    case ClientLib.Base.EUnitMovementType.Wheel:
-                                    case ClientLib.Base.EUnitMovementType.Track:
-                                        sim.Stats.Repair.Vehi.StartHealth += unitStartHealth;
-                                        sim.Stats.Repair.Vehi.EndHealth += unitEndHealth;
-                                        sim.Stats.Repair.Vehi.MaxHealth += unitMaxHealth;
-                                        sim.Stats.Repair.Vehi.RT += costs.RT;
-                                        sim.Stats.Repair.Vehi.Tib += costs.Tib;
-                                        sim.Stats.Repair.Vehi.Cry += costs.Cry;
-                                        break;
-                                    case ClientLib.Base.EUnitMovementType.Air:
-                                    case ClientLib.Base.EUnitMovementType.Air2:
-                                        sim.Stats.Repair.Air.StartHealth += unitStartHealth;
-                                        sim.Stats.Repair.Air.EndHealth += unitEndHealth;
-                                        sim.Stats.Repair.Air.MaxHealth += unitMaxHealth;
-                                        sim.Stats.Repair.Air.RT += costs.RT;
-                                        sim.Stats.Repair.Air.Tib += costs.Tib;
-                                        sim.Stats.Repair.Air.Cry += costs.Cry;
-                                        break;
-                                    }
-                                    break;
                                 case ClientLib.Base.EPlacementType.Structure:
                                     sim.Stats.EnemyHealth.Overall.StartHealth += unitStartHealth;
                                     sim.Stats.EnemyHealth.Overall.EndHealth += unitEndHealth;
@@ -1548,8 +1596,72 @@
                                         break;
                                     }
                                     break;
+                                case ClientLib.Base.EPlacementType.Defense:
+                                    sim.Stats.EnemyHealth.Overall.StartHealth += unitStartHealth;
+                                    sim.Stats.EnemyHealth.Overall.EndHealth += unitEndHealth;
+                                    sim.Stats.EnemyHealth.Overall.MaxHealth += unitMaxHealth;
+                                    sim.Stats.EnemyHealth.Overall.Tib += costs.Tib;
+                                    sim.Stats.EnemyHealth.Overall.Cry += costs.Cry;
+                                    sim.Stats.EnemyHealth.Defense.StartHealth += unitStartHealth;
+                                    sim.Stats.EnemyHealth.Defense.EndHealth += unitEndHealth;
+                                    sim.Stats.EnemyHealth.Defense.MaxHealth += unitMaxHealth;
+                                    sim.Stats.EnemyHealth.Defense.Tib += costs.Tib;
+                                    sim.Stats.EnemyHealth.Defense.Cry += costs.Cry;
+                                    break;
                                 }
                             }
+                            ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(sim.OwnCity.get_Id());
+                            for (var i = 0; i < ownunits.length; i++) {
+                                var unitData = ownunits[i];
+                                var unitMDBID = unitData.t;
+                                var unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(unitMDBID);
+                                var unitLevel = unitData.l;
+                                var unitStartHealth = Math.floor(unitData.sh);
+                                var unitEndHealth = Math.floor(unitData.h);
+                                var unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(unitLevel, unit, false)) * 16);
+                                var unitPlacementType = unit.pt; // ClientLib.Base.EPlacementType
+                                var unitMovementType = unit.mt; // ClientLib.Base.EUnitMovementType
+                                costs = this.calculateRepairCosts(unitMDBID, unitLevel, unitStartHealth, unitEndHealth, unitMaxHealth);
+
+                                switch (unitPlacementType) {
+                                case ClientLib.Base.EPlacementType.Offense:
+                                    sim.Stats.Repair.Overall.StartHealth += unitStartHealth;
+                                    sim.Stats.Repair.Overall.EndHealth += unitEndHealth;
+                                    sim.Stats.Repair.Overall.MaxHealth += unitMaxHealth;
+                                    sim.Stats.Repair.Overall.Tib += costs.Tib;
+                                    sim.Stats.Repair.Overall.Cry += costs.Cry;
+                                    switch (unitMovementType) {
+                                    case ClientLib.Base.EUnitMovementType.Feet:
+                                        sim.Stats.Repair.Inf.StartHealth += unitStartHealth;
+                                        sim.Stats.Repair.Inf.EndHealth += unitEndHealth;
+                                        sim.Stats.Repair.Inf.MaxHealth += unitMaxHealth;
+                                        sim.Stats.Repair.Inf.RT += costs.RT;
+                                        sim.Stats.Repair.Inf.Tib += costs.Tib;
+                                        sim.Stats.Repair.Inf.Cry += costs.Cry;
+                                        break;
+                                    case ClientLib.Base.EUnitMovementType.Wheel:
+                                    case ClientLib.Base.EUnitMovementType.Track:
+                                        sim.Stats.Repair.Vehi.StartHealth += unitStartHealth;
+                                        sim.Stats.Repair.Vehi.EndHealth += unitEndHealth;
+                                        sim.Stats.Repair.Vehi.MaxHealth += unitMaxHealth;
+                                        sim.Stats.Repair.Vehi.RT += costs.RT;
+                                        sim.Stats.Repair.Vehi.Tib += costs.Tib;
+                                        sim.Stats.Repair.Vehi.Cry += costs.Cry;
+                                        break;
+                                    case ClientLib.Base.EUnitMovementType.Air:
+                                    case ClientLib.Base.EUnitMovementType.Air2:
+                                        sim.Stats.Repair.Air.StartHealth += unitStartHealth;
+                                        sim.Stats.Repair.Air.EndHealth += unitEndHealth;
+                                        sim.Stats.Repair.Air.MaxHealth += unitMaxHealth;
+                                        sim.Stats.Repair.Air.RT += costs.RT;
+                                        sim.Stats.Repair.Air.Tib += costs.Tib;
+                                        sim.Stats.Repair.Air.Cry += costs.Cry;
+                                        break;
+                                    }
+                                    break;
+                                }
+                            }
+                            ClientLib.Data.MainData.GetInstance().get_Cities().set_CurrentCityId(sim.TargetCity.get_Id());
 
                             //Set Repair Overall RT
                             sim.Stats.Repair.Overall.RT = Math.max(sim.Stats.Repair.Inf.RT, sim.Stats.Repair.Vehi.RT, sim.Stats.Repair.Air.RT);
@@ -1558,217 +1670,68 @@
                             if (sim.Stats.Repair.Overall.EndHealth === 0)  sim.Stats.Battle.Outcome = 1;
                             else if (sim.Stats.EnemyHealth.CY.EndHealth === 0) sim.Stats.Battle.Outcome = 3;
                             else sim.Stats.Battle.Outcome = 2;
-
-                            sim.Stats.Repair.Storage = Math.min(ownCity.GetResourceCount(8), ownCity.GetResourceCount(9), ownCity.GetResourceCount(10));
-
-                            //Calculates the possible resources gained from simulation
-                            this.calcResources(entities, sim);
-
-
-                            setTimeout(function () {
-                                var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
-                                Simulator.StatWindow.getInstance().sim[Simulator.StatWindow.getInstance().simSelected].Stats.Battle.Duration = battleground.get_BattleDuration();
-                            }, 1);
                         } catch (e) {
                             console.log("Error Getting Player Unit Damage");
                             console.log(e.toString());
                         }
                     },
-                    calcResources: function (entities, sim) {
+                    calcLoot: function (sim) {
                         try {
-                            var buildingEnts = entities;
-                            var defEnts = entities;
-                            var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
-                            var cityFaction = city.get_CityFaction(); // ClientLib.Base.EFactionType
-                            var lootArray = {
-                                1: 0,
-                                2: 0,
-                                3: 0,
-                                6: 0
-                            }; //1: Tib, 2: Cry, 3: Gold(credits) 6: RP
-                            var i, x, y, mod = -1, mod2 = -1;
-                            //Based on forums we need to cycle through the grid
-                            //Info needed is the building or structure information and the defensive units information
-                            //Structure data can be retrieved by using get_City() and Defense data by get_DefenseSetup()
-                            //See ClientLib.js.txt if you have it or can find it. These functions are under Type:ClientLib.Vis.VisMain
-
-                            //Let's do X coords as our outer loop there should be 0-8 or 9 slots.
-                            for (x = 0; x < 9; x++) {
-
-                                //Inner loop will be Y should be 8 slots or 0-7
-                                for (y = 0; y < 8; y++) {
-                                    var width = ClientLib.Vis.VisMain.GetInstance().get_City().get_GridWidth();
-                                    var height = ClientLib.Vis.VisMain.GetInstance().get_City().get_GridHeight();
-
-                                    //Per the forums we should multiply x by the width and y by the height
-                                    var cityEntity = ClientLib.Vis.VisMain.GetInstance().GetObjectFromPosition(x * width, y * height);
-
-                                    //Ok we have the city object or at least we hope we do.
-                                    //Forums says this can return empty fields so we need to check for that
-                                    if (cityEntity !== null && typeof cityEntity.get_BuildingName === 'function') {
-                                        try {
-                                            //Now loop through the entities from the simulation until we find a match
-                                            if (entities !== undefined) {
-                                                for (i = 0; i < buildingEnts.length; i++) {
-                                                    var entity = buildingEnts[i];
-                                                    var unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(entity.t);
-
-                                                    //We've got a match!
-                                                    if (unit.dn == cityEntity.get_BuildingName()) {
-                                                        var unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(entity.l, unit, false)) * 16);
-
-                                                        switch (cityFaction) {
-                                                        case ClientLib.Base.EFactionType.GDIFaction:
-                                                        case ClientLib.Base.EFactionType.NODFaction:
-                                                            switch (unit.pt) {
-                                                            case ClientLib.Base.EPlacementType.Defense:
-                                                            case ClientLib.Base.EPlacementType.Structure:
-                                                                unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(entity.l, unit, true)) * 16);
-                                                                break;
-                                                            }
-                                                            break;
-                                                        }
-
-                                                        mod = (entity.sh - entity.h) / unitMaxHealth;
-                                                        if (unit.dn == "Harvester") {
-                                                            mod2 = cityEntity.get_BuildingDetails().get_HitpointsPercent();
-                                                            if (Math.round(mod2 * 100) != Math.round(mod * 100)) {
-                                                                mod = mod2;
-                                                            }
-                                                        }
-                                                        var isSpliced = buildingEnts.splice(i, 1);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        } catch (e) {
-
-                                            console.log("Error Calculating Resources 2");
-                                            console.log(e);
-                                            console.log(e.name + " " + e.message);
-                                        }
-                                        try {
-                                            var buildingDetails = cityEntity.get_BuildingDetails();
-
-                                            if (mod == -1) {
-                                                mod = buildingDetails.get_HitpointsPercent();
-                                                if (cityEntity.get_BuildingName() == "Harvester") {
-                                                    mod2 = cityEntity.get_BuildingDetails().get_HitpointsPercent();
-                                                    if (Math.round(mod2 * 100) != Math.round(mod * 100)) {
-                                                        mod = mod2;
-                                                    }
-                                                }
-                                            }
-                                        } catch (e) {
-                                            console.log("Error Calculating Resources 3");
-                                            console.log(e);
-                                            console.log(e.name + " " + e.message);
-                                        }
-
-                                        var reqs = buildingDetails.get_UnitLevelRepairRequirements();
-
-                                        for (i = 0; i < reqs.length; i++) {
-                                            var type = reqs[i].Type;
-                                            var count = reqs[i].Count;
-                                            lootArray[type] += Math.round((mod * count) - 0.5); //Rounding otherwise floating numbers
-                                        }
-
-                                        //reset mod
-                                        mod = -1;
-                                    }
-                                }
-                            }
-
-                            for (x = 0; x < 9; x++) {
-
-                                //Inner loop will be Y should be 8 slots or 0-7
-                                for (y = 8; y < 16; y++) {
-                                    try {
+                            var Ents = (sim.Result);
+                            var lootArray = { 1: 0, 2: 0, 3: 0, 6: 0 };
+                            var i, x, y, unit, Entity , mod = -1, unitMaxHealth = 0;
+                            for (y = 0; y < 16; y++) {
+                                for (x = 8; x >= 0; x--) {
+                                    if (y < 8) {
+                                        var width = ClientLib.Vis.VisMain.GetInstance().get_City().get_GridWidth();
+                                        var height = ClientLib.Vis.VisMain.GetInstance().get_City().get_GridHeight();
+                                    } else {
                                         var width = ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().get_GridWidth();
                                         var height = ClientLib.Vis.VisMain.GetInstance().get_DefenseSetup().get_GridHeight();
-                                        if (y == 8) {
-                                            width += 1;
-                                            height += 1;
-                                        }
-                                        //Now do the same for defense units
-                                        var defEntity = ClientLib.Vis.VisMain.GetInstance().GetObjectFromPosition(x * width, y * height);
-                                        if (defEntity !== null && defEntity.get_VisObjectType() != ClientLib.Vis.VisObject.EObjectType.CityBuildingType && typeof defEntity.get_UnitDetails === 'function') {
-                                            if (entities !== undefined) {
-                                                for (i = 0; i < defEnts.length; i++) {
-                                                    var entity = defEnts[i];
-                                                    var unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(entity.t);
-
-                                                    //Got a match!
-                                                    if (unit.dn == defEntity.get_UnitName()) {
-                                                        var unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(entity.l, unit, false)) * 16);
-
-                                                        switch (cityFaction) {
-                                                        case ClientLib.Base.EFactionType.GDIFaction:
-                                                        case ClientLib.Base.EFactionType.NODFaction:
-                                                            switch (unit.pt) {
-                                                            case ClientLib.Base.EPlacementType.Defense:
-                                                            case ClientLib.Base.EPlacementType.Structure:
-                                                                unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(entity.l, unit, true)) * 16);
-                                                                break;
-                                                            }
-                                                            break;
-                                                        }
-
-                                                        mod = (entity.sh - entity.h) / unitMaxHealth;
-                                                        //mod = defEntity.get_UnitDetails().get_HitpointsPercent();
-                                                        var isSpliced = defEnts.splice(i, 1);
-                                                        break;
-                                                    }
-                                                }
+                                    }
+                                    Entity = ClientLib.Vis.VisMain.GetInstance().GetObjectFromPosition(((x * width) + (width / 2)), ((y * height) + (height / 2)));
+                                    if (Entity !== null) {
+                                        for (i = 0; i < Ents.length; i++) {
+                                            unit = ClientLib.Res.ResMain.GetInstance().GetUnit_Obj(Ents[i].t);
+                                            switch (sim.TargetCity.get_CityFaction()) {
+                                            case ClientLib.Base.EFactionType.GDIFaction:
+                                            case ClientLib.Base.EFactionType.NODFaction:
+                                                unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(Ents[i].l, unit, true)) * 16);
+                                                break;
+                                            default:
+                                                unitMaxHealth = Math.floor((ClientLib.API.Util.GetUnitMaxHealthByLevel(Ents[i].l, unit, false)) * 16);
+                                                break;
                                             }
-
-                                            var unitDetails = defEntity.get_UnitDetails();
-
-                                            if (mod == -1)
-                                                mod = unitDetails.get_HitpointsPercent();
-
-                                            var reqs = unitDetails.get_UnitLevelRepairRequirements();
-
-                                            for (i = 0; i < reqs.length; i++) {
-                                                var type = reqs[i].Type;
-                                                var count = reqs[i].Count;
-                                                lootArray[type] += Math.round((mod * count) - 0.5); //Rounding otherwise floating numbers
+                                            mod = (Ents[i].sh - Ents[i].h) / unitMaxHealth;
+                                            if (Entity.get_VisObjectType() == ClientLib.Vis.VisObject.EObjectType.CityBuildingType && Ents[i].t == Entity.get_BuildingDetails().get_MdbUnitId() && Ents[i].l == Entity.get_BuildingLevel()) {
+                                                var reqs = Entity.get_BuildingDetails().get_UnitLevelRepairRequirements();
+                                                for (i = 0; i < reqs.length; i++) lootArray[reqs[i].Type] += Math.floor(mod * reqs[i].Count);
+                                                Ents.splice(i, 1);
+                                                break;
                                             }
-
-                                            mod = -1;
+                                            if (Entity.get_VisObjectType() == ClientLib.Vis.VisObject.EObjectType.DefenseUnitType && Ents[i].t == Entity.get_UnitDetails().get_MdbUnitId() && Ents[i].l == Entity.get_UnitLevel()) {
+                                                var reqs = Entity.get_UnitDetails().get_UnitLevelRepairRequirements();
+                                                for (i = 0; i < reqs.length; i++) lootArray[reqs[i].Type] += Math.floor(mod * reqs[i].Count);
+                                                Ents.splice(i, 1);
+                                                break;
+                                            }
                                         }
-                                    } catch (e) {
-                                        console.log("Error Calculating Resources 4");
-                                        console.log(e);
-                                        console.log(e.name + " " + e.message);
                                     }
                                 }
                             }
-
                             var totalLoot = lootArray[1] + lootArray[2] + lootArray[3] + lootArray[6];
-                            if (entities === undefined) {
-                                for (i = 0; i < this.sim.length; i++) {
-                                    this.sim[i].Reset();
-                                    this.sim[i].Stats.Loot.Overall.Base = totalLoot;
-                                    this.sim[i].Stats.Loot.Tib.Base = lootArray[1];
-                                    this.sim[i].Stats.Loot.Cry.Base = lootArray[2];
-                                    this.sim[i].Stats.Loot.Cred.Base = lootArray[3];
-                                    this.sim[i].Stats.Loot.RP.Base = lootArray[6];
-                                }
+                            if (sim.Stats.Battle.Outcome === 3) {
+                                sim.Stats.Loot.Overall.Battle = sim.Stats.Loot.Overall.Base;
+                                sim.Stats.Loot.Tib.Battle = sim.Stats.Loot.Tib.Base;
+                                sim.Stats.Loot.Cry.Battle = sim.Stats.Loot.Cry.Base;
+                                sim.Stats.Loot.Cred.Battle = sim.Stats.Loot.Cred.Base;
+                                sim.Stats.Loot.RP.Battle = sim.Stats.Loot.RP.Base;
                             } else {
-                                if (sim.Stats.Battle.Outcome === 3) {
-                                    sim.Stats.Loot.Overall.Battle = sim.Stats.Loot.Overall.Base;
-                                    sim.Stats.Loot.Tib.Battle = sim.Stats.Loot.Tib.Base;
-                                    sim.Stats.Loot.Cry.Battle = sim.Stats.Loot.Cry.Base;
-                                    sim.Stats.Loot.Cred.Battle = sim.Stats.Loot.Cred.Base;
-                                    sim.Stats.Loot.RP.Battle = sim.Stats.Loot.RP.Base;
-                                } else {
-                                    sim.Stats.Loot.Overall.Battle = totalLoot;
-                                    sim.Stats.Loot.Tib.Battle = lootArray[1];
-                                    sim.Stats.Loot.Cry.Battle = lootArray[2];
-                                    sim.Stats.Loot.Cred.Battle = lootArray[3];
-                                    sim.Stats.Loot.RP.Battle = lootArray[6];
-                                }
+                                sim.Stats.Loot.Overall.Battle = totalLoot;
+                                sim.Stats.Loot.Tib.Battle = lootArray[1];
+                                sim.Stats.Loot.Cry.Battle = lootArray[2];
+                                sim.Stats.Loot.Cred.Battle = lootArray[3];
+                                sim.Stats.Loot.RP.Battle = lootArray[6];
                             }
                         } catch (e) {
                             console.log("Error Calculating Resources");
@@ -1776,6 +1739,39 @@
                             console.log(e.name + " " + e.message);
                         }
 
+                    },
+                    getBattleDuration: function (sim) {
+                        var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
+                        sim.Stats.Battle.Duration = battleground.get_BattleDuration();
+                        if (this.isSimStatButtonDisabled) {
+                            setTimeout(function () {
+                                Simulator.StatWindow.getInstance().getBattleDuration(sim);
+                            }, 10);
+                        }
+                    },
+                    getLootFromCurrentCity: function () {
+                        try {
+                            var lootArray = { 1: 0, 2: 0, 3: 0, 6: 0 };
+                            var loot = ClientLib.API.Battleground.GetInstance().GetLootFromCurrentCity();
+                            if (loot !== null && loot.length > 0) {
+                                for (var i = 0; i < loot.length; i++) lootArray[parseInt(loot[i].Type, 10)] += loot[i].Count;
+                                for (var i = 0; i < this.sim.length; i++) {
+                                    this.sim[i].Reset();
+                                    this.sim[i].Stats.Loot.Overall.Base = lootArray[1] + lootArray[2] + lootArray[3] + lootArray[6];
+                                    this.sim[i].Stats.Loot.Tib.Base = lootArray[1];
+                                    this.sim[i].Stats.Loot.Cry.Base = lootArray[2];
+                                    this.sim[i].Stats.Loot.Cred.Base = lootArray[3];
+                                    this.sim[i].Stats.Loot.RP.Base = lootArray[6];
+                                }
+                            } else {
+                                setTimeout(function () {
+                                    Simulator.StatWindow.getInstance().getLootFromCurrentCity();
+                                }, 100);
+                            }
+                        } catch (e) {
+                            console.log("Error Getting Loot from Current City");
+                            console.log(e.toString());
+                        }
                     },
                     disableSimulateStatButtonTimer: function (timer) {
                         try {
@@ -1801,12 +1797,12 @@
                     }
                 }
             });
-
             qx.Class.define("Simulator.OptionWindow", {
                 type: "singleton",
                 extend: qx.ui.window.Window,
 
                 construct: function () {
+                    var qxApp = qx.core.Init.getApplication();
                     this.base(arguments);
                     this.setLayout(new qx.ui.layout.VBox(5));
                     this.addListener("resize", function () {
@@ -1814,28 +1810,27 @@
                     }, this);
 
                     this.set({
-                        caption: "Simulator Options",
+                        caption: qxApp.tr("Simulator") + " - " + qxApp.tr("tnf:options"),
                         allowMaximize: false,
                         showMaximize: false,
                         allowMinimize: false,
                         showMinimize: false
                     });
-                    var qxApp = qx.core.Init.getApplication();
                     var tabView = new qx.ui.tabview.TabView();
-                    var genPage = new qx.ui.tabview.Page("General");
+                    var genPage = new qx.ui.tabview.Page(qxApp.tr("tnf:general"));
                     genLayout = new qx.ui.layout.VBox(5);
                     genPage.setLayout(genLayout);
 
                     //Add General Page Items
                     var buttonsHeader = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
                     buttonsHeader.setThemedFont("bold");
-                    var buttonsTitle = new qx.ui.basic.Label("Buttons:");
+                    var buttonsTitle = new qx.ui.basic.Label(qxApp.tr("Buttons:"));
                     buttonsHeader.add(buttonsTitle);
                     genPage.add(buttonsHeader);
 
                     var buttonsBox = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
-                    this._buttonLocCB = new qx.ui.form.CheckBox("Right Side");
-                    this._buttonSizeCB = new qx.ui.form.CheckBox("Normal Size");
+                    this._buttonLocCB = new qx.ui.form.CheckBox(qxApp.tr("Right Side"));
+                    this._buttonSizeCB = new qx.ui.form.CheckBox(qxApp.tr("Normal Size"));
                     this._buttonLocCB.addListener("changeValue", this._onButtonLocChange, this);
                     this._buttonSizeCB.addListener("changeValue", this._onButtonSizeChange, this);
                     if (localStorage['isBtnRight'] !== undefined) {
@@ -1855,25 +1850,17 @@
                         this.setButtonSize();
                     }
 
-                    this._disableRTBtnCB = new qx.ui.form.CheckBox("Disable Repair Button");
+                    this._disableRTBtnCB = new qx.ui.form.CheckBox(qxApp.tr("Disable Repair Button"));
                     this._disableRTBtnCB.addListener("changeValue", this._onDisableRTBtnChange, this);
-                    if (localStorage['isRTBtnDisabled'] !== undefined) {
-                        if (localStorage['isRTBtnDisabled'] == "yes")
-                            this._disableRTBtnCB.setValue(true);
-                        else
-                            this._disableRTBtnCB.setValue(false);
-                    }
+                    if (localStorage['isRTBtnDisabled'] !== undefined && localStorage['isRTBtnDisabled'] == "no") this._disableRTBtnCB.setValue(false);
+                    else this._disableRTBtnCB.setValue(true);
 
-                    this._disableCmtBtnCB = new qx.ui.form.CheckBox("Disable Combat Button");
+                    this._disableCmtBtnCB = new qx.ui.form.CheckBox(qxApp.tr("Disable Combat Button"));
                     this._disableCmtBtnCB.addListener("changeValue", this._onDisableCmtBtnChange, this);
-                    if (localStorage['isCmtBtnDisabled'] !== undefined) {
-                        if (localStorage['isCmtBtnDisabled'] == "yes")
-                            this._disableCmtBtnCB.setValue(true);
-                        else
-                            this._disableCmtBtnCB.setValue(false);
-                    }
+                    if (localStorage['isCmtBtnDisabled'] !== undefined && localStorage['isCmtBtnDisabled'] == "no") this._disableCmtBtnCB.setValue(false);
+                    else this._disableCmtBtnCB.setValue(true);
 
-                    this._ArmyUnitTooltip = new qx.ui.form.CheckBox("Disable Army Unit Tooltip");
+                    this._ArmyUnitTooltip = new qx.ui.form.CheckBox(qxApp.tr("Disable Army Unit Tooltip"));
                     this._ArmyUnitTooltip.addListener("changeValue", this._onArmyUnitTooltipChange, this);
                     if (localStorage['ArmyUnitTooltipDisabled'] !== undefined) {
                         if (localStorage['ArmyUnitTooltipDisabled'] == "yes")
@@ -1895,12 +1882,12 @@
                         marginTop: 10
                     });
                     simulatorHeader.setThemedFont("bold");
-                    var simulatorTitle = new qx.ui.basic.Label("Simulator:");
+                    var simulatorTitle = new qx.ui.basic.Label(qxApp.tr("Simulator") + ":");
                     simulatorHeader.add(simulatorTitle);
                     genPage.add(simulatorHeader);
 
                     var simulatorBox = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
-                    this._autoSimulateCB = new qx.ui.form.CheckBox("Auto Start Simulation");
+                    this._autoSimulateCB = new qx.ui.form.CheckBox(qxApp.tr("Auto Start Simulation"));
 
                     if (localStorage['autoSimulate'] !== undefined) {
                         if (localStorage['autoSimulate'] == "yes")
@@ -1937,18 +1924,18 @@
                     simulatorBox.add(simulatorBox2);
                     genPage.add(simulatorBox);
 
-                    var statsPage = new qx.ui.tabview.Page("Stats");
+                    var statsPage = new qx.ui.tabview.Page(qxApp.tr("Stats"));
                     statsLayout = new qx.ui.layout.VBox(5);
                     statsPage.setLayout(statsLayout);
 
                     var statWindowHeader = new qx.ui.container.Composite(new qx.ui.layout.HBox(5));
                     statWindowHeader.setThemedFont("bold");
-                    var statWindowTitle = new qx.ui.basic.Label("Stat Window:");
+                    var statWindowTitle = new qx.ui.basic.Label(qxApp.tr("Stats Window:"));
                     statWindowHeader.add(statWindowTitle);
                     statsPage.add(statWindowHeader);
 
                     var statWindowBox = new qx.ui.container.Composite(new qx.ui.layout.VBox(5));
-                    this._autoOpenCB = new qx.ui.form.CheckBox("Auto Open");
+                    this._autoOpenCB = new qx.ui.form.CheckBox(qxApp.tr("Auto Open"));
                     this._autoOpenCB.addListener("changeValue", this._onAutoOpenStatsChange, this);
                     if (localStorage['autoOpenStat'] !== undefined) {
                         if (localStorage['autoOpenStat'] == "yes")
@@ -2024,7 +2011,7 @@
 
                     var simViewsHeader = new qx.ui.container.Composite(new qx.ui.layout.HBox(5)).set({marginTop: 10});
                     simViewsHeader.setThemedFont("bold");
-                    var simViewsTitle = new qx.ui.basic.Label("Simulations shown");
+                    var simViewsTitle = new qx.ui.basic.Label(qxApp.tr("Simulations shown"));
                     simViewsHeader.add(simViewsTitle);
                     statsPage.add(simViewsHeader);
 
@@ -2040,14 +2027,14 @@
 
                     var hideSecHeader = new qx.ui.container.Composite(new qx.ui.layout.HBox(5)).set({marginTop: 10});
                     hideSecHeader.setThemedFont("bold");
-                    var hideSecTitle = new qx.ui.basic.Label("Hide Sections (on Startup):");
+                    var hideSecTitle = new qx.ui.basic.Label(qxApp.tr("Hide Sections (on Startup):"));
                     hideSecHeader.add(hideSecTitle);
                     statsPage.add(hideSecHeader);
 
                     var hideSecBox = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
-                    this._hideHealthCB = new qx.ui.form.CheckBox("Health");
-                    this._hideRepairCB = new qx.ui.form.CheckBox("Repair");
-                    this._hideLootCB = new qx.ui.form.CheckBox("Loot");
+                    this._hideHealthCB = new qx.ui.form.CheckBox(qxApp.tr("Health"));
+                    this._hideRepairCB = new qx.ui.form.CheckBox(qxApp.tr("Repair"));
+                    this._hideLootCB = new qx.ui.form.CheckBox(qxApp.tr("Loot"));
                     this._hideHealthCB.addListener("changeValue", this._onHideEHChange, this);
                     this._hideRepairCB.addListener("changeValue", this._onHideRTChange, this);
                     this._hideLootCB.addListener("changeValue", this._onHideLootChange, this);
@@ -2075,9 +2062,9 @@
                     statsPage.add(hideSecBox);
 
                     var statPosHeader = new qx.ui.container.Composite(new qx.ui.layout.HBox(5)).set({marginTop: 10});
-                    var statPosTitle = new qx.ui.basic.Label("Set Stat Window Position:").set({alignY: "middle"});
+                    var statPosTitle = new qx.ui.basic.Label(qxApp.tr("Set Stat Window Position:")).set({alignY: "middle"});
                     statPosTitle.setFont("bold");
-                    var statPosBtn = new qx.ui.form.Button("Set").set({allowGrowX: false, allowGrowY: false, height: 20});
+                    var statPosBtn = new qx.ui.form.Button(qxApp.tr("Set")).set({allowGrowX: false, allowGrowY: false, height: 20});
                     statPosBtn.addListener("click", this._onSetStatWindowPositionChange, this);
                     statPosHeader.add(statPosTitle);
                     statPosHeader.add(statPosBtn);
@@ -2086,6 +2073,7 @@
                     tabView.add(genPage);
                     tabView.add(statsPage);
                     this.add(tabView);
+                    phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this, function () { this.close(); });
                 },
 
                 destruct: function () {},
@@ -2357,16 +2345,16 @@
 
                     setRTBtn: function (value) {
                         if (value == true)
-                            Simulator.getInstance().unlockRTBtn.hide();
-                        else
                             Simulator.getInstance().unlockRTBtn.show();
+                        else
+                            Simulator.getInstance().unlockRTBtn.hide();
                     },
 
                     setCmtBtn: function (value) {
                         if (value == true)
-                            Simulator.getInstance().unlockCmtBtn.hide();
-                        else
                             Simulator.getInstance().unlockCmtBtn.show();
+                        else
+                            Simulator.getInstance().unlockCmtBtn.hide();
                     },
 
                     setButtonLoc: function () {
@@ -2423,31 +2411,32 @@
 
                     setButtonSize: function () {
                         try {
+                            var qxApp = qx.core.Init.getApplication();
                             value = this._buttonSizeCB.getValue();
 
                             if (value == true) {
-                                Simulator.getInstance().simBtn.setLabel("Simulate");
+                                Simulator.getInstance().simBtn.setLabel(qxApp.tr("Simulate"));
                                 Simulator.getInstance().simBtn.setWidth(60);
 
-                                Simulator.getInstance().statBtn.setLabel("Stats");
+                                Simulator.getInstance().statBtn.setLabel(qxApp.tr("Stats"));
                                 Simulator.getInstance().statBtn.setWidth(60);
 
-                                Simulator.getInstance().optionBtn.setLabel("Options");
+                                Simulator.getInstance().optionBtn.setLabel(qxApp.tr("Options"));
                                 Simulator.getInstance().optionBtn.setWidth(60);
 
-                                Simulator.getInstance().layoutBtn.setLabel("Layout");
+                                Simulator.getInstance().layoutBtn.setLabel(qxApp.tr("Layout"));
                                 Simulator.getInstance().layoutBtn.setWidth(60);
                             } else {
-                                Simulator.getInstance().simBtn.setLabel("S");
+                                Simulator.getInstance().simBtn.setLabel(qxApp.tr("S"));
                                 Simulator.getInstance().simBtn.setWidth(30);
 
-                                Simulator.getInstance().statBtn.setLabel("I");
+                                Simulator.getInstance().statBtn.setLabel(qxApp.tr("I"));
                                 Simulator.getInstance().statBtn.setWidth(30);
 
-                                Simulator.getInstance().optionBtn.setLabel("O");
+                                Simulator.getInstance().optionBtn.setLabel(qxApp.tr("O"));
                                 Simulator.getInstance().optionBtn.setWidth(30);
 
-                                Simulator.getInstance().layoutBtn.setLabel("L");
+                                Simulator.getInstance().layoutBtn.setLabel(qxApp.tr("L"));
                                 Simulator.getInstance().layoutBtn.setWidth(30);
                             }
 
@@ -2458,18 +2447,18 @@
                     }
                 }
             });
-
             qx.Class.define("Simulator.LayoutWindow", {
                 type: "singleton",
                 extend: webfrontend.gui.CustomWindow,
 
                 construct: function () {
+                    var qxApp = qx.core.Init.getApplication();
                     this.base(arguments);
                     this.setLayout(new qx.ui.layout.VBox());
 
                     this.set({
                         width: 200,
-                        caption: "Simulator Layouts",
+                        caption: qxApp.tr("Simulator") + " - " + qxApp.tr("Layouts"),
                         padding: 2,
                         allowMaximize: false,
                         showMaximize: false,
@@ -2480,7 +2469,7 @@
                     var layoutListHeader = new qx.ui.container.Composite(new qx.ui.layout.VBox(5)).set({
                         decorator: "pane-light-opaque"
                     });
-                    var layoutListTitle = new qx.ui.basic.Label("Formation Saver").set({alignX: "center", alignY: "top", font: "font_size_14_bold"});
+                    var layoutListTitle = new qx.ui.basic.Label(qxApp.tr("Formation Saver")).set({alignX: "center", alignY: "top", font: "font_size_14_bold"});
                     layoutListHeader.add(layoutListTitle);
                     this.add(layoutListHeader);
 
@@ -2491,8 +2480,8 @@
                     var listButtonBox = new qx.ui.container.Composite();
                     var listButtonLayout = new qx.ui.layout.HBox(5, "center");
                     listButtonBox.setLayout(listButtonLayout);
-                    var loadButton = new qx.ui.form.Button("Load");
-                    var deleteButton = new qx.ui.form.Button("Delete");
+                    var loadButton = new qx.ui.form.Button(qxApp.tr("Load"));
+                    var deleteButton = new qx.ui.form.Button(qxApp.tr("Delete"));
                     loadButton.set({height: 15, width: 70, alignX: "center"});
                     loadButton.addListener("click", this.loadLayout, this);
                     deleteButton.set({height: 15, width: 70, alignX: "center"});
@@ -2503,7 +2492,7 @@
 
                     var saveLayoutBox = new qx.ui.container.Composite(new qx.ui.layout.HBox().set({spacing: 10})).set({marginTop: 20, marginLeft: 5});
                     this.layoutTextBox = new qx.ui.form.TextField("").set({width: 75, maxLength: 15});
-                    var saveButton = new qx.ui.form.Button("Save");
+                    var saveButton = new qx.ui.form.Button(qxApp.tr("Save"));
                     saveButton.set({height: 10, width: 70, alignX: "center"});
                     saveButton.addListener("click", this.saveNewLayout, this);
                     saveLayoutBox.add(this.layoutTextBox);
@@ -2511,27 +2500,21 @@
                     this.add(saveLayoutBox);
 
                     var checkBox = new qx.ui.container.Composite(new qx.ui.layout.HBox().set({spacing: 10})).set({marginTop: 10, marginLeft: 5});
-                    this.persistentCheck = new qx.ui.form.CheckBox("Make Persistent");
+                    this.persistentCheck = new qx.ui.form.CheckBox(qxApp.tr("Make Persistent"));
                     this.persistentCheck.setTextColor("white");
                     this.persistentCheck.setFont("bold");
-                    this.persistentCheck.setToolTipText("If checked, formation will be saved and can be used by this city in any other city");
+                    this.persistentCheck.setToolTipText(qxApp.tr("If checked, formation will be saved and can be used by this city in any other city."));
                     checkBox.add(this.persistentCheck);
                     this.add(checkBox);
 
-                    var noticeBox = new qx.ui.container.Composite(new qx.ui.layout.HBox()).set({marginTop: 5, marginLeft: 5});
-                    var noticeText = new qx.ui.basic.Label("").set({alignX: "center", alignY: "top"});
-                    noticeText.setValue("<p align=\'justify\'><b>If formation does not change on load, try moving one unit first, then try again.</b></p>");
-                    noticeText.set({rich: true, wrap: true, width: 165, textColor: "white"});
-                    noticeBox.add(noticeText);
-                    this.add(noticeBox);
-
                     var clearAllLayoutsBox = new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({alignX: "center", marginTop: 5, marginLeft: 5, allowGrowX: false});
-                    var clearAllLayoutsBtn = new qx.ui.form.Button("Clear All").set({alignX: "center", width: 70});
+                    var clearAllLayoutsBtn = new qx.ui.form.Button(qxApp.tr("Clear All")).set({alignX: "center", width: 70});
                     clearAllLayoutsBtn.addListener("click", this.clearAllLayouts, this);
                     clearAllLayoutsBox.add(clearAllLayoutsBtn);
                     this.add(clearAllLayoutsBox);
 
                     this.layoutsArray = [];
+                    phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this, function () { this.close(); });
                 },
 
                 destruct: function () {},
@@ -2728,123 +2711,86 @@
                 }
             });
         }
+        function translation() {
+            var localeManager = qx.locale.Manager.getInstance();
 
-        function onViewChanged(oldMode, newMode) {
-            setTimeout(function () {
-                try {
-                    console.log("View Changed");
-                    Simulator.OptionWindow.getInstance().close();
-                    Simulator.LayoutWindow.getInstance().close();
-                    if (newMode != ClientLib.Vis.Mode.CombatSetup && newMode != ClientLib.Vis.Mode.Battleground) {
-                        Simulator.StatWindow.getInstance().close();
-                        //Also reset temp formation array
-                        Simulator.getInstance().armyTempFormations = [];
-                        Simulator.getInstance().armyTempIdx = 0;
-                        Simulator.getInstance().armyUndoBtn.setEnabled(false);
-                        Simulator.getInstance().isSimulation = false;
-                    } else if (newMode == ClientLib.Vis.Mode.CombatSetup) {
-                        if (localStorage['autoOpenStat'] !== undefined) {
-                            if (localStorage['autoOpenStat'] == "yes") {
-                                Simulator.StatWindow.getInstance().open();
-                            } else {
-                                Simulator.StatWindow.getInstance().close();
-                            }
-                        } else {
-                            Simulator.StatWindow.getInstance().open();
-                            localStorage['autoOpenStat'] = "yes";
-                        }
+            // Default language is english (en)
+            // Available Languages are: ar,ce,cs,da,de,en,es,fi,fr,hu,id,it,nb,nl,pl,pt,ro,ru,sk,sv,ta,tr,uk
+            // You can send me translations so i can include them in the Script.
 
-                        localStorage['allUnitsDisabled'] = "no";
-
-
-                        if (Simulator.getInstance().isSimulation == false)
-                            setTimeout(function () {
-                                Simulator.StatWindow.getInstance().calcResources();
-                            }, 2000);
-                        else
-                            Simulator.getInstance().isSimulation = false;
-
-                        if (oldMode != ClientLib.Vis.Mode.Battleground)
-                            Simulator.getInstance().saveTempFormation(); //Save the very first formation upon entering base.
-                    }
-
-                    if (ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity() != null) {
-                        var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity().get_Name();
-                        var ownCity = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity().get_Name();
-                        //Don't want shift formation buttons showing up during combat or in own player's cities
-                        if (newMode == ClientLib.Vis.Mode.Battleground || city == ownCity) {
-                            Simulator.getInstance().shiftUpBtn.hide();
-                            Simulator.getInstance().shiftDownBtn.hide();
-                            Simulator.getInstance().shiftLeftBtn.hide();
-                            Simulator.getInstance().shiftRightBtn.hide();
-                            Simulator.getInstance().disableAllUnitsBtn.hide();
-                            Simulator.getInstance().mirrorBtnH.hide();
-                            Simulator.getInstance().mirrorBtnV.hide();
-                            Simulator.getInstance().armyUndoBtn.hide();
-                            Simulator.getInstance().quickSaveBtn.hide();
-                        } else if (city != ownCity) {
-                            Simulator.getInstance().shiftUpBtn.show();
-                            Simulator.getInstance().shiftDownBtn.show();
-                            Simulator.getInstance().shiftLeftBtn.show();
-                            Simulator.getInstance().shiftRightBtn.show();
-                            Simulator.getInstance().disableAllUnitsBtn.show();
-                            Simulator.getInstance().mirrorBtnH.show();
-                            Simulator.getInstance().mirrorBtnV.show();
-                            Simulator.getInstance().armyUndoBtn.show();
-                            Simulator.getInstance().quickSaveBtn.show();
-                        }
-                    }
-                } catch (e) {
-                    console.log("Error closing windows or hiding buttons on view change");
-                    console.log(e.toString());
-                }
-            }, 500);
+            // German (incomplete)
+            localeManager.addTranslation("de", {
+                "Simulator": "Simulator",
+                "S": "S",
+                "Simulate": "Simulate",
+                "Opens Simulation Screen.": "Startet die Simulation",
+                "I": "I",
+                "Stats": "Statistik",
+                "Opens Simulator Stats Window.": "Öffnet das Statistikfenster.",
+                "O": "O",
+                "Options": "Options",
+                "Opens Simulator Options.": "Öffnet das Optionsfenster.",
+                "L": "L",
+                "Layout": "Layout",
+                "Save/Load/Delete Unit Formations for current city.": "Speichern/Laden/Löschen von Formationen für den aktuellen Gegner",
+                "Unlock": "Unlock",
+                "Unlock Combat Button.": "Entsperrt die Angriffsschaltfläche.",
+                "Unlock Repair Button.": "Entsperrt die Reparaturschaltfläche.",
+                "Shifts units one space up.": "Verschiebt Einheiten einen Platz nach oben.",
+                "Shifts units one space down.": "Verschiebt die Einheiten einen Platz nach unten.",
+                "Shifts units one space left.": "Verschiebt die Einheiten einen Platz nach links.",
+                "Shifts units one space right.": "Verschiebt die Einheiten einen Platz nach rechts.",
+                "Mirrors units horizontally.": "Spiegelt die Einheiten horizontal.",
+                "Mirrors units vertically.": "Spiegelt die Einheiten vertikal.",
+                "Enables/Disables all units.": "Alle Einheiten de-/aktivieren.",
+                "Undo's formation to previous saved formation.<br>Save formations by hitting<br>the Update or Simulate button.": "Setzt die Formation auf die vorher gespeicherte zurück.<br>Formationen werden gespeichert,<br>wenn man auf Simulieren oder Aktualisieren drückt.",
+                "QS": "QS",
+                "Saves the current layout<br>without having to open<br>the Formation Saver window.<br>Does not make persistent.": "Speichert die aktuelle Formation,<br>ohne das das Formationsfenster<br>geöffnet werden muss.",
+                "Back": "zurück",
+                "Return to Combat Setup.": "Zurück zum Angriffsbildschirm.",
+                "Updates Simulation Stats.": "Aktualisiert die Statistik.",
+                "Buttons:": "Schaltflächen:",
+                "Right Side": "Rechte Seite",
+                "Normal Size": "Normale Größe",
+                "Disable Repair Button": "Sperre Reparatur-Schaltfläche",
+                "Disable Combat Button": "Sperre Angriffs-Schaltfläche",
+                "Disable Army Unit Tooltip": "Deaktiviere Einheiten Tooltips",
+                "Auto Start Simulation": "Simulation automatisch starten",
+                "Stats Window:": "Statistik Fenster:",
+                "Auto Open": "Automatisch öffnen",
+                "Simulations shown": "Anzuzeigende Simulationen",
+                "Hide Sections (on Startup):": "Verstecke Bereich (beim starten):",
+                "Health": "Health",
+                "Repair": "Repair",
+                "Loot": "Loot",
+                "Set Stat Window Position:": "Setze die Statistikfenster Position:",
+                "Set": "setzen",
+                "Layouts": "Layouts",
+                "Formation Saver": "Formationen speichern",
+                "Load": "Laden",
+                "Delete": "Löschen",
+                "Save": "Speichern",
+                "Make Persistent": "Dauerhaft",
+                "If checked, formation will be saved and can be used by this city in any other city.": "Wenn angewählt kann die Formation für andere Gegner verwendet werden.",
+                "Clear All": "Lösche alle"
+            });
         }
-
         function waitForGame() {
             try {
                 if (typeof qx !== "undefined" && typeof qx.core !== "undefined" && typeof qx.core.Init !== "undefined" && typeof ClientLib !== "undefined" && typeof phe !== "undefined") {
                     var app = qx.core.Init.getApplication();
                     if (app.initDone == true) {
                         try {
-                            console.log("nWo - Tiberium Alliances Combat Simulator: Loading");
+                            console.log("WarChiefs - Tiberium Alliances Combat Simulator: Loading");
+                            translation();
                             createClasses();
-
-                            //Thanks to KRS_L for this next section solving the repair calculations until the new patch is on every server
-                            if (PerforceChangelist >= 392583) {
-                                var u = "" + ClientLib.Data.Cities.prototype.get_CurrentCity;
-                                for (var a in ClientLib.Data.Cities.prototype)
-                                    if (ClientLib.Data.Cities.prototype.hasOwnProperty(a) && "function" == typeof ClientLib.Data.Cities.prototype[a]) {
-                                        var l = "" + ClientLib.Data.Cities.prototype[a];
-                                        if (l.indexOf(u) > -1 && 6 == a.length) {
-                                            u = a;
-                                            break
-                                        }
-                                    }
-                                var c = "" + ClientLib.Data.Cities.prototype.get_CurrentOwnCity;
-                                for (var h in ClientLib.Data.Cities.prototype)
-                                    if (ClientLib.Data.Cities.prototype.hasOwnProperty(h) && "function" == typeof ClientLib.Data.Cities.prototype[h]) {
-                                        var p = "" + ClientLib.Data.Cities.prototype[h];
-                                        if (p.indexOf(c) > -1 && 6 == h.length) {
-                                            c = h;
-                                            break
-                                        }
-                                    }
-                                var s = "" + ClientLib.API.Util.GetUnitRepairCosts;
-                                s = s.replace(u, c);
-                                var d = s.substring(s.indexOf("{") + 1, s.lastIndexOf("}")),
-                                    v = Function("a,b,c", d);
-                                ClientLib.API.Util.GetUnitRepairCosts = v
-                            }
-
                             Simulator.getInstance();
                             Simulator.StatWindow.getInstance();
                             Simulator.OptionWindow.getInstance();
                             Simulator.LayoutWindow.getInstance();
-                            phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "ViewModeChange", ClientLib.Vis.ViewModeChange, this, onViewChanged);
-                            console.log("nWo - Tiberium Alliances Combat Simulator: Loaded");
+                            console.log("WarChiefs - Tiberium Alliances Combat Simulator: Loaded");
                         } catch (e) {
-                            console.log("nWo - Tiberium Alliances Combat Simulator initialization error:");
+                            console.log("WarChiefs - Tiberium Alliances Combat Simulator: initialization error:");
                             console.log(e);
                         }
                     } else
@@ -2858,11 +2804,9 @@
         }
         window.setTimeout(waitForGame, 1000);
     };
-
     var script = document.createElement("script");
     var txt = injectFunction.toString();
     script.innerHTML = "(" + txt + ")();";
     script.type = "text/javascript";
-
     document.getElementsByTagName("head")[0].appendChild(script);
 })();
