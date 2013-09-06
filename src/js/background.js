@@ -116,7 +116,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 159150,
     name: "Tiberium Alliances PvP/PvE Player Info Mod",
-    version: "1.1",
+    version: "1.2",
     enabled: true
 }, {
     id: 149251,
@@ -161,7 +161,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 166833,
     name : "C&C Tiberium Alliances Flunik Tools: New Custom AutoUpgrade",
-    version : "Awesome 1.2.4",
+    version : "Awesome 1.2.5",
     enabled : false
 }, {
     id : 158799,
@@ -176,10 +176,19 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 171353,
     name : "Command and Conquer TA POIs Analyser",
-    version : "1.5.2",
+    version : "1.5.3",
+    enabled : false
+}, {
+    id : 167564,
+    name : "WarChiefs - Tiberium Alliances Upgrade Base/Defense/Army",
+    version : "13.07.20",
+    enabled : false
+}, {
+    id : 172683,
+    name : "WarChiefs - Tiberium Alliances Sector HUD",
+    version : "13.07.05",
     enabled : false
 }];
-
 
 var storage = chrome.storage.sync;
 

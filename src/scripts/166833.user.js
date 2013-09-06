@@ -2,7 +2,7 @@
 // @name        New Custom Flunik Tools
 // @namespace   FlunikTools
 // @description Upgrades Offense or Defense or Buildings. 
-// @version     Awesome 1.2.4
+// @version     Awesome 1.2.5
 // @author      dbendure
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @updateURL   https://userscripts.org/scripts/source/166833.meta.js
@@ -13,9 +13,9 @@
 (function (){
 	var FlunikTools_main =  function() {
 		try {
-			function CCTAWrapperIsInstalled() {
+			/*function CCTAWrapperIsInstalled() {
 				return (typeof (CCTAWrapper_IsInstalled) != 'undefined' && CCTAWrapper_IsInstalled);
-			}
+			}*/
 			
 			function createFlunikTools() {
 				console.log('FLUNIKTOOLS createFlunikTools');
@@ -1160,7 +1160,7 @@
 							  
 							  break;}
 							  
-							  if( (Ref_obj != undefined) && (refarr.toString() != "") && (maxarr[0] == refarr[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Ref_obj.buildinglevel < 40))){
+							  if( (Ref_obj != undefined) && (refarr.toString() != "") && (maxarr[0] == refarr[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Ref_obj.buildinglevel < 100))){
 								console.log(Ref_obj, refarr);
 								ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", Ref_obj, null, null, true);
 								Ref_obj = {};
@@ -1168,7 +1168,7 @@
 								maxarr = [];
 							 break; }
 							  
-							  if(  (Pow_obj != undefined)&& (powarr.toString() != "") && (maxarr[0] == powarr[0]) && ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Pow_obj.buildinglevel < 40))){
+							  if(  (Pow_obj != undefined)&& (powarr.toString() != "") && (maxarr[0] == powarr[0]) && ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Pow_obj.buildinglevel < 100))){
 								console.log(Pow_obj, powarr);
 								ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", Pow_obj, null, null, true);
 								Pow_obj = {};
@@ -1177,7 +1177,7 @@
                              break;
 							  }
 							  
-							  if( (Har_obj != undefined)&& (hararr.toString()!= "") && (maxarr[0] == hararr[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Har_obj.buildinglevel < 40))){
+							  if( (Har_obj != undefined)&& (hararr.toString()!= "") && (maxarr[0] == hararr[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Har_obj.buildinglevel < 100))){
 								console.log(Har_obj, hararr);
 								ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", Har_obj, null, null, true);
 								Har_obj = {};
@@ -1186,7 +1186,7 @@
                              break;
 							  }
 							  
-							  if( (Har1_obj != undefined)&& (hararr1.toString() != "") && (maxarr[0] == hararr1[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Har1_obj.buildinglevel < 40))){
+							  if( (Har1_obj != undefined)&& (hararr1.toString() != "") && (maxarr[0] == hararr1[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Har1_obj.buildinglevel < 100))){
 								console.log(Har1_obj, hararr1);
 								ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", Har1_obj, null, null, true);
 								Har1_obj = {};
@@ -1195,7 +1195,7 @@
                              break;
 							  }
 							  
-							  if( (Acc_obj != undefined)&& (accarr.toString() != "") && (maxarr[0] == accarr[0]) &&   ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Acc_obj.buildinglevel < 40))    ){
+							  if( (Acc_obj != undefined)&& (accarr.toString() != "") && (maxarr[0] == accarr[0]) &&   ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Acc_obj.buildinglevel < 100))    ){
 								console.log(Acc_obj, accarr);
 								ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", Acc_obj, null, null, true);
 								Acc_obj = {};
@@ -1204,7 +1204,7 @@
                             break;
 							  }
 							  
-							  if((Sil_obj != undefined)&& (silarr.toString() != "") && (maxarr[0] == silarr[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Sil_obj.buildinglevel < 40))  ){
+							  if((Sil_obj != undefined)&& (silarr.toString() != "") && (maxarr[0] == silarr[0])&& ((_this.totalRepairTime(airRT, vehRT, infRT) < 14400)||(Sil_obj.buildinglevel < 100))  ){
 								console.log(Sil_obj, silarr);
 								ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", Sil_obj, null, null, true);
 								Sil_obj = {};
@@ -1244,9 +1244,32 @@
 							}
 						}else{
 							FlunikTools.Main.getInstance().GetUnitMaxHealth = ClientLib.API.Util.GetUnitMaxHealth;	
+							
+
 						
-						FlunikTools.Main.getInstance();
 					}
+					                // ClientLib.Data.CityUnits.prototype.get_OffenseUnits
+                strFunction = ClientLib.Data.CityUnits.prototype.HasUnitMdbId.toString();
+                var searchString = "for (var b in {d:this.";
+                var startPos = strFunction.indexOf(searchString) + searchString.length;
+                var fn_name = strFunction.slice(startPos, startPos + 6);
+                strFunction = "var $createHelper;return this." + fn_name + ";";
+                var fn = Function('', strFunction);
+                ClientLib.Data.CityUnits.prototype.get_OffenseUnits = fn;
+                console.log("ClientLib.Data.CityUnits.prototype.get_OffenseUnits = function(){var $createHelper;return this." + fn_name + ";}");
+
+                // ClientLib.Data.CityUnits.prototype.get_DefenseUnits
+                strFunction = ClientLib.Data.CityUnits.prototype.HasUnitMdbId.toString();
+                searchString = "for (var c in {d:this.";
+                startPos = strFunction.indexOf(searchString) + searchString.length;
+                fn_name = strFunction.slice(startPos, startPos + 6);
+                strFunction = "var $createHelper;return this." + fn_name + ";";
+                fn = Function('', strFunction);
+                ClientLib.Data.CityUnits.prototype.get_DefenseUnits = fn;
+                console.log("ClientLib.Data.CityUnits.prototype.get_DefenseUnits = function(){var $createHelper;return this." + fn_name + ";}");
+
+
+					FlunikTools.Main.getInstance();
 					window.FlunikTools.Main.getInstance().initialize();
 				} else {
 					window.setTimeout(FlunikTools_checkIfLoaded, 1000);
