@@ -1,5 +1,5 @@
 // ==UserScript==
-// @version       1.7.5
+// @version       1.7.6
 // @updateURL     https://userscripts.org/scripts/source/131289.meta.js
 // @downloadURL   https://userscripts.org/scripts/source/131289.user.js
 // @name          C&C:TA CNCOpt Link Button
@@ -9,7 +9,7 @@
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include       http*://*.cncopt.com/*
 // @include       http*://cncopt.com/*
-// @grant         console.log
+// @grant         GM_log
 // @grant         GM_setValue
 // @grant         GM_getValue
 // @grant         GM_registerMenuCommand
@@ -25,12 +25,11 @@
 2012-11-25: Special thanks to PythEch for fixing this up so it worked again!
 
 */
-var unsafeWindow=window;
 var scity = null;
 var tcity = null;
 var tbase = null;
 try {
-  unsafeWindow.__cncopt_version = "1.7.5";
+  unsafeWindow.__cncopt_version = "1.7.6";
   (function () {
     var cncopt_main = function () {
 
@@ -355,6 +354,7 @@ try {
               var city = ClientLib.Data.MainData.GetInstance().get_Cities().GetCity(city_id);
               var own_city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentOwnCity();
               var alliance = ClientLib.Data.MainData.GetInstance().get_Alliance();
+              var server = ClientLib.Data.MainData.GetInstance().get_Server();
               tbase = selected_base;
               tcity = city;
               scity = own_city;
@@ -549,6 +549,9 @@ try {
                 link += "|" + alliance.get_POIAirBonus();
                 link += "|" + alliance.get_POIDefenseBonus();
               }
+              if (server.get_TechLevelUpgradeFactorBonusAmount() != 1.20) {
+                  link += "|newEconomy";
+              }
 
               //console.log(link);
               window.open(link, "_blank");
@@ -692,7 +695,7 @@ try {
         } catch (e) {
           if (typeof console != 'undefined') console.log(e);
           else if (window.opera) opera.postError(e);
-          else console.log(e);
+          else GM_log(e);
         }
       }
       if (/commandandconquer\.com/i.test(document.domain)) window.setTimeout(cnc_check_if_loaded, 1000);
@@ -707,5 +710,5 @@ try {
     if (/commandandconquer\.com/i.test(document.domain)) document.getElementsByTagName("head")[0].appendChild(script_block);
   })();
 } catch (e) {
-  console.log(e);
+  GM_log(e);
 }
