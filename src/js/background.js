@@ -1,7 +1,7 @@
 var DEFAULT_SCRIPTS = [{
     id : 131289,
     name : "C&C:TA CNCOpt Link Button",
-    version : "1.7.5",
+    version : "1.7.6",
     enabled : true
 }, {
     id : 136299,
