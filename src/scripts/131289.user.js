@@ -29,7 +29,7 @@ var scity = null;
 var tcity = null;
 var tbase = null;
 try {
-  unsafeWindow.__cncopt_version = "1.7.6";
+  window.__cncopt_version = "1.7.6";
   (function () {
     var cncopt_main = function () {
 
