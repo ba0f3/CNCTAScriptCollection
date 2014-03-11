@@ -16,7 +16,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 1382121,
     name : "TACS 3 (Tiberium Alliances Combat Simulator)",
-    version : "3.0b",
+    version : "3.01b",
     enabled : false
 }, {
     id : 137978,
@@ -38,11 +38,6 @@ var DEFAULT_SCRIPTS = [{
     name : "MaelstromTools Dev",
     version : "0.1.3.2",
     enabled : true
-}, {
-    id : 135806,
-    name : "CnC: Tiberium Alliances Shortcuts",
-    version : "1.8.1",
-    enabled : false
 }, {
     id : 140988,
     name : "infernal wrapper",
@@ -91,7 +86,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 152177,
     name: "C&C:Tiberium Alliances Extended Chathelper Enhanced",
-    version: "3.0.0",
+    version: "3.1.6",
     enabled: false
 }, {
     id: 158565,
@@ -129,19 +124,24 @@ var DEFAULT_SCRIPTS = [{
     version: "1.11.1",
     enabled: false
 }, {
-    id: 159496,
-    name: "CnC:Tiberium Aliances Navigator - Compass",
-    version: "1.32",
+    id: 158869,
+    name: "C&C Tiberium Alliances Flunik Tools",
+    version:  "Awesome 1.2.6",
     enabled: false
 }, {
-    id: 158869,
-    name: "C&C Tiberium Alliances Flunik Tools: Custom AutoUpgrade",
-    version:  "0.5.7.09",
+    id : 135806,
+    name : "PluginsLib - mhShortcuts - Tiberium Alliances",
+    version : "1.8.3",
+    enabled : false
+}, {
+    id: 159496,
+    name: "PluginsLib - mhNavigator - Tiberium Alliances",
+    version: "1.35",
     enabled: false
 }, {
     id : 160800,
-    name : "CnC: Tiberium Alliances Available Loot Summary + Info",
-    version : "2.0.0",
+    name : "PluginsLib - mhLoot - Tiberium Alliances",
+    version : "2.06",
     enabled : false
 }, {
     id : 165625,
@@ -151,7 +151,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 165888,
     name : "WarChiefs - Tiberium Alliances Combat Simulator",
-    version : "13.07.03",
+    version : "13.09.26",
     enabled : false
 }, {
     id : 168297,
@@ -160,8 +160,8 @@ var DEFAULT_SCRIPTS = [{
     enabled : false
 }, {
     id : 166833,
-    name : "C&C Tiberium Alliances Flunik Tools: New Custom AutoUpgrade",
-    version : "Awesome 1.2.5",
+    name : "New Custom Flunik Tools",
+    version : "Awesome 1.3.3",
     enabled : false
 }, {
     id : 158799,
@@ -176,17 +176,17 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 171353,
     name : "Command and Conquer TA POIs Analyser",
-    version : "1.5.3",
+    version : "2.0.1",
     enabled : false
 }, {
     id : 167564,
     name : "WarChiefs - Tiberium Alliances Upgrade Base/Defense/Army",
-    version : "13.07.20",
+    version : "13.10.30",
     enabled : false
 }, {
     id : 172683,
     name : "WarChiefs - Tiberium Alliances Sector HUD",
-    version : "13.07.05",
+    version : "13.12.18",
     enabled : false
 }];
 

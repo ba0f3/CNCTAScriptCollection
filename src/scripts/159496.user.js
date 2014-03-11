@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name          CnC:Tiberium Aliances Navigator - Compass
+// @name          PluginsLib - mhNavigator - Tiberium Alliances
 // @namespace     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @description   Creates compass poiting to the currently selected base (compass points from itself).
-// @version       1.32
+// @version       1.35
 // @author        MrHIDEn (in game PEEU) based on Caine code. Extended
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @grant         none
@@ -16,15 +16,16 @@ function injectBody()
   var ccl=console.log;var cci=console.info;var ccw=console.warn;var ccd=console.dir; var ccc=console.clear;
   var disable=0;if(disable){var f=function(){};ccl=f;cci=f;ccw=f;ccd=f;ccc=f;}
 
-  var spaceName = 'MHTools.Navigator';
-  function createClasses() {
+  var pluginName = "mhNavigator";
+  var created = false;
+  function CreateClasses() {
     function classExist(name) {
       if(name===null || name===undefined) return;
       var sp = name.split('.');
-      var o=window;
+      var w = window;
       for(var i=0;i<sp.length;i++) {
-        o=o[sp[i]];
-        if(o===undefined) {
+        w = w[sp[i]];
+        if(w===undefined) {
           return false;
         }
       }
@@ -168,35 +169,39 @@ function injectBody()
       cci('qx.ui.embed.Canvas ADDED');
     }
     // MAIN BODY
-    qx.Class.define("MHTools.Navigator", {
+    qx.Class.define("PluginsLib." + pluginName,
+    {
       type: 'singleton',
       extend: qx.core.Object,
       statics : {
         NAME: 'Navigator',
-        PLUGIN: 'none',
+        PLUGIN: 'mhNavigator',
         AUTHOR: 'MrHIDEn',
-        VERSION: 1.32,
+        VERSION: 1.35,
         REQUIRES: '',
-        INFO: '',
+        NEEDS: 'Menu',
+        INFO: 'This script uses compas look like navigator.',
         WWW: 'http://userscripts.org/scripts/show/159496',
+        ONPLUGIN: null,
+        ONOPTIONS: null,
         SIZE: 0
       },
       construct: function() {
         try {
           this.stats.src = 'http://goo.gl/aeCxf';//1.0.0 1.1.0 1.2.0 1.3x
           this.Self = this;
-          var backColor = '#eeeeff';
-          var ser = ClientLib.Data.MainData.GetInstance().get_Server();
-          this.cenX = ser.get_ContinentWidth() / 2;
-          this.cenY = ser.get_ContinentHeight() / 2;  
+          var backColor = '#eeeeff';          
+          //var STATIC = PluginsLib[this.basename];
+          var serv = ClientLib.Data.MainData.GetInstance().get_Server();
+          this.cenX = serv.get_ContinentWidth() / 2;
+          this.cenY = serv.get_ContinentHeight() / 2;
           var pos = this.loadFromStorage('lock', {x:this.cenX, y:this.cenY});
           this.lockX = pos.x;
-          this.lockY = pos.y;          
-          //this.lockX = this.cenX;
-          //this.lockY = this.cenY;
+          this.lockY = pos.y;
           this.posTimer = new qx.event.Timer();
           this.posTimer.addListener("interval",this.onPosTimer,this);
-          this.winName = "Navigator " + MHTools.Navigator.VERSION.toString();
+          //this.winName = "Navigator " + PluginsLib.mhNavigator.VERSION.toFixed(2);
+          this.winName = "Navigator " + this.constructor.VERSION.toFixed(2);
           this.win = new qx.ui.window.Window(this.winName);
           this.win.set({
             width:120,
@@ -230,7 +235,7 @@ function injectBody()
           var winLayout = new qx.ui.layout.VBox();
           winLayout.setAlignX("center");
           this.win.setLayout(winLayout);
-          
+
           var winXYLayout = new qx.ui.layout.VBox();
           this.winXY = new qx.ui.window.Window("Go to x:y");
           this.winXY.set({
@@ -247,7 +252,8 @@ function injectBody()
           this.winXY.setLayout(winXYLayout);
           this.winXY.setToolTipText('Proper values:<br>333 444<br>333:444<br>333;444<br>333,444<br>333.444<br>[coords]333:444[/coords]');
           var cntXY = new qx.ui.container.Composite(new qx.ui.layout.VBox());
-          cntXY.setThemedBackgroundColor(backColor);
+          //cntXY.setThemedBackgroundColor(backColor);
+          cntXY.setBackgroundColor(backColor);
           var lblXY = new qx.ui.basic.Label('Write X:Y and press [Enter]');
           this.txtXY = new qx.ui.form.TextField('');
           this.txtXY.set(
@@ -308,7 +314,8 @@ function injectBody()
           hboxNav1.setAlignX("center");
           var cntNav1 = new qx.ui.container.Composite();
           cntNav1.setLayout(hboxNav1);
-          cntNav1.setThemedBackgroundColor(backColor);
+          //cntNav1.setThemedBackgroundColor(backColor);
+          cntNav1.setBackgroundColor(backColor);
           cntNav1.add(canvas1);
           this.ctx1 = canvas1.getContext2d();
           // add
@@ -319,7 +326,8 @@ function injectBody()
           vboxInfo1.setAlignX("center");
           var cntInfo1 = new qx.ui.container.Composite();
           cntInfo1.setLayout(vboxInfo1);
-          cntInfo1.setThemedBackgroundColor(backColor);
+          //cntInfo1.setThemedBackgroundColor(backColor);
+          cntInfo1.setBackgroundColor(backColor);
           cntInfo1.setThemedFont("bold");
           this.disBase = new qx.ui.basic.Label('0');
           this.disBase.set({
@@ -349,7 +357,8 @@ function injectBody()
           hboxNav2.setAlignX("center");
           var cntNav2 = new qx.ui.container.Composite();
           cntNav2.setLayout(hboxNav2);
-          cntNav2.setThemedBackgroundColor(backColor);
+          //cntNav2.setThemedBackgroundColor(backColor);
+          cntNav2.setBackgroundColor(backColor);
           cntNav2.add(canvas2);
           this.ctx2 = canvas2.getContext2d();
           // add
@@ -360,18 +369,21 @@ function injectBody()
           vboxInfo2.setAlignX("center");
           var cntInfo2 = new qx.ui.container.Composite();
           cntInfo2.setLayout(vboxInfo2);
-          cntInfo2.setThemedBackgroundColor(backColor);
+          //cntInfo2.setThemedBackgroundColor(backColor);
+          cntInfo2.setBackgroundColor(backColor);
           cntInfo2.setThemedFont("bold");
 
-          this.coordLock = new qx.ui.basic.Label('X:Y');
+          this.coordLock = new qx.ui.basic.Label(this.lockX.toString()+':'+this.lockY.toString());//('X:Y');
+          //this.coordLock.setValue(this.lockX.toString()+':'+this.lockY.toString());
           this.coordLock.set({
             toolTipText: "Click - set center of map."
           });
           this.coordLock.addListener("click",function(e) {
-            var ser = ClientLib.Data.MainData.GetInstance().get_Server(); 
-            this.lockX = ser.get_ContinentWidth() / 2;
-            this.lockY = ser.get_ContinentHeight() / 2;
+            var serv = ClientLib.Data.MainData.GetInstance().get_Server();
+            this.lockX = serv.get_ContinentWidth() / 2;
+            this.lockY = serv.get_ContinentHeight() / 2;
             this.coordLock.setValue(this.lockX.toString()+':'+this.lockY.toString());
+            this.saveToStorage('lock', {x:this.lockX,y:this.lockY});
             this.displayCompass();
           },this);
           this.disLock = new qx.ui.basic.Label('0');
@@ -382,7 +394,7 @@ function injectBody()
           btnXY.set({
             width:50,
             toolTipText: "Go to position."
-          }); 
+          });
           btnXY.addListener("execute", function(e) {
             var lp = this.win.getLayoutProperties();
             this.winXY.moveTo(lp.left, lp.top+150);
@@ -405,9 +417,10 @@ function injectBody()
           cntInfo2.add(this.disLock);
           // add
           this.extItems.push(cntInfo2);
-          
+
           var cntButtons = new qx.ui.container.Composite(new qx.ui.layout.HBox());
-          cntButtons.setThemedBackgroundColor(backColor);
+          //cntButtons.setThemedBackgroundColor(backColor);
+          cntButtons.setBackgroundColor(backColor);
           cntButtons.add(btnXY);
           cntButtons.add(btnLock);
           // add
@@ -420,7 +433,13 @@ function injectBody()
           phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance().get_Region(), "PositionChange", ClientLib.Vis.PositionChange, this, this.onPositionChange);
           phe.cnc.Util.attachNetEvent(ClientLib.Vis.VisMain.GetInstance(), "SelectionChange", ClientLib.Vis.SelectionChange, this, this.onSelectionChange);
 
-          console.info(this.classname," LOADED");
+          //REGISTER PLUGIN
+          //this.constructor.ONPLUGIN = function(){this.constructor.getInstance().open();};
+          //this.constructor.ONOPTIONS = function(){this.constructor.getInstance().open();};//test
+          PluginsLib.Menu.getInstance().RegisterPlugin(this);
+          
+          //READY
+          console.info("Plugin '"+pluginName+"' LOADED");
         } catch (e) {
           console.error(this.classname,".construct: ", e);
         }
@@ -609,7 +628,7 @@ function injectBody()
         }
       }
     });
-  }//createClasses()
+  }//CreateClasses()
   function WaitForGame() {
     try
     {
@@ -618,14 +637,32 @@ function injectBody()
         var app = qx.core.Init.getApplication();
         if (app.initDone===true)
         {
-          createClasses();
-          MHTools.Navigator.getInstance();
-          MHTools.Navigator.SIZE = scriptSize;
-          return;//DONE
+          if(!created) CreateClasses();
+          
+          var plugin = PluginsLib[pluginName];
+          var ready = true;
+          if(plugin.REQUIRES.length > 0) {
+            var req = plugin.REQUIRES.split(',');
+            //check all requires
+            for(var i in req) {
+              //cci(req[i]);
+              if(typeof(PluginsLib[req[i]])=='undefined') {
+                console.log(pluginName,'.WaitForGame.REQUIRES ',req[i],typeof(PluginsLib[req[i]]));
+                ready = false;
+                break;//WAIT
+              }
+            }
+          }
+          if(ready) {
+            plugin.getInstance();
+            plugin.SIZE = scriptSize;
+            console.info("Plugin '"+plugin.getInstance().basename+"' READY");
+            return;//DONE
+          }
         }
       }
     } catch (e) {
-      console.error(spaceName,'.WaitForGame: ', e);
+      console.error('PluginsLib.'+pluginName,'.WaitForGame: ', e);
     }
     window.setTimeout(WaitForGame, 2000);
   }

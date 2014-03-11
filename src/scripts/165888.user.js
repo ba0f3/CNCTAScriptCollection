@@ -2,7 +2,7 @@
 // @name            WarChiefs - Tiberium Alliances Combat Simulator
 // @description     Combat Simulator used to plan and strategize attack before going into battle.
 // @author          Eistee
-// @version         13.07.03
+// @version         13.09.26
 // @namespace       http*://*.alliances.commandandconquer.com/*
 // @include         http*://*.alliances.commandandconquer.com/*
 // @require         http://usocheckup.redirectme.net/165888.js
@@ -211,9 +211,7 @@
                         console.log(e.toString());
                     }
                 },
-
                 destruct: function () {},
-
                 members: {
                     armyBar: null,
                     playArea: null,
@@ -912,7 +910,7 @@
                                 Repair: {
                                     container: new qx.ui.container.Composite(new qx.ui.layout.VBox()).set({width: 65, padding: 5, allowGrowX: true, marginLeft: 0, marginRight: 0, decorator: "pane-light-opaque"}),
                                     Storage:   new qx.ui.basic.Label("-").set({alignX: "right", alignY: "middle"}),
-                                    Overall:   new qx.ui.basic.Label("-").set({alignX: "right", alignY: "middle"}),
+                                    Overall:   new qx.ui.basic.Label("-").set({alignX: "right", alignY: "middle", rich: true}),
                                     Inf:       new qx.ui.basic.Label("-").set({alignX: "right", alignY: "middle"}),
                                     Vehi:      new qx.ui.basic.Label("-").set({alignX: "right", alignY: "middle"}),
                                     Air:       new qx.ui.basic.Label("-").set({alignX: "right", alignY: "middle"})
@@ -1125,7 +1123,7 @@
                                     switch (localStorage['getRTSelection']) {
                                     case "cry":
                                         //Repair.Overall
-                                        this.Label.Repair.Overall.setValue(phe.cnc.gui.util.Numbers.formatNumbersCompact(this.Stats.Repair.Overall.Cry));
+                                        this.Label.Repair.Overall.setValue("<span style=\"text-shadow: 0 0 3pt;\">" + phe.cnc.gui.util.Numbers.formatNumbersCompact(this.Stats.Repair.Overall.Cry) + "</span>");
                                         this.Label.Repair.Overall.setToolTipText(qxApp.tr("tnf:repair points") + ": " + formatTime(this.Stats.Repair.Overall.RT) + "</br>" + qxApp.tr("tnf:health") + ": " + this.Stats.Repair.Overall.getHP().toFixed(2) + "%");
                                         //Repair.Inf
                                         this.Label.Repair.Inf.setValue(phe.cnc.gui.util.Numbers.formatNumbersCompact(this.Stats.Repair.Inf.Cry));
@@ -1139,7 +1137,7 @@
                                         break;
                                     case "hp":
                                         //Repair.Overall
-                                        this.Label.Repair.Overall.setValue(this.Stats.Repair.Overall.getHP().toFixed(2) + "%");
+                                        this.Label.Repair.Overall.setValue("<span style=\"text-shadow: 0 0 3pt;\">" + this.Stats.Repair.Overall.getHP().toFixed(2) + "%</span>");
                                         this.Label.Repair.Overall.setToolTipText(qxApp.tr("tnf:repair points") + ": " + formatTime(this.Stats.Repair.Overall.RT) + "</br>" + qxApp.tr("tnf:crystals") + ": " + phe.cnc.gui.util.Numbers.formatNumbersCompact(this.Stats.Repair.Overall.Cry));
                                         //Repair.Inf
                                         this.Label.Repair.Inf.setValue(this.Stats.Repair.Inf.getHP().toFixed(2) + "%");
@@ -1153,7 +1151,7 @@
                                         break;
                                     case "hp rel":
                                         //Repair.Overall
-                                        this.Label.Repair.Overall.setValue(this.Stats.Repair.Overall.getHPrel().toFixed(2) + "%");
+                                        this.Label.Repair.Overall.setValue("<span style=\"text-shadow: 0 0 3pt;\">" + this.Stats.Repair.Overall.getHPrel().toFixed(2) + "%</span>");
                                         this.Label.Repair.Overall.setToolTipText(qxApp.tr("tnf:repair points") + ": " + formatTime(this.Stats.Repair.Overall.RT) + "</br>" + qxApp.tr("tnf:crystals") + ": " + phe.cnc.gui.util.Numbers.formatNumbersCompact(this.Stats.Repair.Overall.Cry));
                                         //Repair.Inf
                                         this.Label.Repair.Inf.setValue(this.Stats.Repair.Inf.getHPrel().toFixed(2) + "%");
@@ -1167,7 +1165,7 @@
                                         break;
                                     default: //"rt"
                                         //Repair.Overall
-                                        this.Label.Repair.Overall.setValue(formatTime(this.Stats.Repair.Overall.RT));
+                                        this.Label.Repair.Overall.setValue("<span style=\"text-shadow: 0 0 3pt;\">" + formatTime(this.Stats.Repair.Overall.RT) + "</span>");
                                         this.Label.Repair.Overall.setToolTipText(qxApp.tr("tnf:crystals") + ": " + phe.cnc.gui.util.Numbers.formatNumbersCompact(this.Stats.Repair.Overall.Cry) + "</br>" + qxApp.tr("tnf:health") + ": " + this.Stats.Repair.Overall.getHP().toFixed(2) + "%");
                                         //Repair.Inf
                                         this.Label.Repair.Inf.setValue(formatTime(this.Stats.Repair.Inf.RT));
@@ -1413,6 +1411,7 @@
                     simulateStats: function () {
                         var city = ClientLib.Data.MainData.GetInstance().get_Cities().get_CurrentCity();
                         if (city != null) {
+                            ClientLib.Vis.VisMain.GetInstance().get_Battleground().Reset();
                             Simulator.getInstance().isSimulation = true;
                             Simulator.getInstance().saveTempFormation();
                             localStorage['ta_sim_last_city'] = city.get_Id();
@@ -1742,12 +1741,10 @@
                     },
                     getBattleDuration: function (sim) {
                         var battleground = ClientLib.Vis.VisMain.GetInstance().get_Battleground();
-                        sim.Stats.Battle.Duration = battleground.get_BattleDuration();
-                        if (this.isSimStatButtonDisabled) {
-                            setTimeout(function () {
-                                Simulator.StatWindow.getInstance().getBattleDuration(sim);
-                            }, 10);
-                        }
+                        if (battleground.get_Simulation() !== null) sim.Stats.Battle.Duration = battleground.get_Replay().m_CombatSteps * battleground.get_TimePerStep();
+                        else setTimeout(function () {
+                            Simulator.StatWindow.getInstance().getBattleDuration(sim);
+                        }, 10);
                     },
                     getLootFromCurrentCity: function () {
                         try {
