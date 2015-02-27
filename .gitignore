@@ -1,3 +1,5 @@
 dist
 build
 .cert/*.pem
+.idea
+*.iml

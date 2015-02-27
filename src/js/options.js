@@ -11,7 +11,7 @@ $(document).ready(function () {
                 html += "<input id='s-" + script.id + "' class='cb'" + ((config.CNCTA_ENABLED['s_' + script.id] === true) ? " checked='checked'" : '') + " name='cb-" + script.id + "' type='checkbox' value='" + script.id + "' >";
                 html += "<label for='s-" + script.id + "'>" + script.name + "</label>";
                 html += "<span class='version'>" + script.version + "</span>";
-                html += "[<a title='Go to homepage' target='_blank' href='http://userscripts.org/scripts/show/" + script.id + "'>⚓</a>]";
+                html += "[<a title='Go to homepage' target='_blank' href='http://userscripts-mirror.org/scripts/show/" + script.id + "'>⚓</a>]";
                 html += "</div>";
                 li.append(html).appendTo('#scripts');
             }
