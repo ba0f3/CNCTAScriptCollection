@@ -9,5 +9,5 @@ $(document).ready(function () {
     $('#version').text(chrome.app.getDetails().version);
     $('#changelog').load(chrome.extension.getURL('CHANGELOG'));
 
-    backgroundWindow._gaq.push(['_trackPageview', '/updated.html']);
+    backgroundWindow.ga('send', 'pageview', '/updated.html');
 });

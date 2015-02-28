@@ -20,7 +20,7 @@ $(document).ready(function () {
         if (config.CNCTA_GA) {
             $("#ga").attr("checked", "checked");
 
-            backgroundWindow._gaq.push(['_trackPageview', '/options.html']);
+            backgroundWindow.ga('send', 'pageview', '/options.html');
         }
 
         $("#close").click(function () {
@@ -35,7 +35,7 @@ $(document).ready(function () {
                     enabled['s_' + config.CNCTA_SCRIPTS[i].id] = $('input[name="cb-' + script.id + '"]').is(':checked');
 
                     var tmp = enabled[config.CNCTA_SCRIPTS[i].id] ? 'enabled' : 'disabled';
-                    backgroundWindow._gaq.push(['_trackEvent', config.CNCTA_SCRIPTS[i].name, tmp]);
+                    backgroundWindow.ga('send', 'event', config.CNCTA_SCRIPTS[i].name, tmp);
                 }
             }
             storage.set({
@@ -50,7 +50,7 @@ $(document).ready(function () {
                     opacity: 0
                 }, 3000);
             });
-            backgroundWindow._gaq.push(['_trackEvent', 'Options', 'saved']);
+            backgroundWindow.ga('send', 'event', 'Options', 'saved');
         });
     });
 });

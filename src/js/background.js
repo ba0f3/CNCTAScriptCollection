@@ -212,17 +212,22 @@ storage.get(['CNCTA_VERSION', 'CNCTA_ENABLED', 'CNCTA_GA'], function (config) {
         config.CNCTA_GA = true;
     }
     if (config.CNCTA_GA === true) {
-        var _gaq = _gaq || [];
-        _gaq.push([ '_setAccount', 'UA-15252221-7' ]);
-        _gaq.push([ '_trackPageview' ]);
         (function () {
             var ga = document.createElement('script');
             ga.type = 'text/javascript';
             ga.async = true;
-            ga.src = 'https://ssl.google-analytics.com/ga.js';
+            ga.src = 'https://ssl.google-analytics.com/analytics.js';
             var s = document.getElementsByTagName('script')[0];
             s.parentNode.insertBefore(ga, s);
         })();
+        window.ga = window.ga || function () {
+            (ga.q = ga.q || []).push(arguments);
+        };
+        ga.l = + new Date();
+        ga('create', 'UA-15252221-7', 'auto');
+        ga('set', 'checkProtocolTask', function () {});
+        ga('require', 'displayfeatures');
+        ga('send', 'pageview', '/');
     }
 });
 
