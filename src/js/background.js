@@ -29,6 +29,11 @@ var DEFAULT_SCRIPTS = [{
     version : "1.0.0",
     enabled : true
 }, {
+    id : 140991,
+    name : "MaelstromTools Dev",
+    version : "0.1.3.2",
+    enabled : true
+}, {
     id : 140988,
     name : "infernal wrapper",
     version : "0.390737.5",
@@ -38,6 +43,11 @@ var DEFAULT_SCRIPTS = [{
     name : "C&C Combat Simulator",
     version : "0.4",
     enabled : false
+}, {
+    id : 145168,
+    name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
+    version : "1.8.4",
+    enabled : true
 }, {
     id : 138386,
     name : "CnC Tiberium Coord Box Shortcut",
