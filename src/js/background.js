@@ -178,6 +178,12 @@ var DEFAULT_SCRIPTS = [{
     name : "WarChiefs - Tiberium Alliances Sector HUD",
     version : "13.12.18",
     enabled : false
+}, {
+    id : 3343,
+    name : "C&C:TA Count Forgotten Bases in Range",
+    link : "https://greasyfork.org/en/scripts/3343-c-c-ta-count-forgotten-bases-in-range",
+    version : "1.1.0",
+    enabled : false
 }];
 
 var storage = chrome.storage.sync;
