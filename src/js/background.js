@@ -184,6 +184,12 @@ var DEFAULT_SCRIPTS = [{
     link : "https://greasyfork.org/en/scripts/3343-c-c-ta-count-forgotten-bases-in-range",
     version : "1.1.0",
     enabled : false
+}, {
+    id : 10382,
+    name : "xTr1m's Base Overlay",
+    link : "https://greasyfork.org/en/scripts/10382-c-c-tiberium-alliances-xtr1m-s-base-overlay",
+    version : "1.0",
+    enabled : false
 }];
 
 var storage = chrome.storage.sync;
