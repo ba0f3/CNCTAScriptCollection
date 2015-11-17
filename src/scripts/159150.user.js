@@ -3,12 +3,14 @@
 // @description Separates the number of bases destroyed into PvP and PvE in the Player Info window. Now also includes a tab showing all the POI the player is holding.
 // @namespace player_info_mod
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version 1.2
+// @version 1.3
 // @author KRS_L
 // ==/UserScript==
 (function () {
 	var PlayerInfoMod_main = function () {
 		var playerInfoWindow = null;
+		var allianceInfoWindow = null;
+		var membersTable = null;
 		var general = null;
 		var pvpScoreLabel = null;
 		var pveScoreLabel = null;
@@ -23,7 +25,18 @@
 				console.log('Player Info Mod loaded');
 				var tr = qx.locale.Manager.tr;
 				playerInfoWindow = webfrontend.gui.info.PlayerInfoWindow.getInstance();
-				general = playerInfoWindow.getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[1].getChildren()[0];
+				//allianceInfoWindow = webfrontend.gui.info.AllianceInfoWindow.getInstance();
+				//membersTable = allianceInfoWindow.getLayoutChildren()[1].getLayoutChildren()[0].getLayoutChildren()[1].getLayoutChildren()[1].getLayoutChildren()[0];
+				//membersTable.$$user_tableModel.setColumns
+				//membersTable.getTableColumnModel().setColumns
+				
+				if (PerforceChangelist >= 436669) { // 15.3 patch
+					var eventType = "cellTap";
+					general = playerInfoWindow.getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[1].getChildren()[0];
+				} else { //old
+					var eventType = "cellClick";
+					general = playerInfoWindow.getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[0].getChildren()[1].getChildren()[0];
+				}
 				tabView = playerInfoWindow.getChildren()[0];
 				playerName = general.getChildren()[1];
 
@@ -69,7 +82,7 @@
 				tableModel.setColumns([tr("tnf:name"), tr("tnf:lvl"), tr("tnf:points"), tr("tnf:coordinates")], ["t", "l", "s", "c"]);
 				tableModel.setColFormat(3, "<div style=\"cursor:pointer;color:" + webfrontend.gui.util.BBCode.clrLink + "\">", "</div>");
 				var poiTable = new webfrontend.gui.widgets.CustomTable(tableModel);
-				poiTable.addListener("cellClick", centerCoords, this);
+				poiTable.addListener(eventType, centerCoords, this);
 
 				var columnModel = poiTable.getTableColumnModel();
 				columnModel.setColumnWidth(0, 250);

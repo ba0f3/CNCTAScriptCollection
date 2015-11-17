@@ -2,7 +2,7 @@
 // @name        MaelstromTools Dev
 // @namespace   MaelstromTools
 // @description Just a set of statistics & summaries about repair time and base resources. Mainly for internal use, but you are free to test and comment it.
-// @version     0.1.3.2
+// @version     0.1.4.4
 // @author      Maelstrom, HuffyLuf, KRS_L and Krisan
 // @include     http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // ==/UserScript==
@@ -67,7 +67,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 return;
               }
 
-              this.Data = new Object();
+              this.Data = {};
               this.Data["Collect all packages"] = ["Alle Pakete einsammeln", "Recolher todos os pacotes", "Récupérez tous les paquets", "Tüm paketleri topla"][l];
               this.Data["Overall production"] = ["Produktionsübersicht", "Produção global", "La production globale", "Genel üretim"][l];
               this.Data["Army overview"] = ["Truppenübersicht", "Vista Geral de Exército", "Armée aperçu", "Ordu önizlemesi"][l];
@@ -196,10 +196,10 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 //console.log(qx.locale.Manager.getInstance().getLocale());
                 Lang.loadData(qx.locale.Manager.getInstance().getLocale());
                 //console.log("Client version: " + MaelstromTools.Wrapper.GetClientVersion());
-                this.itemsOnDesktopCount = new Array();
-                this.itemsOnDesktop = new Object();
-                this.itemsInMainMenuCount = new Array();
-                this.itemsInMainMenu = new Object();
+                this.itemsOnDesktopCount = [];
+                this.itemsOnDesktop = {};
+                this.itemsInMainMenuCount = [];
+                this.itemsInMainMenu = {};
 
                 var fileManager = ClientLib.File.FileManager.GetInstance();
                 //ui/icons/icon_mainui_defense_button
@@ -246,7 +246,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     this.mainMenuWindow.setPosition("bottom-right");
                     this.mainMenuWindow.setAutoHide(false);
                     this.mainMenuWindow.setBackgroundColor("transparent");
-                    this.mainMenuWindow.setShadow(null);
+                    //this.mainMenuWindow.setShadow(null);
                     this.mainMenuWindow.setDecorator(new qx.ui.decoration.Background());
                   }
                 }
@@ -258,12 +258,12 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 var openProductionWindowButton = this.createDesktopButton(Lang.gt("Overall production"), "ProductionMenu", false, this.desktopPosition(desktopPositionModifier));
                 openProductionWindowButton.addListener("execute", function () {
-                  window.MaelstromTools.Production.getInstance().openWindow("Production", Lang.gt("Overall production"));
+                  MaelstromTools.Production.getInstance().openWindow("Production", Lang.gt("Overall production"));
                 }, this);
 
                 var openResourceOverviewWindowButton = this.createDesktopButton(Lang.gt("Base resources"), "ResourceOverviewMenu", false, this.desktopPosition(desktopPositionModifier));
                 openResourceOverviewWindowButton.addListener("execute", function () {
-                  window.MaelstromTools.ResourceOverview.getInstance().openWindow("ResourceOverview", Lang.gt("Base resources"));
+                  MaelstromTools.ResourceOverview.getInstance().openWindow("ResourceOverview", Lang.gt("Base resources"));
                 }, this);
 
                 desktopPositionModifier++;
@@ -281,18 +281,18 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 var openRepairTimeWindowButton = this.createDesktopButton(Lang.gt("Army overview"), "RepairTimeMenu", false, this.desktopPosition(desktopPositionModifier));
                 openRepairTimeWindowButton.addListener("execute", function () {
-                  window.MaelstromTools.RepairTime.getInstance().openWindow("RepairTime", Lang.gt("Army overview"));
+                  MaelstromTools.RepairTime.getInstance().openWindow("RepairTime", Lang.gt("Army overview"));
                 }, this);
 
                 var openBaseStatusOverview = this.createDesktopButton(Lang.gt("Base status overview"), "Crosshair", false, this.desktopPosition(desktopPositionModifier));
                 openBaseStatusOverview.addListener("execute", function () {
-                  window.MaelstromTools.BaseStatus.getInstance().openWindow("BaseStatusOverview", Lang.gt("Base status overview"));
+                  MaelstromTools.BaseStatus.getInstance().openWindow("BaseStatusOverview", Lang.gt("Base status overview"));
                 }, this);
 
                 desktopPositionModifier++;
                 var openHuffyUpgradeOverview = this.createDesktopButton(Lang.gt("Upgrade priority overview"), "UpgradeBuilding", false, this.desktopPosition(desktopPositionModifier));
                 openHuffyUpgradeOverview.addListener("execute", function () {
-                  window.HuffyTools.UpgradePriorityGUI.getInstance().openWindow("UpgradePriority", Lang.gt("Upgrade priority overview"));
+                  HuffyTools.UpgradePriorityGUI.getInstance().openWindow("UpgradePriority", Lang.gt("Upgrade priority overview"));
                 }, this);
 
                 desktopPositionModifier++;
@@ -304,7 +304,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 });
                 preferencesButton.setUserData("desktopPosition", this.desktopPosition(desktopPositionModifier));
                 preferencesButton.addListener("execute", function () {
-                  window.MaelstromTools.Preferences.getInstance().openWindow("Preferences", Lang.gt("MaelstromTools Preferences"), true);
+                  MaelstromTools.Preferences.getInstance().openWindow("Preferences", Lang.gt("MaelstromTools Preferences"), true);
                 }, this);
 
                 if (MT_Preferences.Settings.useDedicatedMainMenu) {
@@ -323,6 +323,10 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   var target = qx.core.Init.getApplication().getOptionsBar(); //getServerBar(); //qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_APPOINTMENTS);
                   this.mainMenuWindow.placeToWidget(target, true);
                 }
+
+                phe.cnc.Util.attachNetEvent(ClientLib.Data.MainData.GetInstance().get_Cities(), "CurrentOwnChange", ClientLib.Data.CurrentOwnCityChange, this, function () {
+                  MaelstromTools.Cache.getInstance().SelectedBaseForLoot=null;
+                });
 
                 webfrontend.gui.chat.ChatWidget.recvbufsize = MaelstromTools.LocalStorage.get(MaelstromTools.Preferences.CHATHISTORYLENGTH, 64);
                 this.runSecondlyTimer();
@@ -367,7 +371,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             createNewImage: function (name, path, fileManager) {
               try {
                 if (!this.images) {
-                  this.images = new Object();
+                  this.images = {};
                 }
                 if (!fileManager) {
                   return;
@@ -382,9 +386,9 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             createNewWindow: function (name, align, x, y, w, h, alignV) {
               try {
                 if (!this.mWindows) {
-                  this.mWindows = new Object();
+                  this.mWindows = {};
                 }
-                this.mWindows[name] = new Object();
+                this.mWindows[name] = {};
                 this.mWindows[name]["Align"] = align;
                 this.mWindows[name]["AlignV"] = alignV;
                 this.mWindows[name]["x"] = x;
@@ -460,7 +464,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.itemsInMainMenuCount[desktopPosition]--;
 
                   if (rearrange && this.itemsInMainMenu[desktopPosition] > 1) {
-                    var tmpItems = new Object();
+                    var tmpItems = {};
                     // remove notifications 
                     for (var itemName in this.itemsOnDesktop) {
                       if (this.itemsInMainMenu[itemName] == null) {
@@ -542,7 +546,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.itemsOnDesktopCount[desktopPosition]--;
 
                   if (rearrange && this.itemsOnDesktopCount[desktopPosition] > 1) {
-                    var tmpItems = new Object();
+                    var tmpItems = {};
                     // remove notifications 
                     for (var itemName in this.itemsOnDesktop) {
                       if (this.itemsOnDesktop[itemName] == null) {
@@ -574,7 +578,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.calculateCostsForNextMCV();
 
                 var self = this;
-                window.setTimeout(function () {
+                setTimeout(function () {
                   self.runSecondlyTimer();
                 }, 1000);
               } catch (e) {
@@ -585,10 +589,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             runMainTimer: function () {
               try {
                 this.checkForPackages();
-                if (CCTAWrapperIsInstalled()) {
-                  this.checkRepairAllUnits();
-                  this.checkRepairAllBuildings();
-                }
+                this.checkRepairAllUnits();
+                this.checkRepairAllBuildings();
 
                 var missionTracker = typeof (qx.core.Init.getApplication().getMissionsBar) === 'function' ? qx.core.Init.getApplication().getMissionsBar() : qx.core.Init.getApplication().getMissionTracker(); //fix for PerforceChangelist>=376877
                 if (MT_Preferences.Settings.autoHideMissionTracker) {
@@ -612,7 +614,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }
                 
                 var self = this;
-                window.setTimeout(function () {
+                setTimeout(function () {
                   self.runMainTimer();
                 }, this.mainTimerInterval);
               } catch (e) {
@@ -635,7 +637,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }
 
                 var self = this;
-                window.setTimeout(function () {
+                setTimeout(function () {
                   self.runAutoCollectTimer();
                 }, MT_Preferences.Settings.AutoCollectTimer * 60000);
               } catch (e) {
@@ -686,7 +688,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 for (var cname in MT_Cache.Cities) {
                   var ncity = MT_Cache.Cities[cname].Object;
-                  if (ncity.get_CityBuildingsData().get_HasCollectableBuildings()) {
+                  if (ncity.get_CityBuildingsData().get_HasCollectableBuildings() && !ncity.get_IsGhostMode()) {
                     this.addToMainMenu("CollectAllResources", this.buttonCollectAllResources);
                     return true;
                   }
@@ -705,17 +707,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 for (var cname in MT_Cache.Cities) {
                   var ncity = MT_Cache.Cities[cname].Object;
                   if (ncity.get_CityBuildingsData().get_HasCollectableBuildings()) {
-                    if (MT_Cache.CityCount <= 1) {
-                      var buildings = ncity.get_Buildings().d;
-                      for (var x in buildings) {
-                        var building = buildings[x];
-                        if (building.get_ProducesPackages() && building.get_ReadyToCollect()) {
-                          ClientLib.Net.CommunicationManager.GetInstance().SendCommand("CollectResource",{cityid:ncity.get_Id(), posX:building.get_CoordX(),posY:building.get_CoordY()}, null, null, true);
-                        }
-                      }
-                    } else {
-                      ncity.CollectAllResources();
-                    }
+                    ncity.CollectAllResources();
                   }
                 }
                 this.removeFromMainMenu("CollectAllResources");
@@ -730,7 +722,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 for (var cname in MT_Cache.Cities) {
                   var ncity = MT_Cache.Cities[cname].Object;
-                  if (MaelstromTools.Wrapper.CanRepairAll(ncity, visMode)) {
+                  if (!ncity.get_IsGhostMode() && ncity.get_CityRepairData().CanRepairAll(visMode)) {
                     this.addToMainMenu(buttonName, button);
                     return true;
                   }
@@ -758,8 +750,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
                 for (var cname in MT_Cache.Cities) {
                   var ncity = MT_Cache.Cities[cname].Object;
-                  if (MaelstromTools.Wrapper.CanRepairAll(ncity, visMode)) {
-                    MaelstromTools.Wrapper.RepairAll(ncity, visMode);
+                  if (!ncity.get_IsGhostMode() && ncity.get_CityRepairData().CanRepairAll(visMode)) {
+                    ncity.get_CityRepairData().RepairAll(visMode);
                   }
 
                 }
@@ -804,7 +796,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }
 
                 if (!this.lootWidget) {
-                  this.lootWidget = new Object();
+                  this.lootWidget = {};
                 }
                 if (!this.lootWidget[ident]) {
                   this.lootWidget[ident] = new qx.ui.container.Composite(new qx.ui.layout.Grid(5, 5));
@@ -941,7 +933,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.mcvPopup.moveTo(size.width - this.mcvPopupX, size.height - this.mcvPopupY);
 
                 var nextLevelInfo = cd.get_NextLevelInfo_Obj();
-                var resourcesNeeded = new Array();
+                var resourcesNeeded = [];
                 for (var i in nextLevelInfo.rr) {
                   if (nextLevelInfo.rr[i].t > 0) {
                     resourcesNeeded[nextLevelInfo.rr[i].t] = nextLevelInfo.rr[i].c;
@@ -1001,7 +993,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             readOptions: function () {
               try {
                 if (!this.Settings) {
-                  this.Settings = new Object();
+                  this.Settings = {};
                 }
 
                 /*
@@ -1082,7 +1074,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               try {
                 this.readOptions();
 
-                this.FormElements = new Object();
+                this.FormElements = {};
                 this.Widget.removeAll();
                 var rowIdx = 1;
                 var colIdx = 1;
@@ -1139,7 +1131,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 MaelstromTools.Util.addElement(this.Widget, rowIdx++, colIdx, chkAutoRepairBuildings, 2);
 
                 var applyButton = new qx.ui.form.Button(Lang.gt("Apply changes")).set({
-                  appearance: "button-detailview-small",
+                  appearance: "button-addpoints",
                   width: 120,
                   minWidth: 120,
                   maxWidth: 120
@@ -1147,7 +1139,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 applyButton.addListener("execute", this.applyChanges, this);
 
                 var cancelButton = new qx.ui.form.Button(Lang.gt("Discard changes")).set({
-                  appearance: "button-detailview-small",
+                  appearance: "button-addpoints",
                   width: 120,
                   minWidth: 120,
                   maxWidth: 120
@@ -1157,7 +1149,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 }, this);
 
                 var resetButton = new qx.ui.form.Button(Lang.gt("Reset to default")).set({
-                  appearance: "button-detailview-small",
+                  appearance: "button-addpoints",
                   width: 120,
                   minWidth: 120,
                   maxWidth: 120
@@ -1234,7 +1226,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   this.setWidgetLabels();
                   if (this.IsTimerEnabled) {
                     var self = this;
-                    window.setTimeout(function () {
+                    setTimeout(function () {
                       self.calc();
                     }, MT_Base.timerInterval);
                   }
@@ -2177,7 +2169,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             getAccessBaseButton: function (cityName, viewMode) {
               try {
                 var cityButton = new qx.ui.form.Button(null, MT_Base.images["AccessBase"]).set({
-                  appearance: "button-detailview-small",
+                  appearance: "button-addpoints",
                   toolTipText: Lang.gt("Access") + " " + cityName,
                   width: 20,
                   height: 20,
@@ -2197,7 +2189,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             getFocusBaseButton: function (cityName) {
               try {
                 var cityButton = new qx.ui.form.Button(null, MT_Base.images["FocusBase"]).set({
-                  appearance: "button-detailview-small",
+                  appearance: "button-addpoints",
                   toolTipText: Lang.gt("Focus on") + " " + cityName,
                   width: 20,
                   height: 20,
@@ -2319,7 +2311,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             // visCity : ClientLib.Vis.Region.RegionObject
             getResources: function (visCity) { // to verifier against PerforceChangelist>=376877
               try {
-                var loot = new Object();
+                var loot = {};
                 if (visCity.get_X() < 0 || visCity.get_Y() < 0) {
                   loot["LoadState"] = 0;
                   return loot;
@@ -2376,7 +2368,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             /*
             collectBuildings: function(ncity) {
               var cityBuildings = ncity.get_CityBuildingsData();
-              var buildings = new Array();
+              var buildings = [];
               var count = 0;
               // ncity.GetNumBuildings()
               for(var i = 0; i < 100000; i++) {
@@ -2478,39 +2470,6 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               return ClientLib.Data.MainData.GetInstance().get_Cities().GetCity(cityId);
             },
 
-            RepairAll: function (ncity, visMode) {
-              var oldMode = ClientLib.Vis.VisMain.GetInstance().get_Mode();
-              ClientLib.Vis.VisMain.GetInstance().set_Mode(visMode);
-              ncity.RepairAll();
-              ClientLib.Vis.VisMain.GetInstance().set_Mode(oldMode);
-            },
-
-            CanRepairAll: function (ncity, viewMode) {
-              try {
-                /*var oldMode = ClientLib.Vis.VisMain.GetInstance().get_Mode();
-                ClientLib.Vis.VisMain.GetInstance().set_Mode(visMode);
-                var retVal = ncity.CanRepairAll();
-                ClientLib.Vis.VisMain.GetInstance().set_Mode(oldMode);
-                return retVal;*/
-
-                var repairData = ncity.get_CityRepairData();
-                var myRepair = repairData.CanRepair(0, viewMode);
-                repairData.UpdateCachedFullRepairAllCost(viewMode);
-                return ((myRepair != null) && (!ncity.get_IsLocked() || (viewMode != ClientLib.Vis.Mode.ArmySetup)));
-
-                return false;
-              } catch (e) {
-                console.log("MaelstromTools.Wrapper.CanRepairAll: ", e);
-                return false;
-              }
-            },
-            /*GetBuildings: function (cityBuildings) {
-              if (PerforceChangelist >= 376877) { //new
-                return (cityBuildings.get_Buildings() != null ? cityBuildings.get_Buildings().d : null);
-              } else { //old
-                return (cityBuildings.get_Buildings() != null ? cityBuildings.get_Buildings().l : null);
-              }
-            },*/
             GetDefenseUnits: function (cityUnits) {
             //GetDefenseUnits: function () {
               if (PerforceChangelist >= 392583) { //endgame patch
@@ -2751,6 +2710,8 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             HT_SelectedResourceType: null,
             BuildingList: null,
             upgradeInProgress: null,
+			upgradeToDoType: null,
+			upgradeToDo: null,
             init: function () {
               /*
               Done:
@@ -2795,42 +2756,48 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 this.Window.removeAll();
                 this.Window.add(this.Widget);
 
-                this.BuildingList = new Array;
-                this.HT_Models = new Array;
-                this.HT_Tables = new Array;
-                this.HT_Pages = new Array;
+                this.BuildingList = [];
+                this.HT_Models = [];
+                this.HT_Tables = [];
+                this.HT_Pages = [];
 
+				if (PerforceChangelist >= 436669) { // 15.3 patch
+					var eventType = "cellTap";
+				} else { //old
+					var eventType = "cellClick";
+				}
+				
                 this.createTabPage(ClientLib.Base.EResourceType.Tiberium);
                 this.createTable(ClientLib.Base.EResourceType.Tiberium);
-                this.HT_Tables[ClientLib.Base.EResourceType.Tiberium].addListener("cellClick", function (e) {
+                this.HT_Tables[ClientLib.Base.EResourceType.Tiberium].addListener(eventType, function (e) {
                   this.upgradeBuilding(e, ClientLib.Base.EResourceType.Tiberium);
                 }, this);
 
 
                 this.createTabPage(ClientLib.Base.EResourceType.Crystal);
                 this.createTable(ClientLib.Base.EResourceType.Crystal);
-                this.HT_Tables[ClientLib.Base.EResourceType.Crystal].addListener("cellClick", function (e) {
+                this.HT_Tables[ClientLib.Base.EResourceType.Crystal].addListener(eventType, function (e) {
                   this.upgradeBuilding(e, ClientLib.Base.EResourceType.Crystal);
                 }, this);
 
                 this.createTabPage(ClientLib.Base.EResourceType.Power);
                 this.createTable(ClientLib.Base.EResourceType.Power);
-                this.HT_Tables[ClientLib.Base.EResourceType.Power].addListener("cellClick", function (e) {
+                this.HT_Tables[ClientLib.Base.EResourceType.Power].addListener(eventType, function (e) {
                   this.upgradeBuilding(e, ClientLib.Base.EResourceType.Power);
                 }, this);
 
                 this.createTabPage(ClientLib.Base.EResourceType.Gold);
                 this.createTable(ClientLib.Base.EResourceType.Gold);
-                this.HT_Tables[ClientLib.Base.EResourceType.Gold].addListener("cellClick", function (e) {
+                this.HT_Tables[ClientLib.Base.EResourceType.Gold].addListener(eventType, function (e) {
                   this.upgradeBuilding(e, ClientLib.Base.EResourceType.Gold);
                 }, this);
 
 
                 MT_Cache.updateCityCache();
-                this.HT_Options = new Array();
-                this.HT_ShowOnlyTopBuildings = new Array();
-                this.HT_ShowOnlyAffordableBuildings = new Array();
-                this.HT_CityBuildings = new Array();
+                this.HT_Options = [];
+                this.HT_ShowOnlyTopBuildings = [];
+                this.HT_ShowOnlyAffordableBuildings = [];
+                this.HT_CityBuildings = [];
                 for (var mPage in this.HT_Pages) {
                   this.createOptions(mPage);
                   this.HT_Pages[mPage].add(this.HT_Options[mPage]);
@@ -2868,7 +2835,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 top: 10,
                 lineBreak: true
               });
-              this.HT_CityBuildings[eType] = new Array();
+              this.HT_CityBuildings[eType] = [];
               for (var cname in MT_Cache.Cities) {
                 var oCity = MT_Cache.Cities[cname].Object;
                 var oCityBuildings = new HuffyTools.CityCheckBox(cname);
@@ -2882,6 +2849,18 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 });
                 this.HT_CityBuildings[eType][cname] = oCityBuildings;
               }
+              var buttonUpgradeAll = new qx.ui.form.Button("UpgradeAll").set({
+                width : 80,
+                appearance : "button-text-small",
+                toolTipText : "Upgrade all filtered buildings"
+              });
+              buttonUpgradeAll.addListener("execute", function (e) {
+                  this.upgradeAll(e, eType);
+                }, this);
+              oOptions.add(buttonUpgradeAll, {
+                  left: 10,
+                  top: 10
+                });
               this.HT_Options[eType] = oOptions;
             },
             createTable: function (eType) {
@@ -2960,7 +2939,49 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 console.log("HuffyTools.UpgradePriority.TabChanged: ", e);
               }
             },
-
+            upgradeAll: function (e, eResourceType) {
+              try {
+                if (this.upgradeToDo == null) {
+                  this.upgradeToDoType = parseInt(eResourceType);
+                  this.upgradeToDo = this.HT_Models[eResourceType].getData();
+                }
+                if (this.upgradeToDo.length > 0) {
+                  this.upgradeInProgress = true;
+                  var current = this.upgradeToDo.pop();
+                  var buildingID = current[0];
+                  var iState = parseInt(current[12]);
+                  if (iState != 1) {
+                    return;
+                  }
+                  if (buildingID in this.BuildingList) {
+                    if (PerforceChangelist >= 382917) { //new
+                      ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", this.BuildingList[buildingID], phe.cnc.Util.createEventDelegate(ClientLib.Net.CommandResult, this, this.upgradeAllCompleted), null, true);
+                    } else { //old
+                      ClientLib.Net.CommunicationManager.GetInstance().SendCommand("UpgradeBuilding", this.BuildingList[buildingID], webfrontend.Util.createEventDelegate(ClientLib.Net.CommandResult, this, this.upgradeAllCompleted), null, true);
+                    }
+                  }
+                } else {
+                  this.upgradeToDo = null;
+                }
+              } catch (e) {
+                console.log("HuffyTools.UpgradePriority.upgradeBuilding: ", e);
+              }
+            },
+            upgradeAllCompleted: function (context, result) {
+              var self = this;
+              if (this.upgradeToDo.length > 0) {
+                setTimeout(function () {
+                  self.upgradeAll(self.upgradeToDoType);
+                }, 100);
+              } else {
+                this.upgradeToDoType = null;
+                this.upgradeToDo = null;
+                setTimeout(function () {
+                  self.calc();
+                }, 100);
+                this.upgradeInProgress = false;
+              }
+            },
             upgradeBuilding: function (e, eResourceType) {
               if (this.upgradeInProgress == true) {
                 console.log("upgradeBuilding:", "upgrade in progress !");
@@ -2987,10 +3008,18 @@ var cd=cr.GetResearchItemFomMdbId(cj);
               }
             },
             UpgradeCompleted: function (context, result) {
+              /* Dodgy solution to get upgrade priority working.
+                 Upgrades in the game were reworked in the February patch and again in the March patch.
+                 In the past resources were deducted from the base immediately when the upgrade command was sent, but now it is done moments after the upgrade has been completed.
+                 When running updateCache() immediately after the upgrade it will still return with the pre-upgrade resource amounts.
+                 A one second delay will work as a temporary solution giving the base enough time to update to reflect the new resource amounts.
+                 A better solution could be to monitor for the reduction in resources after an upgrade and once it takes place only then update the cache.
+              */
               var self = this;
-              window.setTimeout(function () {
+              setTimeout(function () {
                 self.calc();
               }, 1000);
+              //this.calc();
               this.upgradeInProgress = false;
             },
             CBChanged: function (e) {
@@ -3013,21 +3042,21 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 MaelstromTools.LocalStorage.set("UGL_TOPBUILDINGS_" + eType, bTop);
                 var bAffordable = this.HT_ShowOnlyAffordableBuildings[eType].getValue();
                 MaelstromTools.LocalStorage.set("UGL_AFFORDABLE_" + eType, bAffordable);
-                var oCityFilter = new Array();
+                var oCityFilter = [];
                 for (var cname in this.HT_CityBuildings[eType]) {
                   var oCityBuildings = this.HT_CityBuildings[eType][cname];
                   var bFilterBuilding = oCityBuildings.getValue();
                   MaelstromTools.LocalStorage.set("UGL_CITYFILTER_" + eType + "_" + oCityBuildings.HT_CityID, bFilterBuilding);
                   oCityFilter[cname] = bFilterBuilding;
                 }
-                window.HuffyTools.UpgradePriority.getInstance().collectData(bTop, bAffordable, oCityFilter, eType);
+                HuffyTools.UpgradePriority.getInstance().collectData(bTop, bAffordable, oCityFilter, eType);
               } catch (e) {
                 console.log("HuffyTools.UpgradePriority.updateCache: ", e);
               }
             },
             setWidgetLabels: function () {
               try {
-                var HuffyCalc = window.HuffyTools.UpgradePriority.getInstance();
+                var HuffyCalc = HuffyTools.UpgradePriority.getInstance();
                 var UpgradeList = HuffyCalc.Cache;
 
                 for (var eResourceType in UpgradeList) {
@@ -3113,7 +3142,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             },
             getPrioList: function (city, arTechtypes, eModPackageSize, eModProduction, bOnlyTopBuildings, bOnlyAffordableBuildings) {
               try {
-                var RSI = window.MaelstromTools.ResourceOverview.getInstance();
+                var RSI = MaelstromTools.ResourceOverview.getInstance();
                 RSI.updateCache();
                 var TotalTiberium = 0;
 
@@ -3125,7 +3154,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     //but never goes here during test.... // to optimize - to do
                   }
                 }
-                var resAll = new Array();
+                var resAll = [];
                 var prod = MaelstromTools.Production.getInstance().updateCache(city.get_Name());
                 //var buildings = MaelstromTools.Wrapper.GetBuildings(city.get_CityBuildingsData());
                 var buildings = city.get_Buildings().d;
@@ -3160,7 +3189,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                     continue;
                   }
                   var bindex = city_building.get_Id();
-                  var resbuilding = new Array();
+                  var resbuilding = [];
                   resbuilding["ID"] = bindex;
                   resbuilding["Type"] = this.TechTypeName(parseInt(iTechType, 10));
                   resbuilding["PosX"] = city_building.get_CoordX();
@@ -3193,15 +3222,15 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                   }
                   // Nutzen ins VerhÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¤ltnis zu den Kosten setzten
                   var TechLevelData = ClientLib.Base.Util.GetTechLevelResourceRequirements_Obj(city_building.get_CurrentLevel() + 1, city_building.get_TechGameData_Obj());
-                  var RatioPerCostType = new Object();
+                  var RatioPerCostType = {};
                   var sRatio = "";
                   var sCosts = "";
                   var lTicks = 0;
                   var bHasPower = true;
                   var bHasTiberium = true;
                   var bAffordableByTransfer = true;
-                  var oCosts = new Array();
-                  var oTimes = new Array();
+                  var oCosts = [];
+                  var oTimes = [];
                   for (var costtype in TechLevelData) {
                     if (typeof (TechLevelData[costtype]) == "function") {
                       continue;
@@ -3273,7 +3302,7 @@ var cd=cr.GetResearchItemFomMdbId(cj);
                 if (!bOnlyTopBuildings) {
                   return resAll;
                 }
-                var res2 = new Array();
+                var res2 = [];
                 if (MaelstromTools.Util.ArraySize(resAll) > 0) {
                   var iTopNotAffordable = -1;
                   var iTopAffordable = -1;
@@ -3350,18 +3379,18 @@ var cd=cr.GetResearchItemFomMdbId(cj);
             collectData: function (bOnlyTopBuildings, bOnlyAffordableBuildings, oCityFilter, eSelectedResourceType) {
               try {
                 MT_Cache.updateCityCache();
-                this.Cache = new Object();
+                this.Cache = {};
                 if (eSelectedResourceType == ClientLib.Base.EResourceType.Tiberium) {
-                  this.Cache[ClientLib.Base.EResourceType.Tiberium] = new Object();
+                  this.Cache[ClientLib.Base.EResourceType.Tiberium] = {};
                 }
                 if (eSelectedResourceType == ClientLib.Base.EResourceType.Crystal) {
-                  this.Cache[ClientLib.Base.EResourceType.Crystal] = new Object();
+                  this.Cache[ClientLib.Base.EResourceType.Crystal] = {};
                 }
                 if (eSelectedResourceType == ClientLib.Base.EResourceType.Power) {
-                  this.Cache[ClientLib.Base.EResourceType.Power] = new Object();
+                  this.Cache[ClientLib.Base.EResourceType.Power] = {};
                 }
                 if (eSelectedResourceType == ClientLib.Base.EResourceType.Gold) {
-                  this.Cache[ClientLib.Base.EResourceType.Gold] = new Object();
+                  this.Cache[ClientLib.Base.EResourceType.Gold] = {};
                 }
                 for (var cname in MT_Cache.Cities) {
                   var city = MT_Cache.Cities[cname].Object;
@@ -3390,10 +3419,10 @@ var cd=cr.GetResearchItemFomMdbId(cj);
 
         var __MTCity_initialized = false; //k undeclared
 
-        var Lang = window.MaelstromTools.Language.getInstance();
-        var MT_Cache = window.MaelstromTools.Cache.getInstance();
-        var MT_Base = window.MaelstromTools.Base.getInstance();
-        var MT_Preferences = window.MaelstromTools.Preferences.getInstance();
+        var Lang = MaelstromTools.Language.getInstance();
+        var MT_Cache = MaelstromTools.Cache.getInstance();
+        var MT_Base = MaelstromTools.Base.getInstance();
+        var MT_Preferences = MaelstromTools.Preferences.getInstance();
         MT_Preferences.readOptions();
 
         if (!webfrontend.gui.region.RegionCityMenu.prototype.__MTCity_showMenu) {
@@ -3402,12 +3431,12 @@ var cd=cr.GetResearchItemFomMdbId(cj);
         webfrontend.gui.region.RegionCityMenu.prototype.showMenu = function (selectedVisObject) {
 
           MT_Cache.SelectedBaseForMenu = selectedVisObject;
-          var baseStatusOverview = window.MaelstromTools.BaseStatus.getInstance();
+          var baseStatusOverview = MaelstromTools.BaseStatus.getInstance();
 
           if (__MTCity_initialized == false) {
             //console.log(selectedBase.get_Name());
             __MTCity_initialized = true;
-            baseStatusOverview.CityMenuButtons = new Array();
+            baseStatusOverview.CityMenuButtons = [];
 
             for (var k in this) {
               try {
@@ -3474,27 +3503,22 @@ var cd=cr.GetResearchItemFomMdbId(cj);
       try {
         if (typeof qx != 'undefined' && qx.core.Init.getApplication() && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION) && qx.core.Init.getApplication().getUIItem(ClientLib.Data.Missions.PATH.BAR_NAVIGATION).isVisible()) {
           createMaelstromTools();
-          window.MaelstromTools.Base.getInstance().initialize();
+          MaelstromTools.Base.getInstance().initialize();
         } else {
-          window.setTimeout(MaelstromTools_checkIfLoaded, 1000);
+          setTimeout(MaelstromTools_checkIfLoaded, 1000);
         }
       } catch (e) {
         console.log("MaelstromTools_checkIfLoaded: ", e);
       }
     }
-
-    if (/commandandconquer\.com/i.test(document.domain)) {
-      window.setTimeout(MaelstromTools_checkIfLoaded, 1000);
-    }
+    setTimeout(MaelstromTools_checkIfLoaded, 1000);
   };
 
   try {
     var MaelstromScript = document.createElement("script");
     MaelstromScript.innerHTML = "(" + MaelstromTools_main.toString() + ")();";
     MaelstromScript.type = "text/javascript";
-    if (/commandandconquer\.com/i.test(document.domain)) {
-      document.getElementsByTagName("head")[0].appendChild(MaelstromScript);
-    }
+    document.getElementsByTagName("head")[0].appendChild(MaelstromScript);
   } catch (e) {
     console.log("MaelstromTools: init error: ", e);
   }

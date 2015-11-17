@@ -1,17 +1,17 @@
 var DEFAULT_SCRIPTS = [{
     id : 131289,
     name : "C&C:TA CNCOpt Link Button",
-    version : "1.7.6",
+    version : "1.7.7",
     enabled : true
 }, {
     id : 136299,
     name : "Tiberium Alliances Formation Saver",
-    version : "2.1.8",
+    version : "2.2",
     enabled : false
 }, {
     id : 138212,
     name : "TACS 3 (Tiberium Alliances Combat Simulator)",
-    version : "3.01b",
+    version : "3.03b",
     enabled : true
 }, {
     id : 137978,
@@ -24,19 +24,14 @@ var DEFAULT_SCRIPTS = [{
     version : "1.7.2p",
     enabled : false
 }, {
-    id : 138436,
-    name : "Tiberium Alliances Zoom",
-    version : "1.0.0",
-    enabled : true
-}, {
     id : 140991,
     name : "MaelstromTools Dev",
-    version : "0.1.3.2",
+    version : "0.1.4.4",
     enabled : true
 }, {
     id : 140988,
     name : "infernal wrapper",
-    version : "0.390737.5",
+    version : "0.390737.6",
     enabled : true
 }, {
     id : 147335,
@@ -46,7 +41,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 145168,
     name : "C&C:Tiberium Alliances Maelstrom ADDON Basescanner",
-    version : "1.8.4",
+    version : "1.8.5",
     enabled : true
 }, {
     id : 138386,
@@ -62,11 +57,6 @@ var DEFAULT_SCRIPTS = [{
     id: 151965,
     name: "C&C:Tiberium Alliances Extended Chathelper",
     version: "1.0.11",
-    enabled: true
-}, {
-    id: 152787,
-    name: "C&C:Tiberium Alliances Coords Button",
-    version: "2.0.1",
     enabled: true
 }, {
     id: 153193,
@@ -101,7 +91,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id: 159150,
     name: "Tiberium Alliances PvP/PvE Player Info Mod",
-    version: "1.2",
+    version: "1.3",
     enabled: true
 }, {
     id: 149251,
@@ -134,11 +124,6 @@ var DEFAULT_SCRIPTS = [{
     version : "2.06",
     enabled : false
 }, {
-    id : 165625,
-    name : "Tiberium Alliances BaseNavBar Reorderer",
-    version : "1.0",
-    enabled : true
-}, {
     id : 165888,
     name : "WarChiefs - Tiberium Alliances Combat Simulator",
     version : "13.09.26",
@@ -146,7 +131,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 168297,
     name : "Tiberium Alliances - New Resource Trade Window",
-    version : "1.4.7",
+    version : "1.4.9",
     enabled : false
 }, {
     id : 166833,

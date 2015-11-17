@@ -6,8 +6,6 @@
 // @author        MrHIDEn (in game PEEU) based on Caine code. Extended
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @grant         none
-// @downloadURL   https://userscripts.org/scripts/source/159496.user.js
-// @updateURL     https://userscripts.org/scripts/source/159496.meta.js
 // ==/UserScript==
 (function () {
 function injectBody()

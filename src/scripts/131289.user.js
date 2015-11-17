@@ -1,7 +1,5 @@
 // ==UserScript==
-// @version       1.7.6
-// @updateURL     https://userscripts.org/scripts/source/131289.meta.js
-// @downloadURL   https://userscripts.org/scripts/source/131289.user.js
+// @version       1.7.7
 // @name          C&C:TA CNCOpt Link Button
 // @namespace     http://cncopt.com/
 // @icon          http://cncopt.com/favicon.ico
@@ -9,7 +7,7 @@
 // @include       http*://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include       http*://*.cncopt.com/*
 // @include       http*://cncopt.com/*
-// @grant         console.log
+// @grant         GM_log
 // @grant         GM_setValue
 // @grant         GM_getValue
 // @grant         GM_registerMenuCommand
@@ -29,7 +27,7 @@ var scity = null;
 var tcity = null;
 var tbase = null;
 try {
-  window.__cncopt_version = "1.7.6";
+  window.__cncopt_version = "1.7.7";
   (function () {
     var cncopt_main = function () {
 
@@ -552,6 +550,8 @@ try {
               if (server.get_TechLevelUpgradeFactorBonusAmount() != 1.20) {
                   link += "|newEconomy";
               }
+              window.server = server;
+              console.log("cbcopt: get_TechLevelUpgradeFactorBonusAmount = ", server.get_TechLevelUpgradeFactorBonusAmount())
 
               //console.log(link);
               window.open(link, "_blank");

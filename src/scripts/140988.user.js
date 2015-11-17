@@ -3,7 +3,7 @@
 // @description Supplies some wrapper functions for public use 
 // @namespace infernal_wrapper
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version 0.390737.5
+// @version 0.390737.6
 // @author infernal_me, KRS_L, krisan
 // ==/UserScript==
 (function () {
@@ -36,7 +36,7 @@
                     }
                 }
 
-                // ClientLib.Data.CityRepair.prototype.CanRepair
+                /*// ClientLib.Data.CityRepair.prototype.CanRepair
                 for (var key in ClientLib.Data.CityRepair.prototype) {
                     if (typeof ClientLib.Data.CityRepair.prototype[key] === 'function') {
                         strFunction = ClientLib.Data.CityRepair.prototype[key].toString();
@@ -58,7 +58,7 @@
                             break;
                         }
                     }
-                }
+                }*/
 
                 // ClientLib.Data.CityUnits.prototype.get_OffenseUnits
                 strFunction = ClientLib.Data.CityUnits.prototype.HasUnitMdbId.toString();

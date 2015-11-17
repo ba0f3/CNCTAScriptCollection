@@ -3,10 +3,8 @@
 // @description Implements a new TradeOverlay class, allowing you to select individual, multiple or all bases to transfer resources from
 // @namespace NewTradeOverlay
 // @include https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version 1.4.7
+// @version 1.4.9
 // @author Chiantii
-// @updateURL https://userscripts.org/scripts/source/168297.meta.js
-// @downloadURL https://userscripts.org/scripts/source/168297.user.js
 // ==/UserScript==
 (function () {
 	var NewTradeOverlay_main = function () {
@@ -245,7 +243,13 @@
 							columnVisibilityButtonVisible : false,
 							maxHeight : 300
 						});
-						this.tradeWindowTable.addListener("cellClick", this.TradeWindowTableCellClick, this);
+						
+						if (PerforceChangelist >= 436669) { // 15.3 patch
+							var eventType = "cellTap";
+						} else { //old
+							var eventType = "cellClick";
+						}
+						this.tradeWindowTable.addListener(eventType, this.TradeWindowTableCellClick, this);
 						this.tradeWindowTable.getSelectionModel().setSelectionMode(qx.ui.table.selection.Model.MULTIPLE_INTERVAL_SELECTION);
 						this.tradeWindowTable.setDataRowRenderer(new webfrontend.gui.trade.TradeBaseTableRowRenderer(this.tradeWindowTable));
 						this.tradeWindowTable.showCellToolTip = true;
@@ -761,7 +765,6 @@
 		function NewTradeOverlay_checkIfLoaded() {
 			try {
 				if (typeof qx !== 'undefined' && typeof qx.locale !== 'undefined' && typeof qx.locale.Manager !== 'undefined' && typeof webfrontend.gui.trade.TradeOverlay !== 'undefined') {
-					qx.Class.undefine("webfrontend.gui.trade.TradeOverlay");
 					CreateNewTradeOverlay();
 				} else {
 					window.setTimeout(NewTradeOverlay_checkIfLoaded, 1000);

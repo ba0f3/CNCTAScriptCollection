@@ -1,3 +1,7 @@
+1.2.8.57:
+ - Various updates based on cncscripts.com
+1.2.8.56:
+- Minor bug fix
 1.2.8.55:
  - Add "xTr1m's Base Overlay" version 1.0
 1.2.8.54:
@@ -16,7 +20,7 @@
 1.2.8.50:
 - Alot of scripts are up-to-date
 1.2.8.49:
-- Fix: CPCOpt not working 
+- Fix: CPCOpt not working
 1.2.8.48:
 - Update "C&C:TA CNCOpt Link Button" to version 1.7.6 (support new worlds, by anoek)
 1.2.8.47:
