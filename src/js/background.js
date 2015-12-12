@@ -11,7 +11,7 @@ var DEFAULT_SCRIPTS = [{
 }, {
     id : 138212,
     name : "TACS 3 (Tiberium Alliances Combat Simulator)",
-    version : "3.03b",
+    version : "3.07b",
     enabled : true
 }, {
     id : 137978,

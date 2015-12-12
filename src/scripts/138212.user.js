@@ -3,7 +3,7 @@
 // @description    Allows you to simulate combat before actually attacking.
 // @namespace      https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
 // @include        https://prodgame*.alliances.commandandconquer.com/*/index.aspx*
-// @version        3.03b
+// @version        3.07b
 // @author         WildKatana | Updated by CodeEcho, PythEch, Matthias Fuchs, Enceladus, KRS_L, TheLuminary, Panavia2, Da Xue, MrHIDEn, TheStriker, JDuarteDJ, null
 // @translator     TR: PythEch | DE: Matthias Fuchs & Leafy | PT: JDuarteDJ & Contosbarbudos | IT: Hellcco | NL: SkeeterPan | HU: Mancika | FR: Pyroa & NgXAlex | FI: jipx
 // @grant none
@@ -354,6 +354,7 @@
 					airActivated : null,
 					allActivated : null,
 					toolBar : null,
+					toolBarParent : null,
 					TOOL_BAR_LOW : 113, // hidden
 					TOOL_BAR_HIGH : 155, // popped-up
 					TOOL_BAR_WIDTH : 740,
@@ -1608,7 +1609,7 @@
 							}
 
 							if (this.toolBar) {
-								this._armyBar.getLayoutParent().getLayoutParent().remove(this.toolBar);
+								this.toolBarParent.remove(this.toolBar);
 							}
 
 							if (this.repairInfo) {
@@ -1693,7 +1694,13 @@
 								visibility : false
 							});
 
-							this._armyBar.getLayoutParent().getLayoutParent().add(this.toolBar, {
+							if (PerforceChangelist >= 441272) { // 15.4 patch
+								this.toolBarParent = this._armyBar.getLayoutParent().getLayoutParent().getLayoutParent();
+							} else { //old
+								this.toolBarParent = this._armyBar.getLayoutParent().getLayoutParent();
+							}
+
+							this.toolBarParent.add(this.toolBar, {
 								bottom : this.TOOL_BAR_HIGH,
 								left : (playAreaWidth - this.TOOL_BAR_WIDTH) / 2,
 								visibility : false
@@ -1704,7 +1711,7 @@
 							this.toolBarMouse.setLayout(new qx.ui.layout.Canvas());
 							this.toolBarMouse.setHeight(25);
 							this.toolBarMouse.setWidth(740);
-							this._armyBar.getLayoutParent().getLayoutParent().add(this.toolBarMouse, {
+							this.toolBarParent.add(this.toolBarMouse, {
 								bottom : 155,
 								left : (playAreaWidth - this.TOOL_BAR_WIDTH) / 2
 							});
@@ -3556,6 +3563,22 @@
 								var functionBody = strFunction.substring(strFunction.indexOf("{") + 1, strFunction.lastIndexOf("}"));
 								var fn = Function('a,b,c', functionBody);
 								ClientLib.API.Util.GetUnitRepairCosts = fn;
+							}
+
+							// Solution for OnSimulateBattleFinishedEvent issue
+							for (var key in ClientLib.API.Battleground.prototype) {
+								if (typeof ClientLib.API.Battleground.prototype[key] === 'function') {
+									strFunction = ClientLib.API.Battleground.prototype[key].toString();
+									if (strFunction.indexOf("pavmCombatReplay,-1,0,0,0);") > -1) {
+										strFunction = strFunction.substring(strFunction.indexOf("{") + 1, strFunction.lastIndexOf("}"));
+										var re = /.I.[A-Z]{6}.[A-Z]{6}\(.I.[A-Z]{6}.pavmCombatReplay,-1,0,0,0\)\;/;
+										strFunction = strFunction.replace(re, "");
+										console.log(strFunction);
+										var fn = Function('a,b', strFunction);
+										ClientLib.API.Battleground.prototype[key] = fn;
+										break;
+									}
+								}
 							}
 
 							for (var key in ClientLib.Vis.BaseView.BaseView.prototype) {
